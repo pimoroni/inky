@@ -1,6 +1,5 @@
 import sys
 import time
-import atexit
 import struct
 
 import spidev
@@ -30,9 +29,10 @@ CS0_PIN = 0
 _SPI_COMMAND = GPIO.LOW
 _SPI_DATA = GPIO.HIGH
 
+
 class Inky:
     def __init__(self, resolution=(400, 300), colour='black', cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False):
-	if resolution not in ((400, 300), (104, 212)):
+        if resolution not in ((400, 300), (104, 212)):
             raise ValueError("Resolution {}x{} not supported!".format(*resolution))
 
         self.resolution = resolution
@@ -54,64 +54,63 @@ class Inky:
 
         self._gpio_setup = False
 
-
         self._luts = {
             'black': [
-        # Phase 0     Phase 1     Phase 2     Phase 3     Phase 4     Phase 5     Phase 6
-        # A B C D     A B C D     A B C D     A B C D     A B C D     A B C D     A B C D
-        0b01001000, 0b10100000, 0b00010000, 0b00010000, 0b00010011, 0b00000000, 0b00000000,# 0b00000000, # LUT0 - Black
-        0b01001000, 0b10100000, 0b10000000, 0b00000000, 0b00000011, 0b00000000, 0b00000000,# 0b00000000, # LUTT1 - White
-        0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,# 0b00000000, # IGNORE
-        0b01001000, 0b10100101, 0b00000000, 0b10111011, 0b00000000, 0b00000000, 0b00000000,# 0b00000000, # LUT3 - Red
-        0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,# 0b00000000, # LUT4 - VCOM
+            # Phase 0     Phase 1     Phase 2     Phase 3     Phase 4     Phase 5     Phase 6
+            # A B C D     A B C D     A B C D     A B C D     A B C D     A B C D     A B C D
+            0b01001000, 0b10100000, 0b00010000, 0b00010000, 0b00010011, 0b00000000, 0b00000000,  # LUT0 - Black
+            0b01001000, 0b10100000, 0b10000000, 0b00000000, 0b00000011, 0b00000000, 0b00000000,  # LUTT1 - White
+            0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,  # IGNORE
+            0b01001000, 0b10100101, 0b00000000, 0b10111011, 0b00000000, 0b00000000, 0b00000000,  # LUT3 - Red
+            0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,  # LUT4 - VCOM
 
-#       Duration              |  Repeat
-#       A     B     C     D   |
-        16,   4,    4,    4,     4,  # 0 Flash
-        16,   4,    4,    4,     4,  # 1 clear
-        4,    8,    8,    16,    16, # 2 bring in the black
-        0,    0,    0,    0,     0,  # 3 time for red
-        0,    0,    0,    0,     0,  # 4 final black sharpen phase
-        0,    0,    0,    0,     0,  # 5
-        0,    0,    0,    0,     0,  # 6
+            # Duration            |  Repeat
+            # A   B     C     D   |
+            16,   4,    4,    4,     4,   # 0 Flash
+            16,   4,    4,    4,     4,   # 1 clear
+            4,    8,    8,    16,    16,  # 2 bring in the black
+            0,    0,    0,    0,     0,   # 3 time for red
+            0,    0,    0,    0,     0,   # 4 final black sharpen phase
+            0,    0,    0,    0,     0,   # 5
+            0,    0,    0,    0,     0,   # 6
             ],
             'red': [
-        # Phase 0     Phase 1     Phase 2     Phase 3     Phase 4     Phase 5     Phase 6
-        # A B C D     A B C D     A B C D     A B C D     A B C D     A B C D     A B C D
-        0b01001000, 0b10100000, 0b00010000, 0b00010000, 0b00010011, 0b00000000, 0b00000000,  # LUT0 - Black
-        0b01001000, 0b10100000, 0b10000000, 0b00000000, 0b00000011, 0b00000000, 0b00000000,  # LUTT1 - White
-        0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,  # IGNORE
-        0b01001000, 0b10100101, 0b00000000, 0b10111011, 0b00000000, 0b00000000, 0b00000000,  # LUT3 - Red
-        0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,  # LUT4 - VCOM
+            # Phase 0     Phase 1     Phase 2     Phase 3     Phase 4     Phase 5     Phase 6
+            # A B C D     A B C D     A B C D     A B C D     A B C D     A B C D     A B C D
+            0b01001000, 0b10100000, 0b00010000, 0b00010000, 0b00010011, 0b00000000, 0b00000000,  # LUT0 - Black
+            0b01001000, 0b10100000, 0b10000000, 0b00000000, 0b00000011, 0b00000000, 0b00000000,  # LUTT1 - White
+            0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,  # IGNORE
+            0b01001000, 0b10100101, 0b00000000, 0b10111011, 0b00000000, 0b00000000, 0b00000000,  # LUT3 - Red
+            0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,  # LUT4 - VCOM
 
-#       Duration              |  Repeat
-#       A     B     C     D   |
-        67,   10,   31,   10,    4,  # 0 Flash
-        16,   8,    4,    4,     6,  # 1 clear
-        4,    8,    8,    32,    16, # 2 bring in the black
-        4,    8,    8,    64,    32, # 3 time for red
-        6,    6,    6,    2,     2,  # 4 final black sharpen phase
-        0,    0,    0,    0,     0,  # 5
-        0,    0,    0,    0,     0   # 6
+            # Duration            |  Repeat
+            # A   B     C     D   |
+            67,   10,   31,   10,    4,   # 0 Flash
+            16,   8,    4,    4,     6,   # 1 clear
+            4,    8,    8,    32,    16,  # 2 bring in the black
+            4,    8,    8,    64,    32,  # 3 time for red
+            6,    6,    6,    2,     2,   # 4 final black sharpen phase
+            0,    0,    0,    0,     0,   # 5
+            0,    0,    0,    0,     0    # 6
             ],
             'yellow': [
-        # Phase 0     Phase 1     Phase 2     Phase 3     Phase 4     Phase 5     Phase 6
-        # A B C D     A B C D     A B C D     A B C D     A B C D     A B C D     A B C D
-        0b11111010, 0b10010100, 0b10001100, 0b11000000, 0b11010000,  0b00000000, 0b00000000,  # LUT0 - Black
-        0b11111010, 0b10010100, 0b00101100, 0b10000000, 0b11100000,  0b00000000, 0b00000000,  # LUTT1 - White
-        0b11111010, 0b00000000, 0b00000000, 0b00000000, 0b00000000,  0b00000000, 0b00000000,  # IGNORE
-        0b11111010, 0b10010100, 0b11111000, 0b10000000, 0b01010000,  0b00000000, 0b11001100,  # LUT3 - Yellow (or Red)
-        0b10111111, 0b01011000, 0b11111100, 0b10000000, 0b11010000,  0b00000000, 0b00010001,  # LUT4 - VCOM
+            # Phase 0     Phase 1     Phase 2     Phase 3     Phase 4     Phase 5     Phase 6
+            # A B C D     A B C D     A B C D     A B C D     A B C D     A B C D     A B C D
+            0b11111010, 0b10010100, 0b10001100, 0b11000000, 0b11010000,  0b00000000, 0b00000000,  # LUT0 - Black
+            0b11111010, 0b10010100, 0b00101100, 0b10000000, 0b11100000,  0b00000000, 0b00000000,  # LUTT1 - White
+            0b11111010, 0b00000000, 0b00000000, 0b00000000, 0b00000000,  0b00000000, 0b00000000,  # IGNORE
+            0b11111010, 0b10010100, 0b11111000, 0b10000000, 0b01010000,  0b00000000, 0b11001100,  # LUT3 - Yellow (or Red)
+            0b10111111, 0b01011000, 0b11111100, 0b10000000, 0b11010000,  0b00000000, 0b00010001,  # LUT4 - VCOM
 
-#       Duration              | Repeat
-#       A     B     C     D   |
-        64,   16,   64,   16,   8,
-        8,    16,   4,    4,    16,
-        8,    8,    3,    8,    32,
-        8,    4,    0,    0,    16,
-        16,   8,    8,    0,    32,
-        0,    0,    0,    0,    0,
-        0,    0,    0,    0,    0,
+            # Duration            | Repeat
+            # A   B     C     D   |
+            64,   16,   64,   16,   8,
+            8,    16,   4,    4,    16,
+            8,    8,    3,    8,    32,
+            8,    4,    0,    0,    16,
+            16,   8,    8,    0,    32,
+            0,    0,    0,    0,    0,
+            0,    0,    0,    0,    0,
             ]
         }
 
@@ -144,7 +143,7 @@ class Inky:
     def _update(self, buf_a, buf_b):
         self.setup()
 
-	packed_height = [ord(x) for x in struct.pack("<H", self.height)] 
+        packed_height = [ord(x) for x in struct.pack("<H", self.height)]
 
         self._send_command(0x74, 0x54)  # Set Analog Block Control
         self._send_command(0x7e, 0x3b)  # Set Digital Block Control
@@ -176,7 +175,7 @@ class Inky:
         self._send_command(0x20)  # Trigger Display Update
         time.sleep(0.05)
         self._busy_wait()
-	self._send_command(0x10, 0x01)  # Enter Deep Sleep
+        self._send_command(0x10, 0x01)  # Enter Deep Sleep
 
     def set_pixel(self, x, y, v):
         if v in (WHITE, BLACK, RED):
@@ -193,7 +192,7 @@ class Inky:
 
         buf_a = numpy.packbits(numpy.where(region == RED, 1, 0)).tolist()
         buf_b = numpy.packbits(numpy.where(region == BLACK, 0, 1)).tolist()
-            
+
         self._update(buf_a, buf_b)
 
     def _spi_write(self, dc, values):
@@ -210,5 +209,4 @@ class Inky:
             data = [data]
         for x in range(((len(data) - 1) // 4096) + 1):
             offset = x * 4096
-            self._spi_write(_SPI_DATA, data[offset:offset+4096])
-
+            self._spi_write(_SPI_DATA, data[offset:offset + 4096])
