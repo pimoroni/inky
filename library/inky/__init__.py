@@ -190,8 +190,8 @@ class Inky:
         if self.h_flip:
             region = numpy.flipud(region)
 
-        buf_a = numpy.packbits(numpy.where(region == RED, 1, 0)).tolist()
-        buf_b = numpy.packbits(numpy.where(region == BLACK, 0, 1)).tolist()
+        buf_a = numpy.packbits(numpy.where(region == BLACK, 0, 1)).tolist()
+        buf_b = numpy.packbits(numpy.where(region == RED, 1, 0)).tolist()
 
         self._update(buf_a, buf_b)
 
