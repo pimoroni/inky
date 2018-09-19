@@ -143,7 +143,10 @@ class Inky:
     def _update(self, buf_a, buf_b):
         self.setup()
 
-        packed_height = [ord(x) for x in struct.pack("<H", self.height)]
+        packed_height = list(struct.pack("<H", self.height))
+
+        if isinstance(packed_height[0], str):
+            packed_height = map(ord, packed_height)
 
         self._send_command(0x74, 0x54)  # Set Analog Block Control
         self._send_command(0x7e, 0x3b)  # Set Digital Block Control
@@ -161,7 +164,7 @@ class Inky:
 
         self._send_command(0x32, self._luts[self.colour])  # Set LUTs
 
-        self._send_command(0x44, [0x00, (self.width / 8) - 1])  # Set RAM X Start/End
+        self._send_command(0x44, [0x00, (self.width // 8) - 1])  # Set RAM X Start/End
         self._send_command(0x45, [0x00, 0x00] + packed_height)  # Set RAM Y Start/End
 
         # 0x24 == RAM B/W, 0x26 == RAM Red/Yellow/etc
