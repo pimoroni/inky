@@ -26,6 +26,7 @@ MOSI_PIN = 10
 SCLK_PIN = 11
 CS0_PIN = 0
 
+_SPI_CHUNK_SIZE = 4096
 _SPI_COMMAND = GPIO.LOW
 _SPI_DATA = GPIO.HIGH
 
@@ -200,7 +201,12 @@ class Inky:
 
     def _spi_write(self, dc, values):
         GPIO.output(self.dc_pin, dc)
-        self._spi.xfer(values)
+        try:
+            self._spi.xfer3(values)
+        except AttributeError:
+            for x in range(((len(values) - 1) // _SPI_CHUNK_SIZE) + 1):
+                offset = x * _SPI_CHUNK_SIZE
+                self._spi.xfer(values[offset:offset + _SPI_CHUNK_SIZE])
 
     def _send_command(self, command, data=None):
         self._spi_write(_SPI_COMMAND, [command])
@@ -210,6 +216,4 @@ class Inky:
     def _send_data(self, data):
         if isinstance(data, int):
             data = [data]
-        for x in range(((len(data) - 1) // 4096) + 1):
-            offset = x * 4096
-            self._spi_write(_SPI_DATA, data[offset:offset + 4096])
+        self._spi_write(_SPI_DATA, data)
