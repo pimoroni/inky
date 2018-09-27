@@ -1,0 +1,5 @@
+include CHANGELOG.txt
+include LICENSE.txt
+include README.rst
+include setup.py
+recursive-include inky *.py
