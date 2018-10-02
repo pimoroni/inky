@@ -30,14 +30,19 @@ _SPI_CHUNK_SIZE = 4096
 _SPI_COMMAND = GPIO.LOW
 _SPI_DATA = GPIO.HIGH
 
+_RESOLUTION = {
+    (400, 300): (400, 300, 0),
+    (212, 104): (104, 212, -90),
+}
 
 class Inky:
     def __init__(self, resolution=(400, 300), colour='black', cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False):
-        if resolution not in ((400, 300), (104, 212)):
+        if resolution not in _RESOLUTION.keys():
             raise ValueError("Resolution {}x{} not supported!".format(*resolution))
 
         self.resolution = resolution
         self.width, self.height = resolution
+        self.cols, self.rows, self.rotation = _RESOLUTION[resolution]
 
         if colour not in ('red', 'black', 'yellow'):
             raise ValueError("Colour {} is not supported!".format(colour))
@@ -145,7 +150,7 @@ class Inky:
     def _update(self, buf_a, buf_b):
         self.setup()
 
-        packed_height = list(struct.pack("<H", self.height))
+        packed_height = list(struct.pack("<H", self.rows))
 
         if isinstance(packed_height[0], str):
             packed_height = map(ord, packed_height)
@@ -164,9 +169,20 @@ class Inky:
         self._send_command(0x04)  # Power On
         self._send_command(0x2c, 0x3c)  # VCOM Register, 0x3c = -1.5v?
 
+
+        self._send_command(0x3c, 0x00)
+        if self.border_colour == self.BLACK:
+            self._send_command(0x3c, 0x00)
+        elif self.border_colour == self.RED:
+            self._send_command(0x3c, 0x33)
+        elif self.border_colour == self.YELLOW:
+            self._send_command(0x3c, 0x33)
+        elif self.border_colour == self.WHITE:
+            self._send_command(0x3c, 0xFF)
+
         self._send_command(0x32, self._luts[self.colour])  # Set LUTs
 
-        self._send_command(0x44, [0x00, (self.width // 8) - 1])  # Set RAM X Start/End
+        self._send_command(0x44, [0x00, (self.cols // 8) - 1])  # Set RAM X Start/End
         self._send_command(0x45, [0x00, 0x00] + packed_height)  # Set RAM Y Start/End
 
         # 0x24 == RAM B/W, 0x26 == RAM Red/Yellow/etc
@@ -194,6 +210,9 @@ class Inky:
 
         if self.h_flip:
             region = numpy.flipud(region)
+
+        if self.rotation:
+            region = numpy.rot90(region, self.rotation // 90)
 
         buf_a = numpy.packbits(numpy.where(region == BLACK, 0, 1)).tolist()
         buf_b = numpy.packbits(numpy.where(region == RED, 1, 0)).tolist()

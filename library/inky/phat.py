@@ -11,5 +11,5 @@ class InkyPHAT(inky.Inky):
     YELLOW = 2
 
     def __init__(self, colour):
-        inky.Inky.__init__(self, resolution=(self.HEIGHT, self.WIDTH), colour=colour, h_flip=False, v_flip=True) 
+        inky.Inky.__init__(self, resolution=(self.WIDTH, self.HEIGHT), colour=colour, h_flip=False, v_flip=False) 
 
