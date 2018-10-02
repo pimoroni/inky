@@ -5,9 +5,7 @@ import sys
 
 sys.path.insert(0, '../library/')
 
-from inky import phat as inkyphat
-
-inkyphat.set_colour('yellow')
+from inky import InkyPHAT
 
 print("""Inky pHAT: Logo
 
@@ -22,7 +20,8 @@ if len(sys.argv) < 2:
     sys.exit(0)
 
 colour = sys.argv[1].lower()
-inkyphat.set_colour(colour)
+
+inkyphat = InkyPHAT(colour)
 
 inkyphat.set_border(inkyphat.BLACK)
 

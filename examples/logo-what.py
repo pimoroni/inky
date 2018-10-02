@@ -3,11 +3,8 @@
 from PIL import Image
 import sys
 
-sys.path.insert(0, '../library/')
 
-from inky import what as inkywhat
-
-inkywhat.set_colour('yellow')
+from inky import InkyWHAT
 
 print("""Inky wHAT: Logo
 
@@ -22,7 +19,8 @@ if len(sys.argv) < 2:
     sys.exit(0)
 
 colour = sys.argv[1].lower()
-inkywhat.set_colour(colour)
+
+inkywhat = InkyWHAT(colour)
 
 inkywhat.set_border(inkywhat.BLACK)
 
