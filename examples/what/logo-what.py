@@ -3,8 +3,10 @@
 from PIL import Image
 import sys
 
+sys.path.insert(0, '../library/')
 
 from inky import InkyWHAT
+
 
 print("""Inky wHAT: Logo
 
@@ -19,7 +21,6 @@ if len(sys.argv) < 2:
     sys.exit(0)
 
 colour = sys.argv[1].lower()
-
 inkywhat = InkyWHAT(colour)
 
 inkywhat.set_border(inkywhat.BLACK)
@@ -27,7 +28,7 @@ inkywhat.set_border(inkywhat.BLACK)
 if colour == 'black':
     img = Image.open("InkyPhat-212x104-bw.png")
 else:
-    img = Image.open("InkyPhat-212x104.png")
+    img = Image.open("InkywHAT-400x300.png")
 
 inkywhat.set_image(img)
 

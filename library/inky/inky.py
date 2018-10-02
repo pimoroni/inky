@@ -94,8 +94,8 @@ class Inky:
             # A   B     C     D   |
             67,   10,   31,   10,    4,   # 0 Flash
             16,   8,    4,    4,     6,   # 1 clear
-            4,    8,    8,    32,    16,  # 2 bring in the black
-            4,    8,    8,    64,    32,  # 3 time for red
+            4,    8,    8,    16,    16,  # 2 bring in the black
+            2,    4,    4,    64,    32,  # 3 time for red
             6,    6,    6,    2,     2,   # 4 final black sharpen phase
             0,    0,    0,    0,     0,   # 5
             0,    0,    0,    0,     0    # 6
