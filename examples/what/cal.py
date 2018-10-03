@@ -8,9 +8,7 @@ import sys
 
 from PIL import Image, ImageFont, ImageDraw
 
-sys.path.insert(0, '../../library')
-
-from inky import what as inkywhat
+from inky import InkyWHAT
 
 print("""Inky pHAT: Calendar
 
@@ -31,9 +29,10 @@ if len(sys.argv) < 2:
     sys.exit(0)
 
 colour = sys.argv[1]
-inkywhat.set_colour(colour)
 
-inkywhat.set_border(inkywhat.BLACK)
+inkywhat = InkyWHAT(colour)
+
+inkywhat.set_border(inkywhat.RED)
 #inkywhat.set_rotation(180)
 
 # Load our sprite sheet and prepare a mask

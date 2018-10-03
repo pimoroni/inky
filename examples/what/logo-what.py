@@ -1,15 +1,12 @@
 #!/usr/bin/env python
 
 from PIL import Image
-import sys
+from inky import InkyWHAT
 
-sys.path.insert(0, '../library/')
 
-from inky import InkyPHAT
+print("""Inky wHAT: Logo
 
-print("""Inky pHAT: Logo
-
-Displays the Inky pHAT logo.
+Displays the Inky wHAT logo.
 
 """)
 
@@ -20,16 +17,15 @@ if len(sys.argv) < 2:
     sys.exit(0)
 
 colour = sys.argv[1].lower()
+inkywhat = InkyWHAT(colour)
 
-inkyphat = InkyPHAT(colour)
-
-inkyphat.set_border(inkyphat.BLACK)
+inkywhat.set_border(inkywhat.BLACK)
 
 if colour == 'black':
     img = Image.open("InkyPhat-212x104-bw.png")
 else:
-    img = Image.open("InkyPhat-212x104.png")
+    img = Image.open("InkywHAT-400x300.png")
 
-inkyphat.set_image(img)
+inkywhat.set_image(img)
 
-inkyphat.show()
+inkywhat.show()
