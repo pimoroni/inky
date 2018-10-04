@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import argparse
 import random
@@ -6,8 +7,7 @@ import random
 from inky import InkyWHAT
 
 from PIL import Image, ImageFont, ImageDraw
-from font_hanken_grotesk import HankenGroteskBold, HankenGroteskMedium
-from font_intuitive import Intuitive
+# from font_hanken_grotesk import HankenGroteskBold, HankenGroteskMedium
 
 print("""Inky wHAT: Quotes
 
@@ -28,9 +28,9 @@ args = parser.parse_args()
 
 colour = args.colour
 
-def paginate_quote(quote, width, font):
+def reflow_quote(quote, width, font):
     words = quote.split(" ")
-    paginated = '"'
+    reflowed = '"'
     line_length = 0
 
     for i in range(len(words)):
@@ -39,14 +39,14 @@ def paginate_quote(quote, width, font):
         line_length += word_length
 
         if line_length < width:
-            paginated  += word
+            reflowed  += word
         else:
             line_length = word_length
-            paginated = paginated[:-1] + "\n " + word
+            reflowed = reflowed[:-1] + "\n  " + word
 
-    paginated = paginated.rstrip() + '"'
+    reflowed = reflowed.rstrip() + '"'
 
-    return paginated
+    return reflowed
 
 # Set up the correct display and scaling factors
 
@@ -65,48 +65,56 @@ draw = ImageDraw.Draw(img)
 
 font_size = 24
 
-author_font = ImageFont.truetype("/home/pi/fonts/caladea-italic.ttf", font_size)
-quote_font = ImageFont.truetype(HankenGroteskBold, font_size)
+author_font = ImageFont.truetype("/home/pi/fonts/SourceSerifPro-Semibold.ttf", font_size)
+quote_font = ImageFont.truetype("/home/pi/fonts/SourceSansPro-Semibold.ttf", font_size)
 
 people = [
     "Ada Lovelace",
     "Albert Einstein",
     "Carl Sagan",
+    "Grace Hopper",
     "Isaac Newton",
     "Marie Curie",
     "Michael Faraday",
     "Rosalind Franklin"
 ]
 
-max_width = w - 30
-max_height = h - font_size
+padding = 30
+max_width = w - padding
+max_height = h - padding - author_font.getsize("ABCD ")[1]
 
-suitable_quote = False
+below_max_length = False
 
-while not suitable_quote:
+while not below_max_length:
     person = random.choice(people)
     quote = wikiquotes.random_quote(person, "english")
 
-    paginated = paginate_quote(quote, max_width, quote_font)
-    p_w, p_h = quote_font.getsize(paginated)
-    p_h = p_h * (paginated.count("\n") + 1)
+    reflowed = reflow_quote(quote, max_width, quote_font)
+    p_w, p_h = quote_font.getsize(reflowed)
+    p_h = p_h * (reflowed.count("\n") + 1)
 
     if p_h < max_height:
-        suitable_quote = True
+        below_max_length = True
 
     else:
         continue
 
 quote_x = (w - max_width) / 2
-quote_y = ((h - max_height) + (max_height - p_h)) / 2
+quote_y = ((h - max_height) + (max_height - p_h - author_font.getsize("ABCD ")[1])) / 2
 
 author_x = quote_x
 author_y = quote_y + p_h
 
 author = "- " + person
 
-draw.multiline_text((quote_x, quote_y), paginated, fill=inky_display.BLACK, font=quote_font, align="left")
+draw.multiline_text((quote_x, quote_y), reflowed, fill=inky_display.BLACK, font=quote_font, align="left")
 draw.multiline_text((author_x, author_y), author, fill=inky_display.RED, font=author_font, align="left")
+
+h_line_length = int(w / 4.0)
+v_line_length = int(h / 20.0)
+
+draw.rectangle((padding / 4, padding / 4, w - (padding / 4), quote_y - (padding / 4)), fill=inky_display.RED)
+draw.rectangle((padding / 4, author_y + author_font.getsize("ABCD ")[1] + (padding / 4) + 5, w - (padding / 4), h - (padding / 4)), fill=inky_display.RED)
+
 inky_display.set_image(img)
 inky_display.show()
-
