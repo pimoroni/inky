@@ -3,7 +3,7 @@
 
 import time
 import argparse
-import sys
+from PIL import Image
 
 print("""Inky pHAT: Clean
 
@@ -35,6 +35,8 @@ else:
 colours = (inky_display.RED, inky_display.BLACK, inky_display.WHITE)
 colour_names= (colour, "black", "white")
 
+img = Image.new("P", (inky_display.WIDTH, inky_display.HEIGHT))
+
 for i in range(cycles):
     print("Cleaning cycle %i\n" % (i + 1))
     for j, c in enumerate(colours):
@@ -42,7 +44,8 @@ for i in range(cycles):
         inky_display.set_border(c)
         for x in range(inky_display.WIDTH):
             for y in range(inky_display.HEIGHT):
-                inky_display.set_pixel(x, y, c)
+                img.putpixel((x, y), c)
+        inky_display.set_image(img)
         inky_display.show()
         time.sleep(1)
     print("\n")
