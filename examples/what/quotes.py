@@ -70,12 +70,12 @@ quote_font = ImageFont.truetype("/home/pi/fonts/SourceSansPro-Semibold.ttf", fon
 
 people = [
     "Ada Lovelace",
-    "Albert Einstein",
     "Carl Sagan",
     "Grace Hopper",
     "Isaac Newton",
     "Marie Curie",
     "Michael Faraday",
+    "Niels Bohr",
     "Rosalind Franklin"
 ]
 
