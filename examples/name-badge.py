@@ -12,8 +12,6 @@ Use Inky pHAT/wHAT as a personalised name badge!
 
 """)
 
-#inkyphat.set_rotation(180)
-
 # Command line arguments to set display type and colour, and enter your name
 
 parser = argparse.ArgumentParser()
@@ -37,6 +35,7 @@ elif args.type == "what":
     scale_size = 2.20
     padding = 15
 
+#inky_display.set_rotation(180)
 inky_display.set_border(inky_display.RED)
 
 # Create a new canvas to draw on
@@ -98,3 +97,4 @@ draw.text((name_x, name_y), name, inky_display.BLACK, font=intuitive_font)
 
 inky_display.set_image(img)
 inky_display.show()
+

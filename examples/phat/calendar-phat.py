@@ -18,14 +18,17 @@ composited over the background in a couple of different ways.
 
 """)
 
+# Command line arguments to set display type and colour
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--colour', '-c', type=str, required=True, choices=["red", "black", "yellow"], help="ePaper display colour")
 args = parser.parse_args()
 
 colour = args.colour
 
-inky_display = InkyPHAT(colour)
+# Set up the display
 
+inky_display = InkyPHAT(colour)
 inky_display.set_border(inky_display.BLACK)
 #inky_display.set_rotation(180)
 
@@ -77,8 +80,7 @@ text = Image.open("resources/calendar.png")
 text_mask = create_mask(text, [inky_display.WHITE])
 
 # Note: The mask determines which pixels from our sprite sheet we want
-# to actually use when calling inkyphat.paste
-# which uses PIL's Image.paste() method,
+# to actually use when calling img.paste().
 # See: http://pillow.readthedocs.io/en/3.1.x/reference/Image.html?highlight=paste#PIL.Image.Image.paste
 
 # Load our backdrop image
@@ -137,8 +139,6 @@ img.paste(inky_display.WHITE, (monthyear_x, cal_y + 4), month_mask)
 # Print the year right below the month
 print_number((monthyear_x, cal_y + 5 + col_h), now.year, inky_display.WHITE)
 
-
-
 # Draw the vertical lines which separate the columns
 # and also draw the day names into the table header
 for x in range(cols):
@@ -184,7 +184,6 @@ for row, week in enumerate(dates):
         else:
             print_number((x+3, y+3), day.day, inky_display.WHITE if day.month == now.month else inky_display.RED)
 
-
-# And show it!
+# Display the completed calendar on Inky pHAT
 inky_display.set_image(img)
 inky_display.show()

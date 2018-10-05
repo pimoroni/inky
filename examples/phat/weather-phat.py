@@ -21,18 +21,26 @@ Displays weather information for a given location. The default location is Sheff
 
 """)
 
+# Command line arguments to set display colour
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--colour', '-c', type=str, required=True, choices=["red", "black", "yellow"], help="ePaper display colour")
 args = parser.parse_args()
+
+# Set up the display
 
 colour = args.colour
 inky_display = InkyPHAT(colour)
 inky_display.set_border(inky_display.BLACK)
 
+# Details to customise your weather display
+
 CITY = "Sheffield"
 COUNTRYCODE = "GB"
 WARNING_TEMP = 25.0
 
+# You can use this function to automatically find your location
+# based on your IP address
 
 def get_location():
     res = requests.get('http://ipinfo.io')
@@ -41,7 +49,7 @@ def get_location():
         return json_data
     return {}
 
-# Python 2 vs 3 breaking changes.
+# Python 2 vs 3 breaking changes
 
 def encode(qs):
     val = ""
@@ -50,6 +58,8 @@ def encode(qs):
     except:
         val = urllib.parse.urlencode(qs).replace("+", "%20")
     return val
+
+# Query the Yahoo weather API to get current weather data
 
 def get_weather(address):
     base = "https://query.yahooapis.com/v1/public/yql?"
@@ -85,12 +95,18 @@ def create_mask(source, mask=(inky_display.WHITE, inky_display.BLACK, inky_displ
 
     return mask_image
 
+# Dictionaries to store our icons and icon masks in
+
 icons = {}
 masks = {}
 
-location_string = "{city}, {countrycode}".format(city=CITY, countrycode=COUNTRYCODE)
+# Get the weather data for the given location
 
+location_string = "{city}, {countrycode}".format(city=CITY, countrycode=COUNTRYCODE)
 weather = get_weather(location_string)
+
+# This maps the weather codes from the Yahoo weather API
+# to the appropriate weather icons
 
 icon_map = {
 	"snow": [5, 6, 7, 8, 10, 13, 14, 15, 16, 17, 18, 41, 42, 43, 46],
@@ -101,9 +117,13 @@ icon_map = {
         "wind": [23, 24]
 }
 
+# Placeholder variables
+
 pressure = 0
 temperature = 0
 weather_icon = None
+
+# Pull out the appropriate values from the weather data
 
 if "channel" in weather["query"]["results"]:
     results = weather["query"]["results"]["channel"]
@@ -125,22 +145,25 @@ img = Image.open("resources/backdrop.png")
 draw = ImageDraw.Draw(img)
 
 # Load our icon files and generate masks
+
 for icon in glob.glob("resources/icon-*.png"):
     icon_name = icon.split("icon-")[1].replace(".png", "")
     icon_image = Image.open(icon)
     icons[icon_name] = icon_image
     masks[icon_name] = create_mask(icon_image)
 
-# Load the built-in FredokaOne font
+# Load the FredokaOne font
+
 font = ImageFont.truetype(FredokaOne, 22)
 
-# Let's draw some lines!
+# Draw lines to frame the weather data
+
 draw.line((69, 36, 69, 81)) # Vertical line
 draw.line((31, 35, 184, 35)) # Horizontal top line
 draw.line((69, 58, 174, 58)) # Horizontal middle line
 draw.line((169, 58, 169, 58), 2) # Red seaweed pixel :D
 
-# And now some text
+# Write text with weather values to the canvas
 
 datetime = time.strftime("%d/%m %H:%M")
 
@@ -153,12 +176,13 @@ draw.text((72, 58), "P", inky_display.WHITE, font=font)
 draw.text((92, 58), "{}".format(pressure), inky_display.WHITE, font=font)
 
 # Draw the current weather icon over the backdrop
+
 if weather_icon is not None:
     img.paste(icons[weather_icon], (28, 36), masks[weather_icon])
 
 else:
     draw.text((28, 36), "?", inky_display.RED, font=font)
 
-# And show it!
+# Display the weather data on Inky pHAT
 inky_display.set_image(img)
 inky_display.show()

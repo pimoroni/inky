@@ -12,6 +12,8 @@ display of any ghosting.
 
 """)
 
+# Command line arguments to set display type and colour, and number of cycles to run
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--type', '-t', type=str, required=True, choices=["what", "phat"], help="type of display")
 parser.add_argument('--colour', '-c', type=str, required=True, choices=["red", "black", "yellow"], help="ePaper display colour")
@@ -20,12 +22,16 @@ args = parser.parse_args()
 
 colour = args.colour
 
+# Set up the correct display and scaling factors
+
 if args.type == "phat":
     from inky import InkyPHAT
     inky_display = InkyPHAT(colour)
 elif args.type == "what":
     from inky import InkyWHAT
     inky_display = InkyWHAT(colour)
+
+# The number of red / black / white refreshes to run
 
 if args.number:
     cycles = args.number
@@ -35,7 +41,12 @@ else:
 colours = (inky_display.RED, inky_display.BLACK, inky_display.WHITE)
 colour_names= (colour, "black", "white")
 
+# Create a new canvas to draw on
+
 img = Image.new("P", (inky_display.WIDTH, inky_display.HEIGHT))
+
+# Loop through the specified number of cycles and completely
+# fill the display with each colour in turn.
 
 for i in range(cycles):
     print("Cleaning cycle %i\n" % (i + 1))

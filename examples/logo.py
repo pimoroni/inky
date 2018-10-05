@@ -11,12 +11,16 @@ Displays the Inky pHAT/wHAT logo.
 
 """)
 
+# Command line arguments to set display type and colour
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--type', '-t', type=str, required=True, choices=["what", "phat"], help="type of display")
 parser.add_argument('--colour', '-c', type=str, required=True, choices=["red", "black", "yellow"], help="ePaper display colour")
 args = parser.parse_args()
 
 colour = args.colour
+
+# Set up the correct display and scaling factors
 
 if args.type == "phat":
     from inky import InkyPHAT
@@ -27,6 +31,8 @@ elif args.type == "what":
 
 inky_display.set_border(inky_display.BLACK)
 
+# Pick the correct logo image to show depending on display type/colour
+
 if args.type == "phat":
     if colour == 'black':
         img = Image.open("phat/resources/InkyPhat-212x104-bw.png")
@@ -35,6 +41,7 @@ if args.type == "phat":
 elif args.type == "what":
     img = Image.open("what/resources/InkywHAT-400x300.png")
 
-inky_display.set_image(img)
+# Display the logo image
 
+inky_display.set_image(img)
 inky_display.show()
