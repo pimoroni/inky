@@ -3,6 +3,7 @@
 
 import time
 import argparse
+from inky import InkyPHAT, InkyWHAT
 from PIL import Image
 
 print("""Inky pHAT: Clean
@@ -25,10 +26,8 @@ colour = args.colour
 # Set up the correct display and scaling factors
 
 if args.type == "phat":
-    from inky import InkyPHAT
     inky_display = InkyPHAT(colour)
 elif args.type == "what":
-    from inky import InkyWHAT
     inky_display = InkyWHAT(colour)
 
 # The number of red / black / white refreshes to run
@@ -39,7 +38,7 @@ else:
     cycles = 3
 
 colours = (inky_display.RED, inky_display.BLACK, inky_display.WHITE)
-colour_names= (colour, "black", "white")
+colour_names = (colour, "black", "white")
 
 # Create a new canvas to draw on
 

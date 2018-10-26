@@ -32,6 +32,7 @@ colour = args.colour
 # it into, and a font (one that's been loaded) and then reflow
 # that quote with newlines to fit into the space required.
 
+
 def reflow_quote(quote, width, font):
     words = quote.split(" ")
     reflowed = '"'
@@ -43,7 +44,7 @@ def reflow_quote(quote, width, font):
         line_length += word_length
 
         if line_length < width:
-            reflowed  += word
+            reflowed += word
         else:
             line_length = word_length
             reflowed = reflowed[:-1] + "\n  " + word
@@ -52,11 +53,11 @@ def reflow_quote(quote, width, font):
 
     return reflowed
 
-# Set up the correct display and scaling factors
 
+# Set up the correct display and scaling factors
 inky_display = InkyWHAT(colour)
 inky_display.set_border(inky_display.WHITE)
-#inky_display.set_rotation(180)
+# inky_display.set_rotation(180)
 
 w = inky_display.WIDTH
 h = inky_display.HEIGHT
@@ -75,7 +76,7 @@ quote_font = ImageFont.truetype(SourceSansProSemibold, font_size)
 
 
 # A list of famous scientists to search for quotes from
-# on https://en.wikiquote.org. Change them to your 
+# on https://en.wikiquote.org. Change them to your
 # favourite people, if you like!
 
 people = [
@@ -113,15 +114,15 @@ below_max_length = False
 # once rendered in the font and size defined.
 
 while not below_max_length:
-    person = random.choice(people) # Pick a random person from our list
+    person = random.choice(people)           # Pick a random person from our list
     quote = wikiquotes.random_quote(person, "english")
 
     reflowed = reflow_quote(quote, max_width, quote_font)
-    p_w, p_h = quote_font.getsize(reflowed) # Width and height of quote
-    p_h = p_h * (reflowed.count("\n") + 1) # Multiply through by number of lines
+    p_w, p_h = quote_font.getsize(reflowed)  # Width and height of quote
+    p_h = p_h * (reflowed.count("\n") + 1)   # Multiply through by number of lines
 
     if p_h < max_height:
-        below_max_length = True # The quote fits! Break out of the loop.
+        below_max_length = True              # The quote fits! Break out of the loop.
 
     else:
         continue

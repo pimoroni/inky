@@ -39,9 +39,9 @@ CITY = "Sheffield"
 COUNTRYCODE = "GB"
 WARNING_TEMP = 25.0
 
+
 # You can use this function to automatically find your location
 # based on your IP address
-
 def get_location():
     res = requests.get('http://ipinfo.io')
     if(res.status_code == 200):
@@ -49,31 +49,32 @@ def get_location():
         return json_data
     return {}
 
-# Python 2 vs 3 breaking changes
 
+# Python 2 vs 3 breaking changes
 def encode(qs):
     val = ""
     try:
-        val = urllib.urlencode(qs).replace("+","%20")
-    except:
+        val = urllib.urlencode(qs).replace("+", "%20")
+    except AttributeError:
         val = urllib.parse.urlencode(qs).replace("+", "%20")
     return val
 
-# Query the Yahoo weather API to get current weather data
 
+# Query the Yahoo weather API to get current weather data
 def get_weather(address):
     base = "https://query.yahooapis.com/v1/public/yql?"
-    query = "select * from weather.forecast where woeid in (select woeid from geo.places(1) where text=\""+address+"\")"
-    qs={"q": query, "format": "json", "env": "store://datatables.org/alltableswithkeys"}
+    query = "select * from weather.forecast where woeid in (select woeid from geo.places(1) where text=\"{}\")".format(address)
+    qs = {"q": query, "format": "json", "env": "store://datatables.org/alltableswithkeys"}
 
     uri = base + encode(qs)
 
     res = requests.get(uri)
-    if(res.status_code==200):
+    if res.status_code == 200:
         json_data = json.loads(res.text)
         return json_data
 
     return {}
+
 
 def create_mask(source, mask=(inky_display.WHITE, inky_display.BLACK, inky_display.RED)):
     """Create a transparency mask.
@@ -95,36 +96,32 @@ def create_mask(source, mask=(inky_display.WHITE, inky_display.BLACK, inky_displ
 
     return mask_image
 
-# Dictionaries to store our icons and icon masks in
 
+# Dictionaries to store our icons and icon masks in
 icons = {}
 masks = {}
 
 # Get the weather data for the given location
-
 location_string = "{city}, {countrycode}".format(city=CITY, countrycode=COUNTRYCODE)
 weather = get_weather(location_string)
 
 # This maps the weather codes from the Yahoo weather API
 # to the appropriate weather icons
-
 icon_map = {
-	"snow": [5, 6, 7, 8, 10, 13, 14, 15, 16, 17, 18, 41, 42, 43, 46],
-	"rain": [9, 11, 12],
-	"cloud": [19, 20, 21, 22, 25, 26, 27, 28, 29, 30, 44],
-	"sun": [32, 33, 34, 36],
-	"storm": [0, 1, 2, 3, 4, 37, 38, 39, 45, 47],
-        "wind": [23, 24]
+    "snow": [5, 6, 7, 8, 10, 13, 14, 15, 16, 17, 18, 41, 42, 43, 46],
+    "rain": [9, 11, 12],
+    "cloud": [19, 20, 21, 22, 25, 26, 27, 28, 29, 30, 44],
+    "sun": [32, 33, 34, 36],
+    "storm": [0, 1, 2, 3, 4, 37, 38, 39, 45, 47],
+    "wind": [23, 24]
 }
 
 # Placeholder variables
-
 pressure = 0
 temperature = 0
 weather_icon = None
 
 # Pull out the appropriate values from the weather data
-
 if "channel" in weather["query"]["results"]:
     results = weather["query"]["results"]["channel"]
     pressure = results["atmosphere"]["pressure"]
@@ -140,12 +137,10 @@ else:
     print("Warning, no weather information found!")
 
 # Create a new canvas to draw on
-
 img = Image.open("resources/backdrop.png")
 draw = ImageDraw.Draw(img)
 
 # Load our icon files and generate masks
-
 for icon in glob.glob("resources/icon-*.png"):
     icon_name = icon.split("icon-")[1].replace(".png", "")
     icon_image = Image.open(icon)
@@ -153,18 +148,15 @@ for icon in glob.glob("resources/icon-*.png"):
     masks[icon_name] = create_mask(icon_image)
 
 # Load the FredokaOne font
-
 font = ImageFont.truetype(FredokaOne, 22)
 
 # Draw lines to frame the weather data
-
-draw.line((69, 36, 69, 81)) # Vertical line
-draw.line((31, 35, 184, 35)) # Horizontal top line
-draw.line((69, 58, 174, 58)) # Horizontal middle line
-draw.line((169, 58, 169, 58), 2) # Red seaweed pixel :D
+draw.line((69, 36, 69, 81))       # Vertical line
+draw.line((31, 35, 184, 35))      # Horizontal top line
+draw.line((69, 58, 174, 58))      # Horizontal middle line
+draw.line((169, 58, 169, 58), 2)  # Red seaweed pixel :D
 
 # Write text with weather values to the canvas
-
 datetime = time.strftime("%d/%m %H:%M")
 
 draw.text((36, 12), datetime, inky_display.WHITE, font=font)
@@ -176,7 +168,6 @@ draw.text((72, 58), "P", inky_display.WHITE, font=font)
 draw.text((92, 58), "{}".format(pressure), inky_display.WHITE, font=font)
 
 # Draw the current weather icon over the backdrop
-
 if weather_icon is not None:
     img.paste(icons[weather_icon], (28, 36), masks[weather_icon])
 

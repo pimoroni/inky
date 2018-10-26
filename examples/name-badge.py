@@ -5,6 +5,7 @@ import argparse
 from PIL import Image, ImageFont, ImageDraw
 from font_hanken_grotesk import HankenGroteskBold, HankenGroteskMedium
 from font_intuitive import Intuitive
+from inky import InkyPHAT, InkyWHAT
 
 print("""Inky pHAT/wHAT: Hello... my name is:
 
@@ -25,17 +26,15 @@ colour = args.colour
 # Set up the correct display and scaling factors
 
 if args.type == "phat":
-    from inky import InkyPHAT
     inky_display = InkyPHAT(colour)
     scale_size = 1
     padding = 0
 elif args.type == "what":
-    from inky import InkyWHAT
     inky_display = InkyWHAT(colour)
     scale_size = 2.20
     padding = 15
 
-#inky_display.set_rotation(180)
+# inky_display.set_rotation(180)
 inky_display.set_border(inky_display.RED)
 
 # Create a new canvas to draw on
@@ -97,4 +96,3 @@ draw.text((name_x, name_y), name, inky_display.BLACK, font=intuitive_font)
 
 inky_display.set_image(img)
 inky_display.show()
-

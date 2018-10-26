@@ -2,11 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import datetime
-import time
 import calendar
 import argparse
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 
 from inky import InkyPHAT
 
@@ -30,10 +29,12 @@ colour = args.colour
 
 inky_display = InkyPHAT(colour)
 inky_display.set_border(inky_display.BLACK)
-#inky_display.set_rotation(180)
+# inky_display.set_rotation(180)
+
 
 def create_mask(source, mask=(inky_display.WHITE, inky_display.BLACK, inky_display.RED)):
     """Create a transparency mask.
+
     Takes a paletized source image and converts it into a mask
     permitting all the colours supported by Inky pHAT (0, 1, 2)
     or an optional list of allowed colours.
@@ -49,8 +50,10 @@ def create_mask(source, mask=(inky_display.WHITE, inky_display.BLACK, inky_displ
 
     return mask_image
 
+
 def print_digit(position, digit, colour):
     """Print a single digit using the sprite sheet.
+
     Each number is grabbed from the masked sprite sheet,
     and then used as a mask to paste the desired colour
     onto Inky pHATs image buffer.
@@ -68,12 +71,13 @@ def print_digit(position, digit, colour):
 
     img.paste(colour, (o_x, o_y), sprite)
 
-def print_number(position, number, colour):
-    """Prints a number using the sprite sheet."""
 
+def print_number(position, number, colour):
+    """Print a number using the sprite sheet."""
     for digit in str(number):
         print_digit(position, int(digit), colour)
         position = (position[0] + 8, position[1])
+
 
 # Load our sprite sheet and prepare a mask
 text = Image.open("resources/calendar.png")
@@ -177,12 +181,12 @@ for row, week in enumerate(dates):
         # If it's the current day, invert the calendar background and text
         if (day.day, day.month) == (now.day, now.month):
             draw.rectangle((x, y, x + col_w - 1, y + col_h - 1), fill=inky_display.WHITE)
-            print_number((x+3, y+3), day.day, inky_display.BLACK)
+            print_number((x + 3, y + 3), day.day, inky_display.BLACK)
 
         # If it's any other day, paint in as white if it's in the current month
         # and red if it's in the previous or next month
         else:
-            print_number((x+3, y+3), day.day, inky_display.WHITE if day.month == now.month else inky_display.RED)
+            print_number((x + 3, y + 3), day.day, inky_display.WHITE if day.month == now.month else inky_display.RED)
 
 # Display the completed calendar on Inky pHAT
 inky_display.set_image(img)

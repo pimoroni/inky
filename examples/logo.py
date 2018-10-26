@@ -2,7 +2,7 @@
 
 import argparse
 from PIL import Image
-from inky import InkyWHAT
+from inky import InkyWHAT, InkyPHAT
 
 
 print("""Inky pHAT/wHAT: Logo
@@ -23,10 +23,8 @@ colour = args.colour
 # Set up the correct display and scaling factors
 
 if args.type == "phat":
-    from inky import InkyPHAT
     inky_display = InkyPHAT(colour)
 elif args.type == "what":
-    from inky import InkyWHAT
     inky_display = InkyWHAT(colour)
 
 inky_display.set_border(inky_display.BLACK)
