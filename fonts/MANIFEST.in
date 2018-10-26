@@ -1,7 +1,0 @@
-include CHANGELOG.txt
-include LICENSE.txt
-include README.txt
-include setup.py
-recursive-include inky *.py
-recursive-include inky/fonts *.ttf
-include inky/fonts/OFL.txt
