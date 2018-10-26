@@ -1,15 +1,15 @@
 # Inky
 
-Python library for Inky wHAT and Inky pHAT.
+Python library for the [Inky pHAT](https://shop.pimoroni.com/products/inky-phat) and [Inky wHAT](https://shop.pimoroni.com/products/inky-what) e-paper displays.
 
 ## Inky pHAT
 
-Inky pHAT is a 212x104 pixel eInk display available in Red/Black/White, Yellow/Black/White and Black/White. It's great for nametags and displaying very low frequency information such as a daily calendar or weather overview.
+[Inky pHAT](https://shop.pimoroni.com/products/inky-phat) is a 212x104 pixel e-paper display, available in red/black/white, yellow/black/white and black/white. It's great for nametags and displaying very low frequency information such as a daily calendar or weather overview.
 
 
 ## Inky wHAT
 
-Inky wHAT is a 400x300 pixel eInk display available in Red/Black/White. It's got tons of resolution for detailed daily todo lists, multi-day weather forecasts, bus timetables and more.
+[Inky wHAT](https://shop.pimoroni.com/products/inky-what) is a 400x300 pixel e-paper display available in red/black/white. It's got tons of resolution for detailed daily todo lists, multi-day weather forecasts, bus timetables and more.
 
 # Usage
 
@@ -33,4 +33,3 @@ inkywhat = InkyWHAT('red')
 ```
 
 Since Inky wHAT is currently only available in red, we pick that colour.
-
