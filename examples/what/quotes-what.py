@@ -7,7 +7,8 @@ import random
 from inky import InkyWHAT
 
 from PIL import Image, ImageFont, ImageDraw
-# from font_hanken_grotesk import SourceSerifProSemibold, SourceSansProSemibold
+from font_source_serif_pro import SourceSerifProSemibold
+from font_source_sans_pro import SourceSansProSemibold
 
 print("""Inky wHAT: Quotes
 
@@ -69,11 +70,9 @@ draw = ImageDraw.Draw(img)
 
 font_size = 24
 
-#author_font = ImageFont.truetype(SourceSerifProSemibold, font_size)
-#quote_font = ImageFont.truetype(SourceSansProSemibold, font_size)
+author_font = ImageFont.truetype(SourceSerifProSemibold, font_size)
+quote_font = ImageFont.truetype(SourceSansProSemibold, font_size)
 
-author_font = ImageFont.truetype("/home/pi/fonts/SourceSerifPro-Semibold.ttf", font_size)
-quote_font = ImageFont.truetype("/home/pi/fonts/SourceSansPro-Semibold.ttf", font_size)
 
 # A list of famous scientists to search for quotes from
 # on https://en.wikiquote.org. Change them to your 
