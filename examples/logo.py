@@ -35,9 +35,9 @@ inky_display.set_border(inky_display.BLACK)
 
 if args.type == "phat":
     if colour == 'black':
-        img = Image.open("phat/resources/InkyPhat-212x104-bw.png")
+        img = Image.open("phat/resources/InkypHAT-212x104-bw.png")
     else:
-        img = Image.open("phat/resources/InkyPhat-212x104.png")
+        img = Image.open("phat/resources/InkypHAT-212x104.png")
 elif args.type == "what":
     img = Image.open("what/resources/InkywHAT-400x300.png")
 
