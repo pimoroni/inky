@@ -180,6 +180,9 @@ class Inky:
         elif self.border_colour == self.WHITE:
             self._send_command(0x3c, 0xFF)
 
+        if self.colour == 'yellow':
+            self._send_command(0x04, 0x07)  # Set voltage of VSH and VSL
+
         self._send_command(0x32, self._luts[self.colour])  # Set LUTs
 
         self._send_command(0x44, [0x00, (self.cols // 8) - 1])  # Set RAM X Start/End
