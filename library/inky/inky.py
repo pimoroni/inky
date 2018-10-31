@@ -226,7 +226,10 @@ class Inky:
 
     def set_image(self, image):
         """Copy an image to the display."""
-        self.buf = numpy.array(image, dtype=numpy.uint8).reshape((self.width, self.height))
+        if self.rotation % 180 == 0:
+            self.buf = numpy.array(image, dtype=numpy.uint8).reshape((self.width, self.height))
+        else:
+            self.buf = numpy.array(image, dtype=numpy.uint8).reshape((self.height, self.width))
 
     def _spi_write(self, dc, values):
         GPIO.output(self.dc_pin, dc)
