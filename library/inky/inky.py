@@ -226,19 +226,7 @@ class Inky:
 
     def set_image(self, image):
         """Copy an image to the display."""
-        if isinstance(image, list):
-            w, h = len(image), len(image[0])
-            src_get_pixel =  lambda x, y: image[x][y]
-
-        if getattr(image, 'size') and getattr(image, 'getpixel'):
-            w, h = image.size
-            src_get_pixel = lambda x, y: image.getpixel((x, y))
-
-        w = min(w, self.width)
-        h = min(h, self.height)
-        for x in range(w):
-            for y in range(h):
-                self.set_pixel(x, y, src_get_pixel(x, y))   
+        self.buf = numpy.array(image, dtype=numpy.uint8).reshape((self.width, self.height))
 
     def _spi_write(self, dc, values):
         GPIO.output(self.dc_pin, dc)
