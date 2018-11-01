@@ -11,6 +11,14 @@ Python library for the [Inky pHAT](https://shop.pimoroni.com/products/inky-phat)
 
 [Inky wHAT](https://shop.pimoroni.com/products/inky-what) is a 400x300 pixel e-paper display available in red/black/white. It's got tons of resolution for detailed daily todo lists, multi-day weather forecasts, bus timetables and more.
 
+# Installation
+
+The Python pip package is named einky, install with:
+
+```
+sudo pip install einky
+```
+
 # Usage
 
 The Inky library contains modules for both the pHAT and wHAT, load the InkyPHAT one as follows:
