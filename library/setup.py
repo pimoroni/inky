@@ -39,7 +39,7 @@ classifiers = ['Development Status :: 5 - Production/Stable',
 
 setup(
     name            = 'inky',
-    version         = '0.0.1',
+    version         = '0.0.2',
     author          = 'Philip Howard',
     author_email    = 'phil@pimoroni.com',
     description     = 'Inky pHAT Driver',
