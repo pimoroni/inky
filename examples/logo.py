@@ -37,7 +37,10 @@ if args.type == "phat":
     else:
         img = Image.open("phat/resources/InkypHAT-212x104.png")
 elif args.type == "what":
-    img = Image.open("what/resources/InkywHAT-400x300.png")
+    if colour == 'black':
+        img = Image.open("what/resources/InkywHAT-400x300-bw.png")
+    else:
+        img = Image.open("what/resources/InkywHAT-400x300.png")
 
 # Display the logo image
 
