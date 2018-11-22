@@ -12,7 +12,7 @@ except ImportError:
 try:
     import numpy
 except ImportError:
-    sys.exit('This library requires the numpy module\nInstall with: sudo aot install python-numpy')
+    sys.exit('This library requires the numpy module\nInstall with: sudo apt install python-numpy')
 
 WHITE = 0
 BLACK = 1
