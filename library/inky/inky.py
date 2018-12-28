@@ -1,13 +1,29 @@
+import os
 import sys
 import time
 import struct
+from collections import namedtuple
 
-import spidev
+uname = os.uname()
+arch = uname[4]
+ON_RPI = arch.startswith('arm')
 
-try:
-    import RPi.GPIO as GPIO
-except ImportError:
-    sys.exit('This library requires the RPi.GPIO module\nInstall with: sudo apt install python-rpi.gpio')
+if not ON_RPI:
+    FakeGPIO = namedtuple('GPIO', ['LOW', 'HIGH'])
+    GPIO = FakeGPIO(LOW=0, HIGH=5)
+    import matplotlib
+    from matplotlib import pyplot
+
+    try:
+        from PIL import Image
+    except ImportError:
+        sys.exit('Simulation requires the pillow package')
+else:
+    try:
+        import spidev
+        import RPi.GPIO as GPIO
+    except ImportError:
+        sys.exit('This library requires the RPi.GPIO module\nInstall with: sudo apt install python-rpi.gpio')
 
 try:
     import numpy
@@ -148,6 +164,20 @@ class Inky:
         while(GPIO.input(self.busy_pin) != GPIO.LOW):
             time.sleep(0.01)
 
+    def _simulate(self, region):
+        region = numpy.rot90(region, self.rotation // 90)
+        region = numpy.fliplr(region)
+
+        cdict = {  'red': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 1, 1)),
+                 'green': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0)),
+                  'blue': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0))}
+
+        my_cmap = matplotlib.colors.LinearSegmentedColormap('my_colormap',cdict,3)
+        pyplot.figure(figsize=(2.12,1.04))
+        pyplot.axis('off')
+        pyplot.pcolor(region,cmap=my_cmap)
+        pyplot.show()
+
     def _update(self, buf_a, buf_b):
         self.setup()
 
@@ -220,7 +250,10 @@ class Inky:
         buf_a = numpy.packbits(numpy.where(region == BLACK, 0, 1)).tolist()
         buf_b = numpy.packbits(numpy.where(region == RED, 1, 0)).tolist()
 
-        self._update(buf_a, buf_b)
+        if ON_RPI:
+          self._update(buf_a, buf_b)
+        else:
+          self._simulate(region)
 
     def set_border(self, colour):
         """Set the border colour."""

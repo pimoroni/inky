@@ -39,7 +39,7 @@ classifiers = ['Development Status :: 5 - Production/Stable',
 
 setup(
     name            = 'einky',
-    version         = '0.0.2',
+    version         = '0.0.3',
     author          = 'Philip Howard',
     author_email    = 'phil@pimoroni.com',
     description     = 'Inky pHAT Driver',
@@ -51,5 +51,5 @@ setup(
     py_modules      = [],
     packages        = ['inky'],
     include_package_data = True,
-    install_requires= ['numpy', 'spidev', 'RPi.GPIO']
+    install_requires= ['numpy']
 )
