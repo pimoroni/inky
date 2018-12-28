@@ -4,7 +4,7 @@ import argparse
 
 from PIL import Image, ImageFont, ImageDraw
 from font_hanken_grotesk import HankenGroteskBold, HankenGroteskMedium
-from font_intuitive import Intuitive
+from font_intuitive import intuitive
 from inky import InkyPHAT, InkyWHAT
 
 print("""Inky pHAT/wHAT: Hello... my name is:
@@ -44,7 +44,7 @@ draw = ImageDraw.Draw(img)
 
 # Load the fonts
 
-intuitive_font = ImageFont.truetype(Intuitive, int(22 * scale_size))
+intuitive_font = ImageFont.truetype(intuitive, int(22 * scale_size))
 hanken_bold_font = ImageFont.truetype(HankenGroteskBold, int(35 * scale_size))
 hanken_medium_font = ImageFont.truetype(HankenGroteskMedium, int(16 * scale_size))
 
