@@ -2,22 +2,26 @@ import os
 import sys
 import time
 import struct
-from collections import namedtuple
 
 uname = os.uname()
 arch = uname[4]
 ON_RPI = arch.startswith('arm')
 
 if not ON_RPI:
+    from collections import namedtuple
     FakeGPIO = namedtuple('GPIO', ['LOW', 'HIGH'])
     GPIO = FakeGPIO(LOW=0, HIGH=5)
-    import matplotlib
-    from matplotlib import pyplot
+
+    try:
+        import matplotlib
+        from matplotlib import pyplot
+    except ImportError:
+        sys.exit('Simulation requires the matplotlib package\nInstall with: pip install matplotlib')
 
     try:
         from PIL import Image
     except ImportError:
-        sys.exit('Simulation requires the pillow package')
+        sys.exit('Simulation requires the pillow package\nInstall with: pip install pillow')
 else:
     try:
         import spidev
