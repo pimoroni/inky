@@ -172,14 +172,23 @@ class Inky:
         region = numpy.rot90(region, self.rotation // 90)
         region = numpy.fliplr(region)
 
-        cdict = {  'red': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 1, 1)),
-                 'green': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0)),
-                  'blue': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0))}
+        colordicts = {
+            'red': { 'red': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 1, 1)),
+                   'green': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0)),
+                    'blue': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0))},
+         'yellow': { 'red': ((0.0, 1, 1), (0.5, 0.35, 0), (1.0, 0.7, 0.7)),
+                   'green': ((0.0, 1, 1), (0.5, 0.27, 0), (1.0, 0.54, 0.54)),
+                    'blue': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0))},
+          'black': { 'red': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0)),
+                   'green': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0)),
+                    'blue': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0))}
+        }
 
-        my_cmap = matplotlib.colors.LinearSegmentedColormap('my_colormap',cdict,3)
-        pyplot.figure(figsize=(2.12,1.04))
+        colormap = matplotlib.colors.LinearSegmentedColormap('einky_colormap', colordicts[self.colour], 3)
+
+        pyplot.figure(figsize=(2.12, 1.04))
         pyplot.axis('off')
-        pyplot.pcolor(region,cmap=my_cmap)
+        pyplot.pcolor(region, cmap=colormap)
         pyplot.show()
 
     def _update(self, buf_a, buf_b):
