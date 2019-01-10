@@ -66,7 +66,6 @@ def get_weather(address):
         weather["temperature"] = int(curr[0].find("span", "summary").text.split()[0][:-1])
         press = soup.find_all("div", "pressure")
         weather["pressure"] = int(press[0].find("span", "num").text)
-        print(weather)
         return weather
     else:
         return weather
