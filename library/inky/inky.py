@@ -4,10 +4,17 @@ import struct
 
 import spidev
 
+from . import eeprom
+
 try:
     import RPi.GPIO as GPIO
 except ImportError:
     sys.exit('This library requires the RPi.GPIO module\nInstall with: sudo apt install python-rpi.gpio')
+
+try:
+    import smbus
+except ImportError:
+    sys.exit('This library requires the SMBus module\nInstall with: sudo apt install python-smbus')
 
 try:
     import numpy
@@ -49,6 +56,14 @@ class Inky:
             raise ValueError('Colour {} is not supported!'.format(colour))
 
         self.colour = colour
+        self.eeprom = eeprom.read_eeprom()
+        self.lut = colour
+
+        if self.eeprom is not None:
+            if self.eeprom.width != self.width or self.eeprom.height != self.height:
+                raise ValueError("Supplied width/height do not match Inky: {}x{}".format(self.eeprom.width, self.eeprom.height))
+            if self.eeprom.display_variant == 1 and self.eeprom.get_color() == 'red':
+                self.lut = 'red_ht'
 
         self.buf = numpy.zeros((self.height, self.width), dtype=numpy.uint8)
         self.border_colour = 0
@@ -98,6 +113,25 @@ class Inky:
             4,    8,    8,    16,    16,  # 2 bring in the black
             2,    2,    2,    64,    32,  # 3 time for red
             2,    2,    2,    2,     2,   # 4 final black sharpen phase
+            0,    0,    0,    0,     0,   # 5
+            0,    0,    0,    0,     0    # 6
+            ],
+            'red_ht': [
+            # Phase 0     Phase 1     Phase 2     Phase 3     Phase 4     Phase 5     Phase 6
+            # A B C D     A B C D     A B C D     A B C D     A B C D     A B C D     A B C D
+            0b01001000, 0b10100000, 0b00010000, 0b00010000, 0b00010011, 0b00000000, 0b00000000,  # LUT0 - Black
+            0b01001000, 0b10100000, 0b10000000, 0b00000000, 0b00000011, 0b00000000, 0b00000000,  # LUTT1 - White
+            0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,  # IGNORE
+            0b01001000, 0b10100101, 0b00000000, 0b10111011, 0b00000000, 0b00000000, 0b00000000,  # LUT3 - Red
+            0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,  # LUT4 - VCOM
+
+            # Duration            |  Repeat
+            # A   B     C     D   |
+            67,   10,   31,   10,    4,   # 0 Flash
+            16,   8,    4,    4,     6,   # 1 clear
+            4,    8,    8,    16,    16,  # 2 bring in the black
+            2,    4,    4,    64,    32,  # 3 time for red
+            6,    6,    6,    2,     2,   # 4 final black sharpen phase
             0,    0,    0,    0,     0,   # 5
             0,    0,    0,    0,     0    # 6
             ],
@@ -183,7 +217,7 @@ class Inky:
         if self.colour == 'yellow':
             self._send_command(0x04, 0x07)  # Set voltage of VSH and VSL
 
-        self._send_command(0x32, self._luts[self.colour])  # Set LUTs
+        self._send_command(0x32, self._luts[self.lut])  # Set LUTs
 
         self._send_command(0x44, [0x00, (self.cols // 8) - 1])  # Set RAM X Start/End
         self._send_command(0x45, [0x00, 0x00] + packed_height)  # Set RAM Y Start/End
