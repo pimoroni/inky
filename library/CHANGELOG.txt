@@ -1,0 +1,10 @@
+0.0.2
+-----
+
+* BugFix: Yellow Inky pHAT now yellow instead of brown/black
+* Enhancement: Performance tweak for set_image
+
+0.0.1
+-----
+
+* Initial Release

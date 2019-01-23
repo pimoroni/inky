@@ -7,12 +7,12 @@ import spidev
 try:
     import RPi.GPIO as GPIO
 except ImportError:
-    sys.exit("This library requires the RPi.GPIO module\nInstall with: sudo pip install RPi.GPIO")
+    sys.exit('This library requires the RPi.GPIO module\nInstall with: sudo apt install python-rpi.gpio')
 
 try:
     import numpy
 except ImportError:
-    sys.exit("This library requires the numpy module\nInstall with: sudo pip install numpy")
+    sys.exit('This library requires the numpy module\nInstall with: sudo apt install python-numpy')
 
 WHITE = 0
 BLACK = 1
@@ -35,17 +35,18 @@ _RESOLUTION = {
     (212, 104): (104, 212, -90),
 }
 
+
 class Inky:
     def __init__(self, resolution=(400, 300), colour='black', cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False):
         if resolution not in _RESOLUTION.keys():
-            raise ValueError("Resolution {}x{} not supported!".format(*resolution))
+            raise ValueError('Resolution {}x{} not supported!'.format(*resolution))
 
         self.resolution = resolution
         self.width, self.height = resolution
         self.cols, self.rows, self.rotation = _RESOLUTION[resolution]
 
         if colour not in ('red', 'black', 'yellow'):
-            raise ValueError("Colour {} is not supported!".format(colour))
+            raise ValueError('Colour {} is not supported!'.format(colour))
 
         self.colour = colour
 
@@ -150,7 +151,7 @@ class Inky:
     def _update(self, buf_a, buf_b):
         self.setup()
 
-        packed_height = list(struct.pack("<H", self.rows))
+        packed_height = list(struct.pack('<H', self.rows))
 
         if isinstance(packed_height[0], str):
             packed_height = map(ord, packed_height)
@@ -169,7 +170,6 @@ class Inky:
         self._send_command(0x04)  # Power On
         self._send_command(0x2c, 0x3c)  # VCOM Register, 0x3c = -1.5v?
 
-
         self._send_command(0x3c, 0x00)
         if self.border_colour == self.BLACK:
             self._send_command(0x3c, 0x00)
@@ -179,6 +179,9 @@ class Inky:
             self._send_command(0x3c, 0x33)
         elif self.border_colour == self.WHITE:
             self._send_command(0x3c, 0xFF)
+
+        if self.colour == 'yellow':
+            self._send_command(0x04, 0x07)  # Set voltage of VSH and VSL
 
         self._send_command(0x32, self._luts[self.colour])  # Set LUTs
 
@@ -226,19 +229,10 @@ class Inky:
 
     def set_image(self, image):
         """Copy an image to the display."""
-        if isinstance(image, list):
-            w, h = len(image), len(image[0])
-            src_get_pixel =  lambda x, y: image[x][y]
-
-        if getattr(image, 'size') and getattr(image, 'getpixel'):
-            w, h = image.size
-            src_get_pixel = lambda x, y: image.getpixel((x, y))
-
-        w = min(w, self.width)
-        h = min(h, self.height)
-        for x in range(w):
-            for y in range(h):
-                self.set_pixel(x, y, src_get_pixel(x, y))   
+        if self.rotation % 180 == 0:
+            self.buf = numpy.array(image, dtype=numpy.uint8).reshape((self.width, self.height))
+        else:
+            self.buf = numpy.array(image, dtype=numpy.uint8).reshape((self.height, self.width))
 
     def _spi_write(self, dc, values):
         GPIO.output(self.dc_pin, dc)

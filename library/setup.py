@@ -38,8 +38,8 @@ classifiers = ['Development Status :: 5 - Production/Stable',
                'Topic :: System :: Hardware']
 
 setup(
-    name            = 'inky',
-    version         = '0.0.1',
+    name            = 'einky',
+    version         = '0.0.2',
     author          = 'Philip Howard',
     author_email    = 'phil@pimoroni.com',
     description     = 'Inky pHAT Driver',
