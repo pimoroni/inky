@@ -1,3 +1,4 @@
+"""Inky e-Ink Display Drivers."""
 from . import inky
 from .phat import InkyPHAT
 from .what import InkyWHAT

@@ -1,3 +1,4 @@
+"""Inky e-Ink Display Driver."""
 import sys
 import time
 import struct
@@ -37,7 +38,26 @@ _RESOLUTION = {
 
 
 class Inky:
+    """Inky e-Ink Display Driver."""
+
+    WHITE = 0
+    BLACK = 1
+    RED = 2
+    YELLOW = 2
+
     def __init__(self, resolution=(400, 300), colour='black', cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False):
+        """Initialise an Inky Display.
+
+        :param resolution: (width, height) in pixels, default: (400, 300)
+        :param colour: one of red, black or yellow, default: black
+        :param cs_pin: chip-select pin for SPI communication
+        :param dc_pin: data/command pin for SPI communication
+        :param reset_pin: device reset pin
+        :param busy_pin: device busy/wait pin
+        :param h_flip: enable horizontal display flip, default: False
+        :param v_flip: enable vertical display flip, default: False
+
+        """
         if resolution not in _RESOLUTION.keys():
             raise ValueError('Resolution {}x{} not supported!'.format(*resolution))
 
@@ -123,6 +143,7 @@ class Inky:
         }
 
     def setup(self):
+        """Set up Inky GPIO and reset display."""
         if not self._gpio_setup:
             GPIO.setmode(GPIO.BCM)
             GPIO.setwarnings(False)
@@ -145,10 +166,17 @@ class Inky:
         self._busy_wait()
 
     def _busy_wait(self):
+        """Wait for busy/wait pin."""
         while(GPIO.input(self.busy_pin) != GPIO.LOW):
             time.sleep(0.01)
 
     def _update(self, buf_a, buf_b):
+        """Update display.
+
+        :param buf_a: Black/White pixels
+        :param buf_b: Yellow/Red pixels
+
+        """
         self.setup()
 
         packed_height = list(struct.pack('<H', self.rows))
@@ -202,10 +230,18 @@ class Inky:
         self._send_command(0x10, 0x01)  # Enter Deep Sleep
 
     def set_pixel(self, x, y, v):
+        """Set a single pixel.
+
+        :param x: x position on display
+        :param y: y position on display
+        :param v: colour to set
+
+        """
         if v in (WHITE, BLACK, RED):
             self.buf[y][x] = v
 
     def show(self):
+        """Show buffer on display."""
         region = self.buf
 
         if self.v_flip:
@@ -235,6 +271,12 @@ class Inky:
             self.buf = numpy.array(image, dtype=numpy.uint8).reshape((self.height, self.width))
 
     def _spi_write(self, dc, values):
+        """Write values over SPI.
+
+        :param dc: whether to write as data or command
+        :param values: list of values to write
+
+        """
         GPIO.output(self.dc_pin, dc)
         try:
             self._spi.xfer3(values)
@@ -244,11 +286,22 @@ class Inky:
                 self._spi.xfer(values[offset:offset + _SPI_CHUNK_SIZE])
 
     def _send_command(self, command, data=None):
+        """Send command over SPI.
+
+        :param command: command byte
+        :param data: optional list of values
+
+        """
         self._spi_write(_SPI_COMMAND, [command])
         if data is not None:
             self._send_data(data)
 
     def _send_data(self, data):
+        """Send data over SPI.
+
+        :param data: list of values
+
+        """
         if isinstance(data, int):
             data = [data]
         self._spi_write(_SPI_DATA, data)

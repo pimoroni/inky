@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Copyright (c) 2017 Pimoroni
+Copyright (c) 2017 Pimoroni.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -27,29 +27,31 @@ try:
 except ImportError:
     from distutils.core import setup
 
-classifiers = ['Development Status :: 5 - Production/Stable',
-               'Operating System :: POSIX :: Linux',
-               'License :: OSI Approved :: MIT License',
-               'Intended Audience :: Developers',
-               'Programming Language :: Python :: 2.6',
-               'Programming Language :: Python :: 2.7',
-               'Programming Language :: Python :: 3',
-               'Topic :: Software Development',
-               'Topic :: System :: Hardware']
+classifiers = [
+    'Development Status :: 5 - Production/Stable',
+    'Operating System :: POSIX :: Linux',
+    'License :: OSI Approved :: MIT License',
+    'Intended Audience :: Developers',
+    'Programming Language :: Python :: 2.6',
+    'Programming Language :: Python :: 2.7',
+    'Programming Language :: Python :: 3',
+    'Topic :: Software Development',
+    'Topic :: System :: Hardware'
+]
 
 setup(
-    name            = 'einky',
-    version         = '0.0.2',
-    author          = 'Philip Howard',
-    author_email    = 'phil@pimoroni.com',
-    description     = 'Inky pHAT Driver',
-    long_description= open('README.rst').read() + '\n' + open('CHANGELOG.txt').read(),
-    license         = 'MIT',
-    keywords        = 'Raspberry Pi e-paper display driver',
-    url             = 'http://www.pimoroni.com',
-    classifiers     = classifiers,
-    py_modules      = [],
-    packages        = ['inky'],
-    include_package_data = True,
-    install_requires= ['numpy', 'spidev', 'RPi.GPIO']
+    name='einky',
+    version='0.0.2',
+    author='Philip Howard',
+    author_email='phil@pimoroni.com',
+    description='Inky pHAT Driver',
+    long_description=open('README.rst').read() + '\n' + open('CHANGELOG.txt').read(),
+    license='MIT',
+    keywords='Raspberry Pi e-paper display driver',
+    url='http://www.pimoroni.com',
+    classifiers=classifiers,
+    py_modules=[],
+    packages=['inky'],
+    include_package_data=True,
+    install_requires=['numpy', 'spidev', 'RPi.GPIO']
 )
