@@ -1,0 +1,53 @@
+.rst-content a, .rst-content a:focus {
+    color:#13c0d7;
+}
+.rst-content a:visited, .rst-content a:active {
+    color:#87319a;
+}
+.rst-content .highlighted {
+    background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAJElEQVQIW2P8//9/PSMjYyMDEmAEsdElwILoEnBBZAkUQZgEABMWE4Kzp1KUAAAAAElFTkSuQmCC),rgba(246,167,4,0.2);
+    margin:0 -6px;
+}
+.wy-side-nav-search {
+    background:#333333;
+}
+.wy-nav-side {
+    background:#444444;
+}
+.wy-menu-vertical a {
+    color:#cccccc
+}
+.wy-menu-vertical p.caption {
+    background: #333333;
+    color: #6d6d6d;
+}
+.rst-content dl:not(.docutils) dt {
+    background:#e7fafd;
+    border-top:solid 3px #13c0d7;
+    color:rgba(0,0,0,0.5);
+}
+.rst-content .viewcode-link, .rst-content .viewcode-back {
+    color:#00b09b;
+}
+code.literal {
+    color:#e63c2e;
+}
+
+
+.rst-content #at-a-glance {
+    margin-bottom:24px;
+}
+.rst-content #at-a-glance blockquote {
+    margin-left:0;
+}
+.rst-content #at-a-glance dl:not(.docutils) dt {
+    border:none;
+    background:#f0f0f0;
+}
+.rst-content #at-a-glance dl:not(.docutils) dd, 
+.rst-content #at-a-glance dl:not(.docutils) dd dl:not(.docutils) dd {
+    display:none;
+}
+.rst-content #at-a-glance dl:not(.docutils) {
+    margin-bottom:0;
+}
