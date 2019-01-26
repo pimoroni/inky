@@ -18,6 +18,22 @@ At A Glance
    :titlesonly:
    :maxdepth: 0
 
+
+Setup Inky
+----------
+
+Note: If you're using a Pimoroni Inky board, the subclasses `InkyPHAT` and `InkyWHAT` set most of these options on your behalf, so you only need to specify colour.
+
+For example::
+
+    phat = InkyPHAT('red')
+
+Or::
+
+    what = InkyWHAT('yellow')
+
+.. automethod:: inky.inky.Inky.__init__
+
 Set A Border
 ------------
 
