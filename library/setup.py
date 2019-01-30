@@ -41,7 +41,7 @@ classifiers = [
 
 setup(
     name='einky',
-    version='0.0.2',
+    version='0.0.3',
     author='Philip Howard',
     author_email='phil@pimoroni.com',
     description='Inky pHAT Driver',

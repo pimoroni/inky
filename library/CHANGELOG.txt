@@ -1,3 +1,10 @@
+0.0.3
+-----
+
+* Enhancement: Added support for display variant detection
+* Enhancement: Added DocStrings
+* BugFix: Fixed set_border for all colours
+
 0.0.2
 -----
 
