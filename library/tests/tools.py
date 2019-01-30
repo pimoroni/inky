@@ -18,7 +18,8 @@ class MockSMBus:
 
     def write_i2c_block_data(self, i2c_address, register, values):
         """Write a block of i2c data bytes."""
-        self.regs[register:register + len(values)] = values
+        # self.regs[register:register + len(values)] = values
+        pass
 
     def read_i2c_block_data(self, i2c_address, register, length):
         """Read a block of i2c data bytes."""

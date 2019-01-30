@@ -1,6 +1,7 @@
 """Initialization tests for Inky."""
 import sys
 import mock
+from tools import MockSMBus
 
 
 def mockery():
@@ -8,7 +9,7 @@ def mockery():
     sys.modules['RPi'] = mock.Mock()
     sys.modules['RPi.GPIO'] = mock.Mock()
     sys.modules['spidev'] = mock.Mock()
-    sys.modules['smbus'] = mock.Mock()
+    sys.modules['smbus'] = MockSMBus(1)
 
 
 def test_init_phat_black():
