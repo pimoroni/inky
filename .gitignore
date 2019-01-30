@@ -1,3 +1,5 @@
+.tox/
+.coverage
 __pycache__/
 sphinx/_build/
 *.py[cod]

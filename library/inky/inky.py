@@ -232,15 +232,15 @@ class Inky:
         self._send_command(0x04)  # Power On
         self._send_command(0x2c, 0x3c)  # VCOM Register, 0x3c = -1.5v?
 
-        self._send_command(0x3c, 0x00)
+        self._send_command(0x3c, 0b00000000)
         if self.border_colour == self.BLACK:
-            self._send_command(0x3c, 0x00)
-        elif self.border_colour == self.RED:
-            self._send_command(0x3c, 0x33)
-        elif self.border_colour == self.YELLOW:
-            self._send_command(0x3c, 0x33)
+            self._send_command(0x3c, 0b00000000)  # GS Transition Define A + VSS + LUT0
+        elif self.border_colour == self.RED and self.colour == 'red':
+            self._send_command(0x3c, 0b01110011)  # Fix Level Define A + VSH2 + LUT3
+        elif self.border_colour == self.YELLOW and self.colour == 'yellow':
+            self._send_command(0x3c, 0b00110011)  # GS Transition Define A + VSH2 + LUT3
         elif self.border_colour == self.WHITE:
-            self._send_command(0x3c, 0xFF)
+            self._send_command(0x3c, 0b00110001)  # GS Transition Define A + VSH2 + LUT1
 
         if self.colour == 'yellow':
             self._send_command(0x04, 0x07)  # Set voltage of VSH and VSL
