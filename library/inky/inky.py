@@ -81,7 +81,7 @@ class Inky:
 
         if self.eeprom is not None:
             if self.eeprom.width != self.width or self.eeprom.height != self.height:
-                raise ValueError("Supplied width/height do not match Inky: {}x{}".format(self.eeprom.width, self.eeprom.height))
+                raise ValueError('Supplied width/height do not match Inky: {}x{}'.format(self.eeprom.width, self.eeprom.height))
             if self.eeprom.display_variant == 1 and self.eeprom.get_color() == 'red':
                 self.lut = 'red_ht'
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""Inky display-type EEPROM tools."""
 
 import datetime
 import struct
@@ -8,65 +9,76 @@ import smbus
 EEP_ADRESS = 0x50
 EEP_WP = 12
 
+
 class EPDType:
-    valid_colors = [None, "black", "red", "yellow"]
+    """Class to represent EPD EEPROM structure."""
+
+    valid_colors = [None, 'black', 'red', 'yellow']
 
     def __init__(self, width, height, color, pcb_variant, display_variant, write_time=None):
+        """Initialise new EEPROM data structure."""
         self.width = width
-        self.height = height 
+        self.height = height
         self.color = color
         if type(color) == str:
             self.set_color(color)
-        self.pcb_variant = pcb_variant 
+        self.pcb_variant = pcb_variant
         self.display_variant = display_variant
         self.eeprom_write_time = str(datetime.datetime.now()) if write_time is None else write_time
 
     def __repr__(self):
+        """Return string representation of EEPROM data structure."""
         return """Display: {}x{}
 Color: {}
 PCB Variant: {}
 Display Variant: {}
 Time: {}""".format(self.width,
-            self.height,
-            self.get_color(),
-            self.pcb_variant / 10.0,
-            self.display_variant,
-            self.eeprom_write_time)
+                   self.height,
+                   self.get_color(),
+                   self.pcb_variant / 10.0,
+                   self.display_variant,
+                   self.eeprom_write_time)
 
     @classmethod
     def from_bytes(class_object, data):
+        """Initialise new EEPROM data structure from a bytes-like object or list."""
         data = bytearray(data)
-        data = struct.unpack("<HHBBB22p", data)
+        data = struct.unpack('<HHBBB22p', data)
         return class_object(*data)
-    
+
     def update_eeprom_write_time(self):
+        """Update the stored write time."""
         self.eeprom_write_time = str(datetime.datetime.now())
-        
+
     def encode(self):
-        return struct.pack("<HHBBB22p",
-            self.width,
-            self.height,
-            self.color,
-            self.pcb_variant,
-            self.display_variant,
-            str(datetime.datetime.now()))
+        """Return a bytearray representing the EEPROM data structure."""
+        return struct.pack('<HHBBB22p',
+                           self.width,
+                           self.height,
+                           self.color,
+                           self.pcb_variant,
+                           self.display_variant,
+                           str(datetime.datetime.now()))
 
     def to_list(self):
-        return [ord(c) for x in self.encode()]
-        
+        """Return a list of bytes representing the EEPROM data structure."""
+        return [ord(c) for c in self.encode()]
+
     def set_color(self, color):
+        """Set the stored colour value."""
         try:
             self.color = self.valid_colors.index(color)
         except KeyError:
-            raise ValueError("Invalid colour: {}".format(color))
-            
+            raise ValueError('Invalid colour: {}'.format(color))
+
     def get_color(self):
+        """Get the stored colour value."""
         try:
             return self.valid_colors[self.color]
         except KeyError:
             return None
 
- 
+
 # Normal Yellow wHAT
 yellow_what_1_E = EPDType(400, 300, color='yellow', pcb_variant=12, display_variant=2)
 
@@ -81,18 +93,21 @@ red_small_1_E = EPDType(212, 104, color='red', pcb_variant=12, display_variant=1
 
 
 def read_eeprom():
+    """Return a class representing EEPROM contents, or none."""
     try:
         i2c = smbus.SMBus(1)
-        i2c.write_i2c_block_data(EEP_ADRESS, 0x00, [0x00]) 
-        return EPDType.from_bytes(i2c.read_i2c_block_data(0x50,0,29))
+        i2c.write_i2c_block_data(EEP_ADRESS, 0x00, [0x00])
+        return EPDType.from_bytes(i2c.read_i2c_block_data(0x50, 0, 29))
     except IOError:
         return None
 
+
 def main(args):
-    print(read_eeprom()) 
+    """EEPROM Test Function."""
+    print(read_eeprom())
     return 0
+
 
 if __name__ == '__main__':
     import sys
     sys.exit(main(sys.argv))
-    
