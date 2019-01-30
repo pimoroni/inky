@@ -238,7 +238,7 @@ class Inky:
         elif self.border_colour == self.RED and self.colour == 'red':
             self._send_command(0x3c, 0b01110011)  # Fix Level Define A + VSH2 + LUT3
         elif self.border_colour == self.YELLOW and self.colour == 'yellow':
-            self._send_command(0x3c, 0b00110011)  # Fix Level Define A + VSH2 + LUT3
+            self._send_command(0x3c, 0b00110011)  # GS Transition Define A + VSH2 + LUT3
         elif self.border_colour == self.WHITE:
             self._send_command(0x3c, 0b00110001)  # GS Transition Define A + VSH2 + LUT1
 
