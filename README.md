@@ -14,7 +14,7 @@ Python library for the [Inky pHAT](https://shop.pimoroni.com/products/inky-phat)
 
 ## Inky wHAT
 
-[Inky wHAT](https://shop.pimoroni.com/products/inky-what) is a 400x300 pixel e-paper display available in red/black/white. It's got tons of resolution for detailed daily todo lists, multi-day weather forecasts, bus timetables and more.
+[Inky wHAT](https://shop.pimoroni.com/products/inky-what) is a 400x300 pixel e-paper display available in red/black/white, yellow/black/white and black/white. It's got tons of resolution for detailed daily todo lists, multi-day weather forecasts, bus timetables and more.
 
 # Installation
 
@@ -44,5 +44,3 @@ If you're using the wHAT you'll need to load the InkyWHAT class from the Inky li
 from inky import InkyWHAT
 inkywhat = InkyWHAT('red')
 ```
-
-Since Inky wHAT is currently only available in red, we pick that colour.
