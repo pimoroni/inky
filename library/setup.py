@@ -53,5 +53,5 @@ setup(
     py_modules=[],
     packages=['inky'],
     include_package_data=True,
-    install_requires=['numpy', 'spidev', 'RPi.GPIO']
+    install_requires=['numpy', 'spidev', 'RPi.GPIO', 'smbus2']
 )
