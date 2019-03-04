@@ -4,7 +4,12 @@
 
 import datetime
 import struct
-import smbus
+
+try:
+    from smbus2 import SMBus
+except ImportError:
+    sys.exit('This library requires the smbus2 module\nInstall with: sudo pip install smbus2')
+
 
 EEP_ADRESS = 0x50
 EEP_WP = 12
@@ -95,7 +100,7 @@ red_small_1_E = EPDType(212, 104, color='red', pcb_variant=12, display_variant=1
 def read_eeprom():
     """Return a class representing EEPROM contents, or none."""
     try:
-        i2c = smbus.SMBus(1)
+        i2c = SMBus(1)
         i2c.write_i2c_block_data(EEP_ADRESS, 0x00, [0x00])
         return EPDType.from_bytes(i2c.read_i2c_block_data(0x50, 0, 29))
     except IOError:

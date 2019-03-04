@@ -9,8 +9,8 @@ def mockery():
     sys.modules['RPi'] = mock.Mock()
     sys.modules['RPi.GPIO'] = mock.Mock()
     sys.modules['spidev'] = mock.Mock()
-    sys.modules['smbus'] = mock.Mock()
-    sys.modules['smbus'].SMBus = MockSMBus
+    sys.modules['smbus2'] = mock.Mock()
+    sys.modules['smbus2'].SMBus = MockSMBus
 
 
 def test_init_phat_black():
