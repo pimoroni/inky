@@ -13,11 +13,6 @@ except ImportError:
     sys.exit('This library requires the RPi.GPIO module\nInstall with: sudo apt install python-rpi.gpio')
 
 try:
-    from smbus2 import SMBus
-except ImportError:
-    sys.exit('This library requires the SMBus module\nInstall with: sudo apt install python-smbus')
-
-try:
     import numpy
 except ImportError:
     sys.exit('This library requires the numpy module\nInstall with: sudo apt install python-numpy')

@@ -4,7 +4,12 @@
 
 import datetime
 import struct
-from smbus2 import SMBus
+
+try:
+    from smbus2 import SMBus
+except ImportError:
+    sys.exit('This library requires the smbus2 module\nInstall with: sudo pip install smbus2')
+
 
 EEP_ADRESS = 0x50
 EEP_WP = 12
