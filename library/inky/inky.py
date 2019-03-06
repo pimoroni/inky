@@ -218,13 +218,13 @@ class Inky:
 
         self._send_command(0x01, packed_height + [0x00])  # Gate setting
 
-        self._send_command(0x03, [0b10000, 0b0001])  # Gate Driving Voltage
+        self._send_command(0x03, 0b10001)  # Gate Driving Voltage (TODO: Test 0b11111)
+        self._send_command(0x04, [0x41, 0xAC, 0x32])  # Source Driving Voltage
 
         self._send_command(0x3a, 0x07)  # Dummy line period
         self._send_command(0x3b, 0x04)  # Gate line width
         self._send_command(0x11, 0x03)  # Data entry mode setting 0x03 = X/Y increment
 
-        self._send_command(0x04)  # Power On
         self._send_command(0x2c, 0x3c)  # VCOM Register, 0x3c = -1.5v?
 
         self._send_command(0x3c, 0b00000000)
@@ -238,7 +238,7 @@ class Inky:
             self._send_command(0x3c, 0b00110001)  # GS Transition Define A + VSH2 + LUT1
 
         if self.colour == 'yellow':
-            self._send_command(0x04, 0x07)  # Set voltage of VSH and VSL
+            self._send_command(0x04, [0x07, 0xAC, 0x32])  # Set voltage of VSH and VSL
 
         self._send_command(0x32, self._luts[self.lut])  # Set LUTs
 
