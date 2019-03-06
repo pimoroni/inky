@@ -218,7 +218,7 @@ class Inky:
 
         self._send_command(0x01, packed_height + [0x00])  # Gate setting
 
-        self._send_command(0x03, 0b10001)  # Gate Driving Voltage (TODO: Test 0b11111)
+        self._send_command(0x03, 0x17)  # Gate Driving Voltage
         self._send_command(0x04, [0x41, 0xAC, 0x32])  # Source Driving Voltage
 
         self._send_command(0x3a, 0x07)  # Dummy line period
