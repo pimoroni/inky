@@ -199,7 +199,7 @@ class Inky:
         while(GPIO.input(self.busy_pin) != GPIO.LOW):
             time.sleep(0.01)
 
-    def _update(self, buf_a, buf_b):
+    def _update(self, buf_a, buf_b, busy_wait=True):
         """Update display.
 
         :param buf_a: Black/White pixels
@@ -255,8 +255,10 @@ class Inky:
         self._send_command(0x22, 0xc7)  # Display Update Sequence
         self._send_command(0x20)  # Trigger Display Update
         time.sleep(0.05)
-        self._busy_wait()
-        self._send_command(0x10, 0x01)  # Enter Deep Sleep
+
+        if busy_wait:
+            self._busy_wait()
+            self._send_command(0x10, 0x01)  # Enter Deep Sleep
 
     def set_pixel(self, x, y, v):
         """Set a single pixel.
@@ -269,8 +271,12 @@ class Inky:
         if v in (WHITE, BLACK, RED):
             self.buf[y][x] = v
 
-    def show(self):
-        """Show buffer on display."""
+    def show(self, busy_wait=True):
+        """Show buffer on display.
+
+        :param busy_wait: If True, wait for display update to finish before returning.
+
+        """
         region = self.buf
 
         if self.v_flip:
@@ -285,7 +291,7 @@ class Inky:
         buf_a = numpy.packbits(numpy.where(region == BLACK, 0, 1)).tolist()
         buf_b = numpy.packbits(numpy.where(region == RED, 1, 0)).tolist()
 
-        self._update(buf_a, buf_b)
+        self._update(buf_a, buf_b, busy_wait=busy_wait)
 
     def set_border(self, colour):
         """Set the border colour."""
