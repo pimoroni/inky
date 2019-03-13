@@ -49,7 +49,7 @@ Once you've initialised Inky, there are only three methods you need to be concer
 
 #### Set Image
 
-Set a PIL image, numpy array or list to Inky's internal buffer. The image dimensions should match the dimensiosn of the pHAT or wHAT you're using.
+Set a PIL image, numpy array or list to Inky's internal buffer. The image dimensions should match the dimensions of the pHAT or wHAT you're using.
 
 ```python
 inkyphat.set_image(image)
