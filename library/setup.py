@@ -40,7 +40,7 @@ classifiers = [
 ]
 
 setup(
-    name='einky',
+    name='inky',
     version='0.0.4',
     author='Philip Howard',
     author_email='phil@pimoroni.com',

@@ -2,8 +2,8 @@
 
 [![Build Status](https://travis-ci.com/pimoroni/inky.svg?branch=master)](https://travis-ci.com/pimoroni/inky)
 [![Coverage Status](https://coveralls.io/repos/github/pimoroni/inky/badge.svg?branch=master)](https://coveralls.io/github/pimoroni/inky?branch=master)
-[![PyPi Package](https://img.shields.io/pypi/v/einky.svg)](https://pypi.python.org/pypi/einky)
-[![Python Versions](https://img.shields.io/pypi/pyversions/einky.svg)](https://pypi.python.org/pypi/einky)
+[![PyPi Package](https://img.shields.io/pypi/v/inky.svg)](https://pypi.python.org/pypi/inky)
+[![Python Versions](https://img.shields.io/pypi/pyversions/inky.svg)](https://pypi.python.org/pypi/inky)
 
 Python library for the [Inky pHAT](https://shop.pimoroni.com/products/inky-phat) and [Inky wHAT](https://shop.pimoroni.com/products/inky-what) e-paper displays.
 
@@ -18,10 +18,10 @@ Python library for the [Inky pHAT](https://shop.pimoroni.com/products/inky-phat)
 
 # Installation
 
-The Python pip package is named einky, install with:
+The Python pip package is named inky, install with:
 
 ```
-sudo pip install einky
+sudo pip install inky
 ```
 
 # Usage
