@@ -3,6 +3,7 @@
 
 import argparse
 import random
+import sys
 
 from inky import InkyWHAT
 
@@ -18,7 +19,13 @@ Display quotes on Inky wHAT.
 try:
     import wikiquotes
 except ImportError:
-    exit("This script requires the wikiquotes module\nInstall with: sudo pip install wikiquotes")
+    print("""This script requires the wikiquotes module.
+    
+Install with:
+    sudo apt install python-lxml
+    sudo pip install wikiquotes
+""")
+    sys.exit(1)
 
 # Command line arguments to set display type and colour, and enter your name
 
