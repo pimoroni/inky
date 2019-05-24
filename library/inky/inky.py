@@ -77,7 +77,7 @@ class Inky:
         if self.eeprom is not None:
             if self.eeprom.width != self.width or self.eeprom.height != self.height:
                 raise ValueError('Supplied width/height do not match Inky: {}x{}'.format(self.eeprom.width, self.eeprom.height))
-            if self.eeprom.display_variant == 1 and self.eeprom.get_color() == 'red':
+            if self.eeprom.display_variant in (1, 6) and self.eeprom.get_color() == 'red':
                 self.lut = 'red_ht'
 
         self.buf = numpy.zeros((self.height, self.width), dtype=numpy.uint8)
@@ -171,15 +171,15 @@ class Inky:
                 0x00, 0x00, 0x00, 0x00, 0x00
             ],
             'red_ht': [
-                0b01001000, 0b10100000, 0b00010000, 0b00010000, 0b00010011, 0b00000000, 0b00000000,
-                0b01001000, 0b10100000, 0b10000000, 0b00000000, 0b00000011, 0b00000000, 0b00000000,
+                0b01001000, 0b10100000, 0b00010000, 0b00010000, 0b00010011, 0b00010000, 0b00010000,
+                0b01001000, 0b10100000, 0b10000000, 0b00000000, 0b00000011, 0b10000000, 0b10000000,
                 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
-                0b01001000, 0b10100101, 0b00000000, 0b10111011, 0b00000000, 0b00000000, 0b00000000,
+                0b01001000, 0b10100101, 0b00000000, 0b10111011, 0b00000000, 0b01001000, 0b00000000,
                 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
                 0x43, 0x0A, 0x1F, 0x0A, 0x04,
                 0x10, 0x08, 0x04, 0x04, 0x06,
-                0x04, 0x08, 0x08, 0x10, 0x10,
-                0x02, 0x04, 0x04, 0x40, 0x20,
+                0x04, 0x08, 0x08, 0x10, 0x0B,
+                0x01, 0x02, 0x01, 0x10, 0x30,
                 0x06, 0x06, 0x06, 0x02, 0x02,
                 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00
@@ -268,6 +268,8 @@ class Inky:
 
         if self.colour == 'yellow':
             self._send_command(0x04, [0x07, 0xAC, 0x32])  # Set voltage of VSH and VSL
+        if self.colour == 'red' and self.resolution == (400, 300):
+            self._send_command(0x04, [0x30, 0xAC, 0x22])
 
         self._send_command(0x32, self._luts[self.lut])  # Set LUTs
 
@@ -281,7 +283,7 @@ class Inky:
             self._send_command(0x4f, [0x00, 0x00])  # Set RAM Y Pointer Start
             self._send_command(cmd, buf)
 
-        self._send_command(0x22, 0xc7)  # Display Update Sequence
+        self._send_command(0x22, 0xC7)  # Display Update Sequence
         self._send_command(0x20)  # Trigger Display Update
         time.sleep(0.05)
 
