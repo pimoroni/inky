@@ -8,7 +8,7 @@ import struct
 try:
     from smbus2 import SMBus
 except ImportError:
-    sys.exit('This library requires the smbus2 module\nInstall with: sudo pip install smbus2')
+    raise ImportError('This library requires the smbus2 module\nInstall with: sudo pip install smbus2')
 
 
 EEP_ADRESS = 0x50
