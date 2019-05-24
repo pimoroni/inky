@@ -283,7 +283,6 @@ class Inky:
             self._send_command(0x4f, [0x00, 0x00])  # Set RAM Y Pointer Start
             self._send_command(cmd, buf)
 
-
         self._send_command(0x22, 0xC7)  # Display Update Sequence
         self._send_command(0x20)  # Trigger Display Update
         time.sleep(0.05)
