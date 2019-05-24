@@ -13,7 +13,7 @@ PACKAGE_MODULE = "inky"
 
 import sphinx_rtd_theme
 
-MOCK_MODULES = ['RPi', 'RPi.GPIO', 'smbus', 'numpy', 'spidev']
+MOCK_MODULES = ['RPi', 'RPi.GPIO', 'smbus2', 'smbus', 'numpy', 'spidev']
 for module_name in MOCK_MODULES:
     sys.modules[module_name] = mock.MagicMock()
 
