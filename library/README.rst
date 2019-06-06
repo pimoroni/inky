@@ -63,7 +63,7 @@ Once you've initialised Inky, there are only three methods you need to
 be concerned with:
 
 Set Image
-^^^^^^^^^
+---------
 
 Set a PIL image, numpy array or list to Inky's internal buffer. The
 image dimensions should match the dimensions of the pHAT or wHAT you're
@@ -79,7 +79,7 @@ your image. See:
 https://pillow.readthedocs.io/en/stable/reference/ImageDraw.html
 
 Set Border
-^^^^^^^^^^
+----------
 
 Set the border colour of you pHAT or wHAT.
 
@@ -92,7 +92,7 @@ Set the border colour of you pHAT or wHAT.
 your diplay type.
 
 Update The Display
-^^^^^^^^^^^^^^^^^^
+------------------
 
 Once you've prepared and set your image, and chosen a border colour, you
 can update your e-ink display with:

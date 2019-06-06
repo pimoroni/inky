@@ -41,7 +41,7 @@ classifiers = [
 
 setup(
     name='inky',
-    version='0.0.4',
+    version='0.0.5',
     author='Philip Howard',
     author_email='phil@pimoroni.com',
     description='Inky pHAT Driver',
@@ -49,6 +49,7 @@ setup(
     license='MIT',
     keywords='Raspberry Pi e-paper display driver',
     url='http://www.pimoroni.com',
+    project_urls={'GitHub': 'https://www.github.com/pimoroni/inky'},
     classifiers=classifiers,
     py_modules=[],
     packages=['inky'],

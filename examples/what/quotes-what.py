@@ -20,7 +20,7 @@ try:
     import wikiquotes
 except ImportError:
     print("""This script requires the wikiquotes module.
-    
+
 Install with:
     sudo apt install python-lxml
     sudo pip install wikiquotes

@@ -1,3 +1,8 @@
+0.0.5
+-----
+
+* Enhancement: Added support for red/b/w high-temp Inky wHAT
+
 0.0.4
 -----
 
