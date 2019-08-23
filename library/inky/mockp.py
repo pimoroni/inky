@@ -54,7 +54,7 @@ class InkyMockP(inky.Inky):
     RED = 2
     YELLOW = 2
 
-    def __init__(self, colour):
+    def __init__(self, colour,h_flip=False,v_flip=False):
         """Initialise an Inky pHAT Display.
 
         :param colour: one of red, black or yellow, default: black
@@ -64,8 +64,8 @@ class InkyMockP(inky.Inky):
             self,
             resolution=(self.WIDTH, self.HEIGHT),
             colour=colour,
-            h_flip=False,
-            v_flip=False)
+            h_flip=h_flip,
+            v_flip=v_flip)
 
 
     def _send_command(self, command, data=None):
