@@ -9,6 +9,7 @@ on_rpi = arch.startswith('arm')
 
 if not on_rpi:
     from .mockp import InkyMockP
+    from .mockw import InkyMockW
 
 from . import inky
 from .phat import InkyPHAT

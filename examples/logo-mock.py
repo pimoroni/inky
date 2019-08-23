@@ -3,7 +3,7 @@
 import argparse
 from PIL import Image
 from inky import InkyMockP as InkyPHAT
-
+from inky import InkyMockW as InkyWHAT
 
 print("""Inky pHAT/wHAT: Logo
 
@@ -23,7 +23,7 @@ colour = args.colour
 # Set up the correct display and scaling factors
 
 if args.type == "phat":
-    inky_display = InkyPHAT(colour=colour,v_flip=True)
+    inky_display = InkyPHAT(colour=colour,v_flip=False)
 elif args.type == "what":
     inky_display = InkyWHAT(colour)
 
