@@ -7,9 +7,8 @@ mock_mod_list = ['spidev', 'RPi', 'RPi.GPIO', 'smbus2']
 for m in mock_mod_list:
     sys.modules[m] = Mock()
 
+
 class MockSMBus:
-
-
     """Mock a Python SMBus instance.
     Redirects read/write operations to self.regs.
     """
@@ -29,6 +28,7 @@ class MockSMBus:
         """Read a block of i2c data bytes."""
         return self.regs[register:register + length]
 
+
 sys.modules['smbus2'].SMBus = MockSMBus
 
 
@@ -40,10 +40,10 @@ try:
 except ImportError:
     sys.exit('Simulation requires the matplotlib package\nInstall with: pip install matplotlib')
 
-try:
-    from PIL import Image
-except ImportError:
-    sys.exit('Simulation requires the pillow package\nInstall with: pip install pillow')
+# try:
+#     from PIL import Image
+# except ImportError:
+#     sys.exit('Simulation requires the pillow package\nInstall with: pip install pillow')
 
 
 class InkyMockP(inky.Inky):
@@ -80,14 +80,14 @@ class InkyMockP(inky.Inky):
 
         colordicts = {
             'red': {'red': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 1, 1)),
-                        'green': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0)),
-                        'blue': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0))},
+                    'green': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0)),
+                    'blue': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0))},
             'yellow': {'red': ((0.0, 1, 1), (0.5, 0.35, 0), (1.0, 0.7, 0.7)),
-                        'green': ((0.0, 1, 1), (0.5, 0.27, 0), (1.0, 0.54, 0.54)),
-                        'blue': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0))},
+                       'green': ((0.0, 1, 1), (0.5, 0.27, 0), (1.0, 0.54, 0.54)),
+                       'blue': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0))},
             'black': {'red': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0)),
-                        'green': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0)),
-                        'blue': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0))}
+                      'green': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0)),
+                      'blue': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0))}
         }
 
         colormap = matplotlib.colors.LinearSegmentedColormap('einky_colormap', colordicts[self.colour], 3)
