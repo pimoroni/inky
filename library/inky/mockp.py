@@ -1,16 +1,18 @@
 import sys
-import numpy 
-from unittest.mock import Mock, patch
+import numpy
 
-mock_mod_list = ['spidev', 'RPi', 'RPi.GPIO', 'smbus2'] 
+from unittest.mock import Mock
+
+mock_mod_list = ['spidev', 'RPi', 'RPi.GPIO', 'smbus2']
 for m in mock_mod_list:
     sys.modules[m] = Mock()
 
-class MockSMBus:
+class MockSMBus:    
+
     """Mock a Python SMBus instance.
     Redirects read/write operations to self.regs.
     """
-
+    
     def __init__(self, i2c_bus):
         """Initialize mock SMBus class.
         :param i2c_bus: unused, maintains compatibility with smbus.SMBus(n)
@@ -28,6 +30,7 @@ class MockSMBus:
 
 sys.modules['smbus2'].SMBus = MockSMBus
 
+from . import inky
 
 try:
     import matplotlib
@@ -41,9 +44,10 @@ except ImportError:
     sys.exit('Simulation requires the pillow package\nInstall with: pip install pillow')
 
 
-from . import inky
+
 
 class InkyMockP(inky.Inky):
+
     """Inky wHAT e-Ink Display Driver."""
 
     WIDTH = 212
@@ -54,7 +58,7 @@ class InkyMockP(inky.Inky):
     RED = 2
     YELLOW = 2
 
-    def __init__(self, colour,h_flip=False,v_flip=False):
+    def __init__(self, colour, h_flip=False, v_flip=False):
         """Initialise an Inky pHAT Display.
 
         :param colour: one of red, black or yellow, default: black
@@ -67,22 +71,21 @@ class InkyMockP(inky.Inky):
             h_flip=h_flip,
             v_flip=v_flip)
 
-
     def _send_command(self, command, data=None):
         pass
-    
+
     def _simulate(self, region):
         region = numpy.rot90(region, self.rotation // 90)
         region = numpy.fliplr(region)
 
         colordicts = {
-            'red': { 'red': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 1, 1)),
+            'red': {'red': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 1, 1)),
                    'green': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0)),
                     'blue': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0))},
-         'yellow': { 'red': ((0.0, 1, 1), (0.5, 0.35, 0), (1.0, 0.7, 0.7)),
+            'yellow': {'red': ((0.0, 1, 1), (0.5, 0.35, 0), (1.0, 0.7, 0.7)),
                    'green': ((0.0, 1, 1), (0.5, 0.27, 0), (1.0, 0.54, 0.54)),
                     'blue': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0))},
-          'black': { 'red': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0)),
+            'black': {'red': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0)),
                    'green': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0)),
                     'blue': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0))}
         }
@@ -101,7 +104,7 @@ class InkyMockP(inky.Inky):
 
         """
         print(">>simulating...")
-        
+
         region = self.buf
 
         if self.v_flip:
@@ -112,6 +115,5 @@ class InkyMockP(inky.Inky):
 
         if self.rotation:
             region = numpy.rot90(region, self.rotation // 90)
-
 
         self._simulate(region)

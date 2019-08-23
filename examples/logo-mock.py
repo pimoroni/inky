@@ -23,7 +23,7 @@ colour = args.colour
 # Set up the correct display and scaling factors
 
 if args.type == "phat":
-    inky_display = InkyPHAT(colour=colour,h_flip=True)
+    inky_display = InkyPHAT(colour=colour,v_flip=True)
 elif args.type == "what":
     inky_display = InkyWHAT(colour)
 
