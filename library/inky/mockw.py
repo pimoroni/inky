@@ -77,8 +77,8 @@ class InkyMockW(inky.Inky):
     def _simulate(self, region):
         region = numpy.rot90(region, self.rotation // 90)
         # region = numpy.fliplr(region) # bug? hack?
-        region = region.reshape(300,400) # bug? hack?
-        region = numpy.flipud(region) # bug? hack? 
+        region = region.reshape(300, 400)  # bug? hack?
+        region = numpy.flipud(region)  # bug? hack?
 
         colordicts = {
             'red': {'red': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 1, 1)),
