@@ -29,7 +29,10 @@ colour = args.colour
 
 inky_display = InkyPHAT(colour)
 inky_display.set_border(inky_display.BLACK)
-# inky_display.set_rotation(180)
+
+#uncomment the following if you want to flip it 180 degrees
+#inky_display.h_flip = True
+#inky_display.v_flip = True
 
 
 def create_mask(source, mask=(inky_display.WHITE, inky_display.BLACK, inky_display.RED)):
