@@ -1,19 +1,9 @@
 """Inky e-Ink Display Drivers."""
 
-import os
-
-uname = os.uname()
-
-arch = uname[4]
-on_rpi = arch.startswith('arm')
-
-if not on_rpi:
-    from .mockp import InkyMockP
-    from .mockw import InkyMockW
-
 from . import inky
 from .phat import InkyPHAT
 from .what import InkyWHAT
+from .mock import InkyMockPHAT, InkyMockWHAT
 
 
 __version__ = '0.0.5.1'
