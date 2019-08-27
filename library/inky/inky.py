@@ -3,14 +3,7 @@ import sys
 import time
 import struct
 
-import spidev
-
 from . import eeprom
-
-try:
-    import RPi.GPIO as GPIO
-except ImportError:
-    sys.exit('This library requires the RPi.GPIO module\nInstall with: sudo apt install python-rpi.gpio')
 
 try:
     import numpy
@@ -30,8 +23,8 @@ SCLK_PIN = 11
 CS0_PIN = 0
 
 _SPI_CHUNK_SIZE = 4096
-_SPI_COMMAND = GPIO.LOW
-_SPI_DATA = GPIO.HIGH
+_SPI_COMMAND = 0
+_SPI_DATA = 1
 
 _RESOLUTION = {
     (400, 300): (400, 300, 0),
@@ -47,7 +40,7 @@ class Inky:
     RED = 2
     YELLOW = 2
 
-    def __init__(self, resolution=(400, 300), colour='black', cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False):
+    def __init__(self, resolution=(400, 300), colour='black', cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):
         """Initialise an Inky Display.
 
         :param resolution: (width, height) in pixels, default: (400, 300)
@@ -60,6 +53,9 @@ class Inky:
         :param v_flip: enable vertical display flip, default: False
 
         """
+        self._spi_bus = spi_bus
+        self._i2c_bus = i2c_bus
+
         if resolution not in _RESOLUTION.keys():
             raise ValueError('Resolution {}x{} not supported!'.format(*resolution))
 
@@ -71,7 +67,7 @@ class Inky:
             raise ValueError('Colour {} is not supported!'.format(colour))
 
         self.colour = colour
-        self.eeprom = eeprom.read_eeprom()
+        self.eeprom = eeprom.read_eeprom(i2c_bus=i2c_bus)
         self.lut = colour
 
         if self.eeprom is not None:
@@ -203,21 +199,30 @@ class Inky:
     def setup(self):
         """Set up Inky GPIO and reset display."""
         if not self._gpio_setup:
-            GPIO.setmode(GPIO.BCM)
-            GPIO.setwarnings(False)
-            GPIO.setup(self.dc_pin, GPIO.OUT, initial=GPIO.LOW, pull_up_down=GPIO.PUD_OFF)
-            GPIO.setup(self.reset_pin, GPIO.OUT, initial=GPIO.HIGH, pull_up_down=GPIO.PUD_OFF)
-            GPIO.setup(self.busy_pin, GPIO.IN, pull_up_down=GPIO.PUD_OFF)
+            if self._gpio is None:
+                try:
+                    import RPi.GPIO as GPIO
+                    self._gpio = GPIO
+                except ImportError:
+                    sys.exit('This library requires the RPi.GPIO module\nInstall with: sudo apt install python-rpi.gpio')
+            self._gpio.setmode(self._gpio.BCM)
+            self._gpio.setwarnings(False)
+            self._gpio.setup(self.dc_pin, self._gpio.OUT, initial=self._gpio.LOW, pull_up_down=self._gpio.PUD_OFF)
+            self._gpio.setup(self.reset_pin, self._gpio.OUT, initial=self._gpio.HIGH, pull_up_down=self._gpio.PUD_OFF)
+            self._gpio.setup(self.busy_pin, self._gpio.IN, pull_up_down=self._gpio.PUD_OFF)
 
-            self._spi = spidev.SpiDev()
-            self._spi.open(0, self.cs_pin)
-            self._spi.max_speed_hz = 488000
+            if self._spi_bus is None:
+                import spidev
+                self._spi_bus = spidev.SpiDev()
+
+            self._spi_bus.open(0, self.cs_pin)
+            self._spi_bus.max_speed_hz = 488000
 
             self._gpio_setup = True
 
-        GPIO.output(self.reset_pin, GPIO.LOW)
+        self._gpio.output(self.reset_pin, self._gpio.LOW)
         time.sleep(0.1)
-        GPIO.output(self.reset_pin, GPIO.HIGH)
+        self._gpio.output(self.reset_pin, self._gpio.HIGH)
         time.sleep(0.1)
 
         self._send_command(0x12)  # Soft Reset
@@ -225,7 +230,7 @@ class Inky:
 
     def _busy_wait(self):
         """Wait for busy/wait pin."""
-        while(GPIO.input(self.busy_pin) != GPIO.LOW):
+        while(self._gpio.input(self.busy_pin) != self._gpio.LOW):
             time.sleep(0.01)
 
     def _update(self, buf_a, buf_b, busy_wait=True):
@@ -343,13 +348,13 @@ class Inky:
         :param values: list of values to write
 
         """
-        GPIO.output(self.dc_pin, dc)
+        self._gpio.output(self.dc_pin, dc)
         try:
-            self._spi.xfer3(values)
+            self._spi_bus.xfer3(values)
         except AttributeError:
             for x in range(((len(values) - 1) // _SPI_CHUNK_SIZE) + 1):
                 offset = x * _SPI_CHUNK_SIZE
-                self._spi.xfer(values[offset:offset + _SPI_CHUNK_SIZE])
+                self._spi_bus.xfer(values[offset:offset + _SPI_CHUNK_SIZE])
 
     def _send_command(self, command, data=None):
         """Send command over SPI.

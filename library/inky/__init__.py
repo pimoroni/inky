@@ -1,9 +1,12 @@
 """Inky e-Ink Display Drivers."""
+
 from . import inky
 from .phat import InkyPHAT
 from .what import InkyWHAT
+from .mock import InkyMockPHAT, InkyMockWHAT
 
-__version__ = '0.0.5'
+
+__version__ = '0.0.5.1'
 
 try:
     from pkg_resources import declare_namespace
