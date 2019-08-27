@@ -2,26 +2,6 @@ import sys
 import numpy
 
 
-class MockSMBus:
-    """Mock a Python SMBus instance.
-    Redirects read/write operations to self.regs.
-    """
-
-    def __init__(self, i2c_bus):
-        """Initialize mock SMBus class.
-        :param i2c_bus: unused, maintains compatibility with smbus.SMBus(n)
-        """
-        self.regs = [0 for _ in range(255)]
-
-    def write_i2c_block_data(self, i2c_address, register, values):
-        """Write a block of i2c data bytes."""
-        raise IOError("Pretending there's no EEPROM to talk to.")
-
-    def read_i2c_block_data(self, i2c_address, register, length):
-        """Read a block of i2c data bytes."""
-        return self.regs[register:register + length]
-
-
 from . import inky
 
 
@@ -43,18 +23,22 @@ class InkyMock(inky.Inky):
         except ImportError:
             sys.exit('Simulation requires the matplotlib package\nInstall with: pip install matplotlib')
 
-        mock_mod_list = ['spidev', 'RPi', 'RPi.GPIO', 'smbus2']
-        for m in mock_mod_list:
-            sys.modules[m] = Mock()
+        resolution = (self.WIDTH, self.HEIGHT)
 
-        sys.modules['smbus2'].SMBus = MockSMBus
+        if resolution not in inky._RESOLUTION.keys():
+            raise ValueError('Resolution {}x{} not supported!'.format(*resolution))
 
-        inky.Inky.__init__(
-            self,
-            resolution=(self.WIDTH, self.HEIGHT),
-            colour=colour,
-            h_flip=h_flip,
-            v_flip=v_flip)
+        self.resolution = resolution
+        self.width, self.height = resolution
+        self.cols, self.rows, self.rotation = inky._RESOLUTION[resolution]
+
+        if colour not in ('red', 'black', 'yellow'):
+            raise ValueError('Colour {} is not supported!'.format(colour))
+
+        self.colour = colour
+
+        self.h_flip = h_flip
+        self.v_flip = v_flip
 
         self._colordicts = {
             'red': {'red': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 1, 1)),
@@ -73,6 +57,14 @@ class InkyMock(inky.Inky):
 
     def _simulate(self, region):
         pass
+
+    def _display(self, region):
+        colormap = matplotlib.colors.LinearSegmentedColormap('einky_colormap', self._colordicts[self.colour], 3)
+
+        pyplot.figure(figsize=(self.WIDTH / 100.0, self.HEIGHT / 100.0))
+        pyplot.axis('off')
+        pyplot.pcolor(region, cmap=colormap)
+        pyplot.show()
 
     def show(self, busy_wait=True):
         """Show buffer on display.
@@ -112,12 +104,7 @@ class InkyMockPHAT(InkyMock):
         region = numpy.rot90(region, self.rotation // 90)
         region = numpy.fliplr(region)
 
-        colormap = matplotlib.colors.LinearSegmentedColormap('einky_colormap', self._colordicts[self.colour], 3)
-
-        pyplot.figure(figsize=(self.WIDTH / 100.0, self.HEIGHT / 100.0))
-        pyplot.axis('off')
-        pyplot.pcolor(region, cmap=colormap)
-        pyplot.show()
+        self._display(region)
 
 
 class InkyMockWHAT(InkyMock):
@@ -134,25 +121,7 @@ class InkyMockWHAT(InkyMock):
 
     def _simulate(self, region):
         region = numpy.rot90(region, self.rotation // 90)
-        # region = numpy.fliplr(region) # bug? hack?
         region = region.reshape(300, 400)  # bug? hack?
         region = numpy.flipud(region)  # bug? hack?
 
-        colordicts = {
-            'red': {'red': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 1, 1)),
-                    'green': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0)),
-                    'blue': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0))},
-            'yellow': {'red': ((0.0, 1, 1), (0.5, 0.35, 0), (1.0, 0.7, 0.7)),
-                       'green': ((0.0, 1, 1), (0.5, 0.27, 0), (1.0, 0.54, 0.54)),
-                       'blue': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0))},
-            'black': {'red': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0)),
-                      'green': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0)),
-                      'blue': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0))}
-        }
-
-        colormap = matplotlib.colors.LinearSegmentedColormap('einky_colormap', self._colordicts[self.colour], 3)
-
-        pyplot.figure(figsize=(self.WIDTH / 100.0, self.HEIGHT / 100.0))
-        pyplot.axis('off')
-        pyplot.pcolor(region, cmap=colormap)
-        pyplot.show()
+        self._display(region)
