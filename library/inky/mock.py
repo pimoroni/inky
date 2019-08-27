@@ -40,22 +40,21 @@ class InkyMock(inky.Inky):
         self.v_flip = v_flip
 
         bw_inky_palette = [255, 255, 255,  # 0 = white
-                              0, 0, 0]  # 1 = black
-        
+                           0, 0, 0]  # 1 = black
+
         red_inky_palette = [255, 255, 255,  # 0 = white
-                              0, 0, 0,  # 1 = black
-                              255, 0, 0]  # index 2 is red
-        
+                            0, 0, 0,  # 1 = black
+                            255, 0, 0]  # index 2 is red
+
         ylw_inky_palette = [255, 255, 255,  # 0 = white
-                              0, 0, 0,  # 1 = black
-                              223, 204, 16]  # index 2 is yellow
-        # yellow color value: screen capture from 
+                            0, 0, 0,  # 1 = black
+                            223, 204, 16]  # index 2 is yellow
+        # yellow color value: screen capture from
         # https://www.thoughtsmakethings.com/Pimoroni-Inky-pHAT
 
         self.c_palette = {"black": bw_inky_palette,
                           "red": red_inky_palette,
                           "yellow": ylw_inky_palette}
-
 
         self.tk_root = tkinter.Tk()
         self.tk_root.title("Inky Preview")
@@ -81,7 +80,7 @@ class InkyMock(inky.Inky):
         im = Image.fromarray(region, "P")
         im.putpalette(self.c_palette[self.colour])
 
-        self.disp_img_copy = im.copy() # can be changed due to window resizing, so copy
+        self.disp_img_copy = im.copy()  # can be changed due to window resizing, so copy
         photo = ImageTk.PhotoImage(im)
         self.tk_label = ttk.Label(self.tk_root, image=photo)
         self.tk_label.bind('<Configure>', self.resize_image)
