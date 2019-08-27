@@ -13,9 +13,7 @@ class InkyMock(inky.Inky):
         :param colour: one of red, black or yellow, default: black
 
         """
-        global Mock, matplotlib, pyplot
-
-        from unittest.mock import Mock
+        global matplotlib, pyplot
 
         try:
             import matplotlib
@@ -44,8 +42,8 @@ class InkyMock(inky.Inky):
             'red': {'red': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 1, 1)),
                     'green': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0)),
                     'blue': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0))},
-            'yellow': {'red': ((0.0, 1, 1), (0.5, 0.35, 0), (1.0, 0.7, 0.7)),
-                       'green': ((0.0, 1, 1), (0.5, 0.27, 0), (1.0, 0.54, 0.54)),
+            'yellow': {'red': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0.73, 0.73)),
+                       'green': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0.62, 0.62)),
                        'blue': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0))},
             'black': {'red': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0)),
                       'green': ((0.0, 1, 1), (0.5, 0, 0), (1.0, 0, 0)),
