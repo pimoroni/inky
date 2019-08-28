@@ -59,3 +59,5 @@ elif args.type == "what":
 
 inky_display.set_image(img)
 inky_display.show()
+
+input("Press Enter to continue...")

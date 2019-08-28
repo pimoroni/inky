@@ -13,11 +13,10 @@ class InkyMock(inky.Inky):
         :param colour: one of red, black or yellow, default: black
 
         """
-        global tkinter, ttk, ImageTk, Image
+        global tkinter, ImageTk, Image
 
         try:
             import tkinter
-            from tkinter import ttk
             from PIL import ImageTk, Image
         except ImportError:
             sys.exit('Simulation requires tkinter')
@@ -60,15 +59,18 @@ class InkyMock(inky.Inky):
         self.tk_root.title("Inky Preview")
         self.tk_root.geometry('{}x{}'.format(self.WIDTH, self.HEIGHT))
         self.tk_root.aspect(self.WIDTH, self.HEIGHT, self.WIDTH, self.HEIGHT)
+        self.cv = None
+        self.cvh = self.HEIGHT
+        self.cvw = self.WIDTH
 
-    def resize_image(self, event):
-        # https://stackoverflow.com/questions/24061099/tkinter-resize-background-image-to-window-size
-        new_width = event.width
-        new_height = event.height
-        image = self.disp_img_copy.resize((new_width, new_height))
-        photo = ImageTk.PhotoImage(image)
-        self.tk_label.config(image=photo)
-        self.tk_label.image = photo  # avoid garbage collection
+    def resize(self, event):
+        self.cvw = event.width
+        self.cvh = event.height
+        self.cv.config(width=self.cvw, height=self.cvh)
+        image = self.disp_img_copy.resize([self.cvw, self.cvh])
+        self.photo = ImageTk.PhotoImage(image)
+        self.cv.itemconfig(self.cvhandle, image=self.photo, anchor='nw')
+        self.tk_root.update()
 
     def _send_command(self, command, data=None):
         pass
@@ -81,12 +83,14 @@ class InkyMock(inky.Inky):
         im.putpalette(self.c_palette[self.colour])
 
         self.disp_img_copy = im.copy()  # can be changed due to window resizing, so copy
-        photo = ImageTk.PhotoImage(im)
-        self.tk_label = ttk.Label(self.tk_root, image=photo)
-        self.tk_label.bind('<Configure>', self.resize_image)
-        self.tk_label.pack(fill=tkinter.BOTH, expand=tkinter.YES)
-
-        self.tk_root.mainloop()
+        image = self.disp_img_copy.resize([self.cvw, self.cvh])
+        self.photo = ImageTk.PhotoImage(image)
+        if self.cv == None:
+            self.cv = tkinter.Canvas(self.tk_root, width=self.WIDTH, height=self.HEIGHT)
+        self.cv.pack(side='top', fill='both', expand='yes')
+        self.cvhandle = self.cv.create_image(0, 0, image=self.photo, anchor='nw')
+        self.cv.bind('<Configure>', self.resize)
+        self.tk_root.update()
 
     def show(self, busy_wait=True):
         """Show buffer on display.
