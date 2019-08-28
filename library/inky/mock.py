@@ -64,6 +64,9 @@ class InkyMock(inky.Inky):
         self.cvw = self.WIDTH
 
     def resize(self, event):
+        # adapted from:
+        # https://stackoverflow.com/questions/24061099/tkinter-resize-background-image-to-window-size
+        # https://stackoverflow.com/questions/19838972/how-to-update-an-image-on-a-canvas
         self.cvw = event.width
         self.cvh = event.height
         self.cv.config(width=self.cvw, height=self.cvh)
