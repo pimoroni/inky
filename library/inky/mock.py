@@ -85,7 +85,7 @@ class InkyMock(inky.Inky):
         self.disp_img_copy = im.copy()  # can be changed due to window resizing, so copy
         image = self.disp_img_copy.resize([self.cvw, self.cvh])
         self.photo = ImageTk.PhotoImage(image)
-        if self.cv == None:
+        if self.cv is None:
             self.cv = tkinter.Canvas(self.tk_root, width=self.WIDTH, height=self.HEIGHT)
         self.cv.pack(side='top', fill='both', expand='yes')
         self.cvhandle = self.cv.create_image(0, 0, image=self.photo, anchor='nw')
