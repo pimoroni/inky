@@ -104,3 +104,5 @@ draw.text((name_x, name_y), name, inky_display.BLACK, font=intuitive_font)
 
 inky_display.set_image(img)
 inky_display.show()
+
+input("Press Enter to continue...")
