@@ -4,6 +4,7 @@
 import glob
 import time
 import argparse
+import os
 from inky import InkyPHAT
 from PIL import Image, ImageDraw, ImageFont
 from font_fredoka_one import FredokaOne
@@ -29,6 +30,10 @@ print("""Inky pHAT: Weather
 Displays weather information for a given location. The default location is Sheffield-on-Sea.
 
 """)
+
+# Get the current path
+
+PATH = os.path.dirname(__file__)
 
 # Command line arguments to set display colour
 
@@ -128,11 +133,11 @@ else:
     print("Warning, no weather information found!")
 
 # Create a new canvas to draw on
-img = Image.open("resources/backdrop.png")
+img = Image.open(os.path.join(PATH, "resources/backdrop.png"))
 draw = ImageDraw.Draw(img)
 
 # Load our icon files and generate masks
-for icon in glob.glob("resources/icon-*.png"):
+for icon in glob.glob(os.path.join(PATH, "resources/icon-*.png")):
     icon_name = icon.split("icon-")[1].replace(".png", "")
     icon_image = Image.open(icon)
     icons[icon_name] = icon_image
