@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
 import datetime
 import calendar
 import argparse
@@ -16,6 +17,10 @@ This example uses a sprite sheet of numbers and month names which are
 composited over the background in a couple of different ways.
 
 """)
+
+# Get the current path
+
+PATH = os.path.dirname(__file__)
 
 # Command line arguments to set display type and colour
 
@@ -80,7 +85,7 @@ def print_number(position, number, colour):
 
 
 # Load our sprite sheet and prepare a mask
-text = Image.open("resources/calendar.png")
+text = Image.open(os.path.join(PATH, "resources/calendar.png"))
 text_mask = create_mask(text, [inky_display.WHITE])
 
 # Note: The mask determines which pixels from our sprite sheet we want
@@ -88,7 +93,7 @@ text_mask = create_mask(text, [inky_display.WHITE])
 # See: http://pillow.readthedocs.io/en/3.1.x/reference/Image.html?highlight=paste#PIL.Image.Image.paste
 
 # Load our backdrop image
-img = Image.open("resources/empty-backdrop.png")
+img = Image.open(os.path.join(PATH, "resources/empty-backdrop.png"))
 draw = ImageDraw.Draw(img)
 
 # Grab the current date, and prepare our calendar
