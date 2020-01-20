@@ -65,7 +65,7 @@ Set the border colour of you pHAT or wHAT.
 inkyphat.set_border(colour)
 ```
 
-`colour` should be one of `inky.RED`, `inky.YELLOW`, `inky.WHITE` or `inky.BLACK` with available colours depending on your diplay type.
+`colour` should be one of `inky.RED`, `inky.YELLOW`, `inky.WHITE` or `inky.BLACK` with available colours depending on your display type.
 
 ## Update The Display
 
