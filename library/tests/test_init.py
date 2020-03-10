@@ -1,6 +1,4 @@
 """Initialization tests for Inky."""
-import sys
-import mock
 
 
 def test_init_mock_phat_black(tkinter, PIL):

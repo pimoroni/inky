@@ -5,8 +5,6 @@ These validate that, in case of a missing package, an ImportError is raised.
 They don't actually validate that our special message is produced!
 
 """
-import sys
-import mock
 import pytest
 from inky.mock import InkyMock, InkyMockPHAT, InkyMockWHAT
 

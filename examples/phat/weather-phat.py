@@ -53,11 +53,13 @@ CITY = "Sheffield"
 COUNTRYCODE = "GB"
 WARNING_TEMP = 25.0
 
+
 # Convert a city name and country code to latitude and longitude
 def get_coords(address):
     g = geocoder.arcgis(address)
     coords = g.latlng
     return coords
+
 
 # Query Dark Sky (https://darksky.net/) to scrape current weather data
 def get_weather(address):
@@ -74,6 +76,7 @@ def get_weather(address):
         return weather
     else:
         return weather
+
 
 def create_mask(source, mask=(inky_display.WHITE, inky_display.BLACK, inky_display.RED)):
     """Create a transparency mask.
@@ -94,6 +97,7 @@ def create_mask(source, mask=(inky_display.WHITE, inky_display.BLACK, inky_displ
                 mask_image.putpixel((x, y), 255)
 
     return mask_image
+
 
 # Dictionaries to store our icons and icon masks in
 icons = {}
