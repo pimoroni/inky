@@ -85,6 +85,7 @@ class Inky:
         self.h_flip = h_flip
         self.v_flip = v_flip
 
+        self._gpio = gpio
         self._gpio_setup = False
 
         """Inky Lookup Tables.
