@@ -22,12 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-import os
-
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+from setuptools import setup
 
 classifiers = [
     'Development Status :: 5 - Production/Stable',
@@ -41,14 +36,9 @@ classifiers = [
     'Topic :: System :: Hardware'
 ]
 
-uname = os.uname()
-
-arch = uname[4]
-on_rpi = arch.startswith('arm')
-
 setup(
     name='inky',
-    version='0.0.5.1',
+    version='0.0.6',
     author='Philip Howard',
     author_email='phil@pimoroni.com',
     description='Inky pHAT Driver',
@@ -61,5 +51,8 @@ setup(
     py_modules=[],
     packages=['inky'],
     include_package_data=True,
-    install_requires=['numpy'] + ( ['spidev', 'RPi.GPIO', 'smbus2'] if on_rpi else [] )
+    install_requires=['numpy'],
+    extras_require={
+        'rpi-gpio-output': ['spidev', 'RPi.GPIO', 'smbus2']
+    }
 )
