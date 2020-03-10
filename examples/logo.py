@@ -3,7 +3,6 @@
 import os
 import argparse
 from PIL import Image
-from inky import InkyWHAT, InkyPHAT
 
 
 print("""Inky pHAT/wHAT: Logo
@@ -19,9 +18,16 @@ PATH = os.path.dirname(__file__)
 # Command line arguments to set display type and colour
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--mock', '-m', required=False, action='store_true', help="Simulate Inky using MatPlotLib")
 parser.add_argument('--type', '-t', type=str, required=True, choices=["what", "phat"], help="type of display")
 parser.add_argument('--colour', '-c', type=str, required=True, choices=["red", "black", "yellow"], help="ePaper display colour")
 args = parser.parse_args()
+
+if args.mock:
+    from inky import InkyMockPHAT as InkyPHAT
+    from inky import InkyMockWHAT as InkyWHAT
+else:
+    from inky import InkyWHAT, InkyPHAT
 
 colour = args.colour
 
@@ -51,3 +57,5 @@ elif args.type == "what":
 
 inky_display.set_image(img)
 inky_display.show()
+
+input("Press Enter to continue...")

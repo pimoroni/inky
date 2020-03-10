@@ -5,7 +5,6 @@ import argparse
 from PIL import Image, ImageFont, ImageDraw
 from font_hanken_grotesk import HankenGroteskBold, HankenGroteskMedium
 from font_intuitive import Intuitive
-from inky import InkyPHAT, InkyWHAT
 
 print("""Inky pHAT/wHAT: Hello... my name is:
 
@@ -16,10 +15,19 @@ Use Inky pHAT/wHAT as a personalised name badge!
 # Command line arguments to set display type and colour, and enter your name
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--mock', '-m', required=False, action='store_true', help="Simulate Inky using MatPlotLib")
 parser.add_argument('--type', '-t', type=str, required=True, choices=["what", "phat"], help="type of display")
 parser.add_argument('--colour', '-c', type=str, required=True, choices=["red", "black", "yellow"], help="ePaper display colour")
 parser.add_argument('--name', '-n', type=str, required=True, help="Your name")
 args = parser.parse_args()
+
+if args.mock:
+    import sys
+    sys.path.insert(0, '../library')
+    from inky import InkyMockPHAT as InkyPHAT
+    from inky import InkyMockWHAT as InkyWHAT
+else:
+    from inky import InkyWHAT, InkyPHAT
 
 colour = args.colour
 
@@ -96,3 +104,5 @@ draw.text((name_x, name_y), name, inky_display.BLACK, font=intuitive_font)
 
 inky_display.set_image(img)
 inky_display.show()
+
+input("Press Enter to continue...")
