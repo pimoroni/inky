@@ -101,7 +101,7 @@ class InkyMock(inky.Inky):
         :param busy_wait: Ignored. Updates are simulated and instant.
 
         """
-        print(">>simulating...")
+        print(">> Simulating {} {}x{}...".format(self.colour, self.WIDTH, self.HEIGHT))
 
         region = self.buf
 
