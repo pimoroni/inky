@@ -24,8 +24,6 @@ parser.add_argument('--colour', '-c', type=str, required=True, choices=["red", "
 args = parser.parse_args()
 
 if args.mock:
-    import sys
-    sys.path.insert(0, '../library')
     from inky import InkyMockPHAT as InkyPHAT
     from inky import InkyMockWHAT as InkyWHAT
 else:
