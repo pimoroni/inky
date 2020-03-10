@@ -1,4 +1,4 @@
-import sys
+"""PIL/Tkinter based simulator for InkyWHAT and InkyWHAT."""
 import numpy
 
 
@@ -6,6 +6,7 @@ from . import inky
 
 
 class InkyMock(inky.Inky):
+    """Base simulator class for Inky."""
 
     def __init__(self, colour, h_flip=False, v_flip=False):
         """Initialise an Inky pHAT Display.
@@ -17,9 +18,13 @@ class InkyMock(inky.Inky):
 
         try:
             import tkinter
+        except ImportError:
+            raise ImportError('Simulation requires tkinter')
+
+        try:
             from PIL import ImageTk, Image
         except ImportError:
-            sys.exit('Simulation requires tkinter')
+            raise ImportError('Simulation requires PIL ImageTk and Image')
 
         resolution = (self.WIDTH, self.HEIGHT)
 
@@ -29,6 +34,8 @@ class InkyMock(inky.Inky):
         self.resolution = resolution
         self.width, self.height = resolution
         self.cols, self.rows, self.rotation = inky._RESOLUTION[resolution]
+
+        self.buf = numpy.zeros((self.height, self.width), dtype=numpy.uint8)
 
         if colour not in ('red', 'black', 'yellow'):
             raise ValueError('Colour {} is not supported!'.format(colour))
@@ -51,12 +58,12 @@ class InkyMock(inky.Inky):
         # yellow color value: screen capture from
         # https://www.thoughtsmakethings.com/Pimoroni-Inky-pHAT
 
-        self.c_palette = {"black": bw_inky_palette,
-                          "red": red_inky_palette,
-                          "yellow": ylw_inky_palette}
+        self.c_palette = {'black': bw_inky_palette,
+                          'red': red_inky_palette,
+                          'yellow': ylw_inky_palette}
 
         self.tk_root = tkinter.Tk()
-        self.tk_root.title("Inky Preview")
+        self.tk_root.title('Inky Preview')
         self.tk_root.geometry('{}x{}'.format(self.WIDTH, self.HEIGHT))
         self.tk_root.aspect(self.WIDTH, self.HEIGHT, self.WIDTH, self.HEIGHT)
         self.cv = None
@@ -64,6 +71,7 @@ class InkyMock(inky.Inky):
         self.cvw = self.WIDTH
 
     def resize(self, event):
+        """Resize background image to window size."""
         # adapted from:
         # https://stackoverflow.com/questions/24061099/tkinter-resize-background-image-to-window-size
         # https://stackoverflow.com/questions/19838972/how-to-update-an-image-on-a-canvas
@@ -82,7 +90,7 @@ class InkyMock(inky.Inky):
         pass
 
     def _display(self, region):
-        im = Image.fromarray(region, "P")
+        im = Image.fromarray(region, 'P')
         im.putpalette(self.c_palette[self.colour])
 
         self.disp_img_copy = im.copy()  # can be changed due to window resizing, so copy
@@ -101,7 +109,7 @@ class InkyMock(inky.Inky):
         :param busy_wait: Ignored. Updates are simulated and instant.
 
         """
-        print(">> Simulating {} {}x{}...".format(self.colour, self.WIDTH, self.HEIGHT))
+        print('>> Simulating {} {}x{}...'.format(self.colour, self.WIDTH, self.HEIGHT))
 
         region = self.buf
 
@@ -118,8 +126,7 @@ class InkyMock(inky.Inky):
 
 
 class InkyMockPHAT(InkyMock):
-
-    """Inky wHAT e-Ink Display Driver."""
+    """Inky wHAT e-Ink Display Simulator."""
 
     WIDTH = 212
     HEIGHT = 104
@@ -137,8 +144,7 @@ class InkyMockPHAT(InkyMock):
 
 
 class InkyMockWHAT(InkyMock):
-
-    """Inky wHAT e-Ink Display Driver."""
+    """Inky wHAT e-Ink Display Simulator."""
 
     WIDTH = 400
     HEIGHT = 300

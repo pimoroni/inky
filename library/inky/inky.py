@@ -1,5 +1,4 @@
 """Inky e-Ink Display Driver."""
-import sys
 import time
 import struct
 
@@ -8,7 +7,7 @@ from . import eeprom
 try:
     import numpy
 except ImportError:
-    sys.exit('This library requires the numpy module\nInstall with: sudo apt install python-numpy')
+    raise ImportError('This library requires the numpy module\nInstall with: sudo apt install python-numpy')
 
 WHITE = 0
 BLACK = 1
@@ -204,7 +203,7 @@ class Inky:
                     import RPi.GPIO as GPIO
                     self._gpio = GPIO
                 except ImportError:
-                    sys.exit('This library requires the RPi.GPIO module\nInstall with: sudo apt install python-rpi.gpio')
+                    raise ImportError('This library requires the RPi.GPIO module\nInstall with: sudo apt install python-rpi.gpio')
             self._gpio.setmode(self._gpio.BCM)
             self._gpio.setwarnings(False)
             self._gpio.setup(self.dc_pin, self._gpio.OUT, initial=self._gpio.LOW, pull_up_down=self._gpio.PUD_OFF)
