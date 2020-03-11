@@ -104,8 +104,5 @@ inky_display.set_image(img)
 inky_display.show()
 
 if args.mock:
-    print("Press enter to exit...")
-    try:
-        raw_input()
-    except NameError:
-        input()
+    print("Press Ctrl+C or close window to exit...")
+    inky_display.wait_for_window_close()

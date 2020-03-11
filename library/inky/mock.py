@@ -62,13 +62,24 @@ class InkyMock(inky.Inky):
                           'red': red_inky_palette,
                           'yellow': ylw_inky_palette}
 
+        self._tk_done = False
         self.tk_root = tkinter.Tk()
         self.tk_root.title('Inky Preview')
         self.tk_root.geometry('{}x{}'.format(self.WIDTH, self.HEIGHT))
         self.tk_root.aspect(self.WIDTH, self.HEIGHT, self.WIDTH, self.HEIGHT)
+        self.tk_root.protocol("WM_DELETE_WINDOW", self._close_window)
         self.cv = None
         self.cvh = self.HEIGHT
         self.cvw = self.WIDTH
+
+    def wait_for_window_close(self):
+        while not self._tk_done:
+            self.tk_root.update_idletasks()
+            self.tk_root.update()
+
+    def _close_window(self):
+        self._tk_done = True
+        self.tk_root.destroy()
 
     def resize(self, event):
         """Resize background image to window size."""
