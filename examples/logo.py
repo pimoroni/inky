@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import os
-import signal
 import argparse
 from PIL import Image
 
@@ -60,5 +59,8 @@ inky_display.set_image(img)
 inky_display.show()
 
 if args.mock:
-    print("Press Ctl+C to exit...")
-    signal.pause()
+    print("Press enter to exit...")
+    try:
+        raw_input()
+    except NameError:
+        input()

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import argparse
-import signal
 
 from PIL import Image, ImageFont, ImageDraw
 from font_hanken_grotesk import HankenGroteskBold, HankenGroteskMedium
@@ -105,5 +104,8 @@ inky_display.set_image(img)
 inky_display.show()
 
 if args.mock:
-    print("Press Ctl+C to exit...")
-    signal.pause()
+    print("Press enter to exit...")
+    try:
+        raw_input()
+    except NameError:
+        input()
