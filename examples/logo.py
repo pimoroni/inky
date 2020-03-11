@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import signal
 import argparse
 from PIL import Image
 
@@ -58,4 +59,6 @@ elif args.type == "what":
 inky_display.set_image(img)
 inky_display.show()
 
-input("Press Enter to continue...")
+if args.mock:
+    print("Press Ctl+C to exit...")
+    signal.pause()

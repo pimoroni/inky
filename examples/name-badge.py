@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
+import signal
 
 from PIL import Image, ImageFont, ImageDraw
 from font_hanken_grotesk import HankenGroteskBold, HankenGroteskMedium
@@ -22,8 +23,6 @@ parser.add_argument('--name', '-n', type=str, required=True, help="Your name")
 args = parser.parse_args()
 
 if args.mock:
-    import sys
-    sys.path.insert(0, '../library')
     from inky import InkyMockPHAT as InkyPHAT
     from inky import InkyMockWHAT as InkyWHAT
 else:
@@ -105,4 +104,6 @@ draw.text((name_x, name_y), name, inky_display.BLACK, font=intuitive_font)
 inky_display.set_image(img)
 inky_display.show()
 
-input("Press Enter to continue...")
+if args.mock:
+    print("Press Ctl+C to exit...")
+    signal.pause()
