@@ -9,16 +9,23 @@ try:
 except ImportError:
     raise ImportError('This library requires the numpy module\nInstall with: sudo apt install python-numpy')
 
+# Display colour codes
 WHITE = 0
 BLACK = 1
 RED = YELLOW = 2
 
+# GPIO pins required by BCM number
 RESET_PIN = 27
 BUSY_PIN = 17
 DC_PIN = 22
 
-MOSI_PIN = 10
-SCLK_PIN = 11
+# In addition the following pins are used for SPI
+# CS_PIN = 8
+# MOSI_PIN = 10
+# SCLK_PIN = 11
+# SCLK_PIN = 11
+
+# SPI channel for device 0
 CS0 = 0
 
 _SPI_CHUNK_SIZE = 4096
