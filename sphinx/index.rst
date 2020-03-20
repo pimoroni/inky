@@ -14,7 +14,7 @@ The Pimoroni website has tutorials demonstrating how to set up and use the `Inky
 .. currentmodule:: inky
 
 .. toctree::
-   maxdepth 2
+   :maxdepth: 2
    :caption: Contents:
 
    inky
