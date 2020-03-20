@@ -17,4 +17,6 @@ The Pimoroni website has tutorials demonstrating how to set up and use the `Inky
    :maxdepth: 2
    :caption: Contents:
 
+   phat
+   what
    inky
