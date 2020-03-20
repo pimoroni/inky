@@ -39,7 +39,10 @@ _RESOLUTION = {
 
 
 class Inky:
-    """Inky e-Ink Display Driver."""
+    """Inky e-Ink Display Driver.
+
+    Generally it is more convenient to use either the :class:`inky.InkyPHAT` or :class:`inky.InkyWHAT` classes.
+    """
 
     WHITE = 0
     BLACK = 1

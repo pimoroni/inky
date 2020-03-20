@@ -24,20 +24,6 @@ import inky
 
 from sphinx.ext import autodoc
 
-
-class ClassOutlineDocumenter(autodoc.ClassDocumenter):
-    objtype = 'classoutline'
-
-    def add_directive_header(self, sig):
-        pass # Squash directive header for At A Glance view
-
-
-def setup(app):
-    global sphinx_app
-    sphinx_app = app
-    app.add_autodocumenter(ClassOutlineDocumenter)
-    ClassOutlineDocumenter.objtype = 'class'
-
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -52,6 +38,8 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.intersphinx',
 ]
+
+autoclass_content = 'both'
 
 # Intersphinx configuration
 intersphinx_mapping = {
