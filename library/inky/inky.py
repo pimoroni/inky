@@ -49,15 +49,21 @@ class Inky:
     def __init__(self, resolution=(400, 300), colour='black', cs_channel=CS0, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):
         """Initialise an Inky Display.
 
-        :param resolution: (width, height) in pixels, default: (400, 300)
-        :param colour: one of red, black or yellow, default: black
-        :param cs_channel: chip-select channel for SPI communication
-        :param dc_pin: data/command pin for SPI communication
-        :param reset_pin: device reset pin
-        :param busy_pin: device busy/wait pin
-        :param h_flip: enable horizontal display flip, default: False
-        :param v_flip: enable vertical display flip, default: False
-
+        :param resolution: (width, height) in pixels, default: (400, 300).
+        :type resolution: tuple(int, int)
+        :param str colour: one of 'red', 'black' or 'yellow', default: 'black'.
+        :param int cs_channel: chip-select channel for SPI communication, default: `0`.
+        :param int dc_pin: data/command pin for SPI communication, default: `22`.
+        :param int reset_pin: device reset pin, default: `27`.
+        :param int busy_pin: device busy/wait pin: `17`.
+        :param bool h_flip: enable horizontal display flip, default: `False`.
+        :param bool v_flip: enable vertical display flip, default: `False`.
+        :param spi_bus: SPI device. If `None` then a default :class:`spidev.SpiDev` object is used. Default: `None`.
+        :type spi_bus: :class:`spidev.SpiDev`
+        :param i2c_bus: SMB object. If `None` then :class:`smbus2.SMBus(1)` is used.
+        :type i2c_bus: :class:`smbus2.SMBus`
+        :param gpio: GPIO module. If `None` then `RPi.GPIO` is imported. Default: `None`.
+        :type gpio: :class:`RPi.GPIO`
         """
         self._spi_bus = spi_bus
         self._i2c_bus = i2c_bus
