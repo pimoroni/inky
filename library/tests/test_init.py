@@ -89,4 +89,4 @@ def test_init_what_setup(spidev, smbus2, GPIO):
     ])
 
     # Check API will been opened
-    spidev.SpiDev().open.assert_called_with(0, inky.cs_pin)
+    spidev.SpiDev().open.assert_called_with(0, inky.cs_channel)

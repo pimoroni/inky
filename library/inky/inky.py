@@ -19,7 +19,7 @@ DC_PIN = 22
 
 MOSI_PIN = 10
 SCLK_PIN = 11
-CS0_PIN = 0
+CS0 = 0
 
 _SPI_CHUNK_SIZE = 4096
 _SPI_COMMAND = 0
@@ -39,12 +39,12 @@ class Inky:
     RED = 2
     YELLOW = 2
 
-    def __init__(self, resolution=(400, 300), colour='black', cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):
+    def __init__(self, resolution=(400, 300), colour='black', cs_channel=CS0, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):
         """Initialise an Inky Display.
 
         :param resolution: (width, height) in pixels, default: (400, 300)
         :param colour: one of red, black or yellow, default: black
-        :param cs_pin: chip-select pin for SPI communication
+        :param cs_channel: chip-select channel for SPI communication
         :param dc_pin: data/command pin for SPI communication
         :param reset_pin: device reset pin
         :param busy_pin: device busy/wait pin
@@ -81,7 +81,7 @@ class Inky:
         self.dc_pin = dc_pin
         self.reset_pin = reset_pin
         self.busy_pin = busy_pin
-        self.cs_pin = cs_pin
+        self.cs_channel = cs_channel
         self.h_flip = h_flip
         self.v_flip = v_flip
 
@@ -215,7 +215,7 @@ class Inky:
                 import spidev
                 self._spi_bus = spidev.SpiDev()
 
-            self._spi_bus.open(0, self.cs_pin)
+            self._spi_bus.open(0, self.cs_channel)
             self._spi_bus.max_speed_hz = 488000
 
             self._gpio_setup = True
