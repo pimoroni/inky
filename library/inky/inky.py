@@ -313,12 +313,11 @@ class Inky:
             self._send_command(0x10, 0x01)  # Enter Deep Sleep
 
     def set_pixel(self, x, y, v):
-        """Set a single pixel.
+        """Set a single pixel on the buffer.
 
-        :param x: x position on display
-        :param y: y position on display
-        :param v: colour to set
-
+        :param int x: x position on display.
+        :param int y: y position on display.
+        :param int v: Colour to set, valid values are `Inky.BLACK`, `Inky.WHITE`, `Inky.RED` and `Inky.YELLOW`.
         """
         if v in (WHITE, BLACK, RED):
             self.buf[y][x] = v
@@ -326,8 +325,7 @@ class Inky:
     def show(self, busy_wait=True):
         """Show buffer on display.
 
-        :param busy_wait: If True, wait for display update to finish before returning.
-
+        :param bool busy_wait: If True, wait for display update to finish before returning, default: `True`.
         """
         region = self.buf
 
@@ -346,12 +344,18 @@ class Inky:
         self._update(buf_a, buf_b, busy_wait=busy_wait)
 
     def set_border(self, colour):
-        """Set the border colour."""
+        """Set the border colour.
+
+        :param int colour: The border colour. Valid values are `Inky.BLACK`, `Inky.WHITE`, `Inky.RED` and `Inky.YELLOW`."""
         if colour in (WHITE, BLACK, RED):
             self.border_colour = colour
 
     def set_image(self, image):
-        """Copy an image to the display."""
+        """Copy an image to the buffer.
+
+        :param image: Image to copy.
+        :type image: :class:`PIL.Image.Image`
+        """
         if self.rotation % 180 == 0:
             self.buf = numpy.array(image, dtype=numpy.uint8).reshape((self.width, self.height))
         else:
@@ -362,7 +366,6 @@ class Inky:
 
         :param dc: whether to write as data or command
         :param values: list of values to write
-
         """
         self._gpio.output(self.dc_pin, dc)
         try:

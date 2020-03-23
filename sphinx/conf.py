@@ -43,7 +43,8 @@ autoclass_content = 'both'
 
 # Intersphinx configuration
 intersphinx_mapping = {
-    'smbus2': ('https://smbus2.readthedocs.io/en/latest/', None)
+    'smbus2': ('https://smbus2.readthedocs.io/en/latest/', None),
+    'PIL': ('https://pillow.readthedocs.io/en/stable/', None),
     }
 
 # Add any paths that contain templates here, relative to this directory.
