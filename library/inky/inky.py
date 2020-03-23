@@ -317,7 +317,7 @@ class Inky:
 
         :param int x: x position on display.
         :param int y: y position on display.
-        :param int v: Colour to set, valid values are `Inky.BLACK`, `Inky.WHITE`, `Inky.RED` and `Inky.YELLOW`.
+        :param int v: Colour to set, valid values are `inky.BLACK`, `inky.WHITE`, `inky.RED` and `inky.YELLOW`.
         """
         if v in (WHITE, BLACK, RED):
             self.buf[y][x] = v
@@ -346,7 +346,7 @@ class Inky:
     def set_border(self, colour):
         """Set the border colour.
 
-        :param int colour: The border colour. Valid values are `Inky.BLACK`, `Inky.WHITE`, `Inky.RED` and `Inky.YELLOW`."""
+        :param int colour: The border colour. Valid values are `inky.BLACK`, `inky.WHITE`, `inky.RED` and `inky.YELLOW`."""
         if colour in (WHITE, BLACK, RED):
             self.border_colour = colour
 
