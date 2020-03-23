@@ -16,8 +16,7 @@ class InkyWHAT(inky.Inky):
     def __init__(self, colour):
         """Initialise an Inky wHAT Display.
 
-        :param colour: one of red, black or yellow, default: black
-
+        :param str colour: one of 'red', 'black' or 'yellow', default: 'black'.
         """
         inky.Inky.__init__(
             self,
