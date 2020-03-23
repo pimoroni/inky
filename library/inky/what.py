@@ -10,7 +10,18 @@ from . import inky
 
 
 class InkyWHAT(inky.Inky):
-    """Inky wHAT e-Ink Display Driver."""
+    """Inky wHAT e-Ink Display Driver.
+
+    :Example: ::
+
+        >>> from inky import InkyWHAT
+        >>> display = InkyWHAT('red')
+        >>> display.set_border(display.BLACK)
+        >>> for x in range(display.WIDTH):
+        >>>     for y in range(display.HEIGHT):
+        >>>         display.set_pixel(x, y, display.RED)
+        >>> display.show()
+    """
 
     WIDTH = 400
     HEIGHT = 300

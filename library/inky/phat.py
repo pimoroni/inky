@@ -8,13 +8,23 @@ The `pinout`_ for the Inky pHAT is documented on pinout.xyz
 .. _`Inky pHAT`: https://shop.pimoroni.com/products/inky-phat
 .. _`tutorial`: https://learn.pimoroni.com/tutorial/sandyj/getting-started-with-inky-phat
 .. _`pinout`: https://pinout.xyz/pinout/inky_phat
-
 """
 from . import inky
 
 
 class InkyPHAT(inky.Inky):
-    """Inky pHAT e-Ink Display Driver."""
+    """Inky pHAT e-Ink Display Driver.
+
+    :Example: ::
+
+        >>> from inky import InkyPHAT
+        >>> display = InkyPHAT('red')
+        >>> display.set_border(display.BLACK)
+        >>> for x in range(display.WIDTH):
+        >>>     for y in range(display.HEIGHT):
+        >>>         display.set_pixel(x, y, display.RED)
+        >>> display.show()
+    """
 
     WIDTH = 212
     HEIGHT = 104
