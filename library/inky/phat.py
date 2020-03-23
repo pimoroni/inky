@@ -3,7 +3,7 @@ from . import inky
 
 
 class InkyPHAT(inky.Inky):
-    """Inky wHAT e-Ink Display Driver."""
+    """Inky pHAT e-Ink Display Driver."""
 
     WIDTH = 212
     HEIGHT = 104
