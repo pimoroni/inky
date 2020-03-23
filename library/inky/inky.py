@@ -52,15 +52,15 @@ class Inky:
     def __init__(self, resolution=(400, 300), colour='black', cs_channel=CS0, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):
         """Initialise an Inky Display.
 
-        :param resolution: (width, height) in pixels, default: (400, 300).
+        :param resolution: Display resolution (width, height) in pixels, default: (400, 300).
         :type resolution: tuple(int, int)
-        :param str colour: one of 'red', 'black' or 'yellow', default: 'black'.
-        :param int cs_channel: chip-select channel for SPI communication, default: `0`.
-        :param int dc_pin: data/command pin for SPI communication, default: `22`.
-        :param int reset_pin: device reset pin, default: `27`.
-        :param int busy_pin: device busy/wait pin: `17`.
-        :param bool h_flip: enable horizontal display flip, default: `False`.
-        :param bool v_flip: enable vertical display flip, default: `False`.
+        :param str colour: One of 'red', 'black' or 'yellow', default: 'black'.
+        :param int cs_channel: Chip-select channel for SPI communication, default: `0`.
+        :param int dc_pin: Data/command pin for SPI communication, default: `22`.
+        :param int reset_pin: Device reset pin, default: `27`.
+        :param int busy_pin: Device busy/wait pin: `17`.
+        :param bool h_flip: Enable horizontal display flip, default: `False`.
+        :param bool v_flip: Enable vertical display flip, default: `False`.
         :param spi_bus: SPI device. If `None` then a default :class:`spidev.SpiDev` object is used. Default: `None`.
         :type spi_bus: :class:`spidev.SpiDev`
         :param i2c_bus: SMB object. If `None` then :class:`smbus2.SMBus(1)` is used.
