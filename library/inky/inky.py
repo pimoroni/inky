@@ -353,8 +353,10 @@ class Inky:
     def set_image(self, image):
         """Copy an image to the buffer.
 
+        The dimensions of `image` should match the dimensions of the display being used.
+
         :param image: Image to copy.
-        :type image: :class:`PIL.Image.Image`
+        :type image: :class:`PIL.Image.Image` or :class:`numpy.ndarray` or list
         """
         if self.rotation % 180 == 0:
             self.buf = numpy.array(image, dtype=numpy.uint8).reshape((self.width, self.height))
