@@ -1,4 +1,11 @@
-"""Inky wHAT e-Ink Display Driver."""
+"""
+`Inky wHAT`_ class and methods.
+
+A getting started `tutorial`_ for the Inky wHAT is available on the pimoroni website.
+
+.. _`Inky wHAT`: https://shop.pimoroni.com/products/inky-what
+.. _`tutorial`: https://learn.pimoroni.com/tutorial/sandyj/getting-started-with-inky-what
+"""
 from . import inky
 
 

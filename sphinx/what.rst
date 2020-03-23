@@ -1,5 +1,7 @@
-InkyWHAT Class
---------------
+Inky wHAT
+---------
+
+.. automodule:: inky.what
 
 .. autoclass:: inky.InkyWHAT
    :members:
