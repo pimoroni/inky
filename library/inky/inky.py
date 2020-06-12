@@ -347,7 +347,8 @@ class Inky:
     def set_border(self, colour):
         """Set the border colour.
 
-        :param int colour: The border colour. Valid values are `inky.BLACK`, `inky.WHITE`, `inky.RED` and `inky.YELLOW`."""
+        :param int colour: The border colour. Valid values are `inky.BLACK`, `inky.WHITE`, `inky.RED` and `inky.YELLOW`.
+        """
         if colour in (WHITE, BLACK, RED):
             self.border_colour = colour
 
