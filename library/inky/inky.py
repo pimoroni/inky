@@ -9,17 +9,24 @@ try:
 except ImportError:
     raise ImportError('This library requires the numpy module\nInstall with: sudo apt install python-numpy')
 
+# Display colour codes
 WHITE = 0
 BLACK = 1
 RED = YELLOW = 2
 
+# GPIO pins required by BCM number
 RESET_PIN = 27
 BUSY_PIN = 17
 DC_PIN = 22
 
-MOSI_PIN = 10
-SCLK_PIN = 11
-CS0_PIN = 0
+# In addition the following pins are used for SPI
+# CS_PIN = 8
+# MOSI_PIN = 10
+# SCLK_PIN = 11
+# SCLK_PIN = 11
+
+# SPI channel for device 0
+CS0 = 0
 
 _SPI_CHUNK_SIZE = 4096
 _SPI_COMMAND = 0
@@ -32,25 +39,35 @@ _RESOLUTION = {
 
 
 class Inky:
-    """Inky e-Ink Display Driver."""
+    """Inky e-Ink Display Driver.
+
+    Generally it is more convenient to use either the :class:`inky.InkyPHAT` or :class:`inky.InkyWHAT` classes.
+    """
 
     WHITE = 0
     BLACK = 1
     RED = 2
     YELLOW = 2
 
-    def __init__(self, resolution=(400, 300), colour='black', cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):
+    def __init__(self, resolution=(400, 300), colour='black', cs_channel=CS0, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False,
+                 spi_bus=None, i2c_bus=None, gpio=None):
         """Initialise an Inky Display.
 
-        :param resolution: (width, height) in pixels, default: (400, 300)
-        :param colour: one of red, black or yellow, default: black
-        :param cs_pin: chip-select pin for SPI communication
-        :param dc_pin: data/command pin for SPI communication
-        :param reset_pin: device reset pin
-        :param busy_pin: device busy/wait pin
-        :param h_flip: enable horizontal display flip, default: False
-        :param v_flip: enable vertical display flip, default: False
-
+        :param resolution: Display resolution (width, height) in pixels, default: (400, 300).
+        :type resolution: tuple(int, int)
+        :param str colour: One of 'red', 'black' or 'yellow', default: 'black'.
+        :param int cs_channel: Chip-select channel for SPI communication, default: `0`.
+        :param int dc_pin: Data/command pin for SPI communication, default: `22`.
+        :param int reset_pin: Device reset pin, default: `27`.
+        :param int busy_pin: Device busy/wait pin: `17`.
+        :param bool h_flip: Enable horizontal display flip, default: `False`.
+        :param bool v_flip: Enable vertical display flip, default: `False`.
+        :param spi_bus: SPI device. If `None` then a default :class:`spidev.SpiDev` object is used. Default: `None`.
+        :type spi_bus: :class:`spidev.SpiDev`
+        :param i2c_bus: SMB object. If `None` then :class:`smbus2.SMBus(1)` is used.
+        :type i2c_bus: :class:`smbus2.SMBus`
+        :param gpio: GPIO module. If `None` then `RPi.GPIO` is imported. Default: `None`.
+        :type gpio: :class:`RPi.GPIO`
         """
         self._spi_bus = spi_bus
         self._i2c_bus = i2c_bus
@@ -81,7 +98,7 @@ class Inky:
         self.dc_pin = dc_pin
         self.reset_pin = reset_pin
         self.busy_pin = busy_pin
-        self.cs_pin = cs_pin
+        self.cs_channel = cs_channel
         self.h_flip = h_flip
         self.v_flip = v_flip
 
@@ -215,7 +232,7 @@ class Inky:
                 import spidev
                 self._spi_bus = spidev.SpiDev()
 
-            self._spi_bus.open(0, self.cs_pin)
+            self._spi_bus.open(0, self.cs_channel)
             self._spi_bus.max_speed_hz = 488000
 
             self._gpio_setup = True
@@ -297,12 +314,11 @@ class Inky:
             self._send_command(0x10, 0x01)  # Enter Deep Sleep
 
     def set_pixel(self, x, y, v):
-        """Set a single pixel.
+        """Set a single pixel on the buffer.
 
-        :param x: x position on display
-        :param y: y position on display
-        :param v: colour to set
-
+        :param int x: x position on display.
+        :param int y: y position on display.
+        :param int v: Colour to set, valid values are `inky.BLACK`, `inky.WHITE`, `inky.RED` and `inky.YELLOW`.
         """
         if v in (WHITE, BLACK, RED):
             self.buf[y][x] = v
@@ -310,8 +326,7 @@ class Inky:
     def show(self, busy_wait=True):
         """Show buffer on display.
 
-        :param busy_wait: If True, wait for display update to finish before returning.
-
+        :param bool busy_wait: If True, wait for display update to finish before returning, default: `True`.
         """
         region = self.buf
 
@@ -330,12 +345,21 @@ class Inky:
         self._update(buf_a, buf_b, busy_wait=busy_wait)
 
     def set_border(self, colour):
-        """Set the border colour."""
+        """Set the border colour.
+
+        :param int colour: The border colour. Valid values are `inky.BLACK`, `inky.WHITE`, `inky.RED` and `inky.YELLOW`.
+        """
         if colour in (WHITE, BLACK, RED):
             self.border_colour = colour
 
     def set_image(self, image):
-        """Copy an image to the display."""
+        """Copy an image to the buffer.
+
+        The dimensions of `image` should match the dimensions of the display being used.
+
+        :param image: Image to copy.
+        :type image: :class:`PIL.Image.Image` or :class:`numpy.ndarray` or list
+        """
         if self.rotation % 180 == 0:
             self.buf = numpy.array(image, dtype=numpy.uint8).reshape((self.width, self.height))
         else:
@@ -346,7 +370,6 @@ class Inky:
 
         :param dc: whether to write as data or command
         :param values: list of values to write
-
         """
         self._gpio.output(self.dc_pin, dc)
         try:

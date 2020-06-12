@@ -1,6 +1,7 @@
 """Initialization tests for Inky."""
 
 import mock
+import pytest
 
 
 def test_init_mock_phat_black(tkinter, PIL):
@@ -59,6 +60,24 @@ def test_init_what_yellow(spidev, smbus2):
     InkyWHAT('yellow')
 
 
+def test_init_invalid_colour(spidev, smbus2):
+    """Test initialisation of InkyWHAT with an invalid colour choice."""
+    from inky import InkyWHAT
+
+    with pytest.raises(ValueError):
+        InkyWHAT('octarine')
+
+
+def test_init_what_setup_no_gpio(spidev, smbus2):
+    """Test Inky init with a missing RPi.GPIO library."""
+    from inky import InkyWHAT
+
+    inky = InkyWHAT('red')
+
+    with pytest.raises(ImportError):
+        inky.setup()
+
+
 def test_init_what_setup(spidev, smbus2, GPIO):
     """Test initialisation and setup of InkyWHAT.
 
@@ -89,4 +108,4 @@ def test_init_what_setup(spidev, smbus2, GPIO):
     ])
 
     # Check API will been opened
-    spidev.SpiDev().open.assert_called_with(0, inky.cs_pin)
+    spidev.SpiDev().open.assert_called_with(0, inky.cs_channel)

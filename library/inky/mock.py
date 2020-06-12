@@ -67,12 +67,13 @@ class InkyMock(inky.Inky):
         self.tk_root.title('Inky Preview')
         self.tk_root.geometry('{}x{}'.format(self.WIDTH, self.HEIGHT))
         self.tk_root.aspect(self.WIDTH, self.HEIGHT, self.WIDTH, self.HEIGHT)
-        self.tk_root.protocol("WM_DELETE_WINDOW", self._close_window)
+        self.tk_root.protocol('WM_DELETE_WINDOW', self._close_window)
         self.cv = None
         self.cvh = self.HEIGHT
         self.cvw = self.WIDTH
 
     def wait_for_window_close(self):
+        """Wait until the Tkinter window has closed."""
         while not self._tk_done:
             self.tk_root.update_idletasks()
             self.tk_root.update()
