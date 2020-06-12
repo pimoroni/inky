@@ -1,3 +1,5 @@
+## original code at https://github.com/hankhank10/lastfm-user-data-api
+
 import urllib.request
 import json
 from datetime import datetime, timedelta
@@ -31,10 +33,10 @@ def playcount(lastfm_username, period):
 
     if period == "this_month":
         start_time = time_now.replace(day=1, hour=0, minute=0)
-    
+
     if period == "this_year":
         start_time = time_now.replace(month=1, day=1, hour=0, minute=0)
-    
+
     if period == "this_week":
         start_time = time_now.replace(hour=0, minute=0)
         start_time = start_time - timedelta(days=start_time.weekday())
@@ -42,14 +44,14 @@ def playcount(lastfm_username, period):
     if period == "last30days":
         start_time = time_now.replace(hour=0, minute=0)
         start_time = start_time - timedelta(days=30)
-    
+
     if period == "last7days":
         start_time = time_now.replace(hour=0, minute=0)
         start_time = start_time - timedelta(days=7)
 
     if period == "last24hours":
         start_time = time_now - timedelta(hours=24)
-    
+
     if period == "last_hour":
         start_time = time_now - timedelta(hours=1)
 
@@ -64,7 +66,7 @@ def playcount(lastfm_username, period):
 
     # add the specification that it should come back in JSON
     url = url + "&format=json"
-    
+
     # download the raw json object and parse the json data
     data = urllib.request.urlopen(url).read().decode()
     obj = json.loads(data)
