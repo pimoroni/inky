@@ -87,12 +87,24 @@ class Inky:
         self.eeprom = eeprom.read_eeprom(i2c_bus=i2c_bus)
         self.lut = colour
 
+        # The EEPROM is used to disambiguate the variants of wHAT and pHAT
+        # 1   Red pHAT (High-Temp)
+        # 2   Yellow wHAT (1_E)
+        # 3   Black wHAT (1_E)
+        # 4   Black pHAT (Normal)
+        # 5   Yellow pHAT (DEP0213YNS75AFICP)
+        # 6   Red wHAT (Regular)
+        # 7   Red wHAT (High-Temp)
+        # 8   Red wHAT (DEPG0420RWS19AF0HP)
+        # 10  BW pHAT (ssd1608) (DEPG0213BNS800F13CP)
+        # 11  Red pHAT (ssd1608)
+        # 12  Yellow pHAT (ssd1608)
         if self.eeprom is not None:
             if self.eeprom.width != self.width or self.eeprom.height != self.height:
                 raise ValueError('Supplied width/height do not match Inky: {}x{}'.format(self.eeprom.width, self.eeprom.height))
             if self.eeprom.display_variant in (1, 6) and self.eeprom.get_color() == 'red':
                 self.lut = 'red_ht'
-            if self.eeprom.display_variant in ():  # TODO needs display variants for SSD1608
+            if self.eeprom.display_variant in (10, 11, 12):  # TODO needs display variants for SSD1608
                 self._driver = 'ssd1608'
                 self.lut = 'ssd1608'
 
