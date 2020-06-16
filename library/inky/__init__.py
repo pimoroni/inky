@@ -2,8 +2,8 @@
 
 from . import inky  # noqa: F401
 from .inky import BLACK, WHITE, RED, YELLOW  # noqa: F401
-from .phat import InkyPHAT  # noqa: F401
-from .what import InkyWHAT  # noqa: F401
+from .phat import InkyPHAT, InkyPHAT2  # noqa: F401
+from .what import InkyWHAT             # noqa: F401
 from .mock import InkyMockPHAT, InkyMockWHAT  # noqa: F401
 
 
