@@ -2,7 +2,7 @@
 import time
 import struct
 
-from . import eeprom, ssd1608
+from . import eeprom
 
 try:
     import numpy
@@ -71,7 +71,6 @@ class Inky:
         """
         self._spi_bus = spi_bus
         self._i2c_bus = i2c_bus
-        self._driver = 'original'
 
         if resolution not in _RESOLUTION.keys():
             raise ValueError('Resolution {}x{} not supported!'.format(*resolution))
@@ -87,26 +86,11 @@ class Inky:
         self.eeprom = eeprom.read_eeprom(i2c_bus=i2c_bus)
         self.lut = colour
 
-        # The EEPROM is used to disambiguate the variants of wHAT and pHAT
-        # 1   Red pHAT (High-Temp)
-        # 2   Yellow wHAT (1_E)
-        # 3   Black wHAT (1_E)
-        # 4   Black pHAT (Normal)
-        # 5   Yellow pHAT (DEP0213YNS75AFICP)
-        # 6   Red wHAT (Regular)
-        # 7   Red wHAT (High-Temp)
-        # 8   Red wHAT (DEPG0420RWS19AF0HP)
-        # 10  BW pHAT (ssd1608) (DEPG0213BNS800F13CP)
-        # 11  Red pHAT (ssd1608)
-        # 12  Yellow pHAT (ssd1608)
         if self.eeprom is not None:
             if self.eeprom.width != self.width or self.eeprom.height != self.height:
                 raise ValueError('Supplied width/height do not match Inky: {}x{}'.format(self.eeprom.width, self.eeprom.height))
             if self.eeprom.display_variant in (1, 6) and self.eeprom.get_color() == 'red':
                 self.lut = 'red_ht'
-            if self.eeprom.display_variant in (10, 11, 12):  # TODO needs display variants for SSD1608
-                self._driver = 'ssd1608'
-                self.lut = 'ssd1608'
 
         self.buf = numpy.zeros((self.height, self.width), dtype=numpy.uint8)
         self.border_colour = 0
@@ -171,10 +155,6 @@ class Inky:
 
         """
         self._luts = {
-            'ssd1608': [
-                0x02, 0x02, 0x01, 0x11, 0x12, 0x12, 0x22, 0x22, 0x66, 0x69,
-                0x69, 0x59, 0x58, 0x99, 0x99, 0x88, 0x00, 0x00, 0x00, 0x00,
-                0xF8, 0xB4, 0x13, 0x51, 0x35, 0x51, 0x51, 0x19, 0x01, 0x00],
             'black': [
                 0b01001000, 0b10100000, 0b00010000, 0b00010000, 0b00010011, 0b00000000, 0b00000000,
                 0b01001000, 0b10100000, 0b10000000, 0b00000000, 0b00000011, 0b00000000, 0b00000000,
@@ -273,56 +253,6 @@ class Inky:
     def _update(self, buf_a, buf_b, busy_wait=True):
         """Update display.
 
-        Dispatches display update to correct driver.
-
-        :param buf_a: Black/White pixels
-        :param buf_b: Yellow/Red pixels
-
-        """
-        if self._driver == 'ssd1608':
-            self._update_sh1608(buf_a, buf_b,  busy_wait)
-        else:
-            self._update_original(buf_a, buf_b, busy_wait)
-
-    def _update_sh1608(self, buf_a, buf_b, busy_wait=True):
-        """Update display via SH1608 driver.
-
-        :param buf_a: Black/White pixels
-        :param buf_b: Yellow/Red pixels
-
-        """
-        self._send_command(ssd1608.DRIVER_CONTROL, [self.height - 1, (self.height - 1) >> 8, 0x00 ])
-        # Set dummy line period 
-        self._send_command(ssd1608.WRITE_DUMMY, [0x1B])
-        # Set Line Width
-        self._send_command(ssd1608.WRITE_GATELINE, [0x0B])
-        # Data entry squence (scan direction leftward and downward)
-        self._send_command(ssd1608.DATA_MODE, [0x03])
-        # Set ram X start and end possition 
-        xposBuf = [0x00, self.width / 8 - 1]
-        self._send_command(ssd1608.SET_RAMXPOS, xposBuf)
-        # Set ram Y start and end possition
-        yposBuf = [0x00, 0x00, (self.height - 1) & 0xFF, (self.height - 1) >> 8 ]
-        self._send_command(ssd1608.SET_RAMYPOS, yposBuf)
-        # VCOM Voltage
-        self._send_command(ssd1608.WRITE_VCOM, [0x70])
-        # Write LUT DATA
-        self._send_command(ssd1608.WRITE_LUT, self._luts[self.lut])
-
-        for data in ((ssd1608.WRITE_RAM, buf_a), (ssd1608.WRITE_ALTRAM, buf_b)):
-            cmd, buf = data
-            # Set RAM address to 0, 0
-            self._send_command(ssd1608.SET_RAMXCOUNT, [0x00])
-            self._send_command(ssd1608.SET_RAMYCOUNT, [0x00, 0x00])
-
-            self._send_command(cmd, buf)
-
-        self._busy_wait()
-        self._send_command(ssd1608.MASTER_ACTIVATE)
-
-    def _update_original(self, buf_a, buf_b, busy_wait=True):
-        """Update display via original driver.
-
         :param buf_a: Black/White pixels
         :param buf_b: Yellow/Red pixels
 
@@ -376,7 +306,7 @@ class Inky:
             self._send_command(cmd, buf)
 
         self._send_command(0x22, 0xC7)  # Display Update Sequence
-        self._send_command(0x20)        # Trigger Display Update
+        self._send_command(0x20)  # Trigger Display Update
         time.sleep(0.05)
 
         if busy_wait:
