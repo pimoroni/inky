@@ -1,6 +1,5 @@
 """Inky e-Ink Display Driver."""
 import time
-import struct
 
 from PIL import Image
 from . import eeprom, ssd1608
@@ -39,7 +38,7 @@ class Inky:
     RED = 2
     YELLOW = 2
 
-    def __init__(self, resolution=(250, 122), colour='black', cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):
+    def __init__(self, resolution=(250, 122), colour='black', cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):  # noqa: E501
         """Initialise an Inky Display.
 
         :param resolution: (width, height) in pixels, default: (400, 300)
@@ -175,16 +174,16 @@ class Inky:
         self.setup()
 
         self._send_command(ssd1608.DRIVER_CONTROL, [self.rows - 1, (self.rows - 1) >> 8, 0x00])
-        # Set dummy line period 
+        # Set dummy line period
         self._send_command(ssd1608.WRITE_DUMMY, [0x1B])
         # Set Line Width
         self._send_command(ssd1608.WRITE_GATELINE, [0x0B])
         # Data entry squence (scan direction leftward and downward)
         self._send_command(ssd1608.DATA_MODE, [0x03])
-        # Set ram X start and end possition 
+        # Set ram X start and end position
         xposBuf = [0x00, self.cols // 8 - 1]
         self._send_command(ssd1608.SET_RAMXPOS, xposBuf)
-        # Set ram Y start and end possition
+        # Set ram Y start and end position
         yposBuf = [0x00, 0x00, (self.rows - 1) & 0xFF, (self.rows - 1) >> 8]
         self._send_command(ssd1608.SET_RAMYPOS, yposBuf)
         # VCOM Voltage
