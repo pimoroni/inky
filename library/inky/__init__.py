@@ -5,7 +5,7 @@ from .inky import BLACK, WHITE, RED, YELLOW  # noqa: F401
 from .phat import InkyPHAT, InkyPHAT_SSD1608  # noqa: F401
 from .what import InkyWHAT             # noqa: F401
 from .mock import InkyMockPHAT, InkyMockWHAT  # noqa: F401
-
+from .auto import auto
 
 __version__ = '0.0.5.1'
 
