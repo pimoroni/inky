@@ -28,7 +28,7 @@ if args.mock:
     from inky import InkyMockPHAT as InkyPHAT
     from inky import InkyMockWHAT as InkyWHAT
 else:
-    from inky import InkyWHAT, InkyPHAT, InkyPHAT2
+    from inky import InkyWHAT, InkyPHAT, InkyPHAT_SSD1608
 
 colour = args.colour
 
@@ -36,8 +36,8 @@ colour = args.colour
 
 if args.type == "phat":
     inky_display = InkyPHAT(colour)
-elif args.type == "phatv2":
-    inky_display = InkyPHAT2(colour)
+elif args.type == "phatssd1608":
+    inky_display = InkyPHAT_SSD1608(colour)
 elif args.type == "what":
     inky_display = InkyWHAT(colour)
 
@@ -51,7 +51,7 @@ if args.type == "phat" or args.type == "phatv2":
     else:
         img = Image.open(os.path.join(PATH, "phat/resources/InkypHAT-212x104.png"))
 
-    if args.type == "phatv2" and args.stretch:
+    if args.type == "phatssd1608" and args.stretch:
         img = img.resize((inky_display.width, inky_display.height))  # TODO prep 250x122 versions of these images... *sigh*
 
 elif args.type == "what":

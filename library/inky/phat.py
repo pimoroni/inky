@@ -9,10 +9,10 @@ The `pinout`_ for the Inky pHAT is documented on pinout.xyz
 .. _`tutorial`: https://learn.pimoroni.com/tutorial/sandyj/getting-started-with-inky-phat
 .. _`pinout`: https://pinout.xyz/pinout/inky_phat
 """
-from . import inky, inky2
+from . import inky, inky_ssd1608
 
 
-class InkyPHAT2(inky2.Inky):
+class InkyPHAT_SSD1608(inky_ssd1608.Inky):
     """Inky pHAT V2 (250x122 pixel) e-Ink Display Driver."""
 
     WIDTH = 250
@@ -29,7 +29,7 @@ class InkyPHAT2(inky2.Inky):
         :param colour: one of red, black or yellow, default: black
 
         """
-        inky2.Inky.__init__(
+        inky_ssd1608.Inky.__init__(
             self,
             resolution=(self.WIDTH, self.HEIGHT),
             colour=colour,
