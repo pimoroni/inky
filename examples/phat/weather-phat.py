@@ -5,9 +5,20 @@ import glob
 import time
 import argparse
 import os
+from sys import exit
 from inky import InkyPHAT
 from PIL import Image, ImageDraw, ImageFont
 from font_fredoka_one import FredokaOne
+
+"""
+To run this example on Python 2.x you should:
+    sudo apt install python-lxml
+    sudo pip install geocoder requests font-fredoka-one beautifulsoup4=4.6.3
+
+On Python 3.x:
+    sudo apt install python3-lxml
+    sudo pip3 install geocoder requests font-fredoka-one beautifulsoup4
+"""
 
 try:
     import requests
@@ -22,7 +33,7 @@ except ImportError:
 try:
     from bs4 import BeautifulSoup
 except ImportError:
-    exit("This script requires the bs4 module\nInstall with: sudo pip install beautifulsoup4")
+    exit("This script requires the bs4 module\nInstall with: sudo pip install beautifulsoup4==4.6.3")
 
 
 print("""Inky pHAT: Weather
@@ -38,13 +49,18 @@ PATH = os.path.dirname(__file__)
 # Command line arguments to set display colour
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--colour', '-c', type=str, required=True, choices=["red", "black", "yellow"], help="ePaper display colour")
+parser.add_argument('--colour', '-c', type=str, required=False, default="auto", choices=["auto", "red", "black", "yellow"], help="ePaper display colour")
 args = parser.parse_args()
 
 # Set up the display
 
 colour = args.colour
-inky_display = InkyPHAT(colour)
+if colour == "auto":
+    from inky.auto import auto
+    inky_display = auto()
+    colour = inky_display.colour
+else:
+    inky_display = InkyPHAT(colour)
 inky_display.set_border(inky_display.BLACK)
 
 # Details to customise your weather display
@@ -137,7 +153,7 @@ else:
     print("Warning, no weather information found!")
 
 # Create a new canvas to draw on
-img = Image.open(os.path.join(PATH, "resources/backdrop.png"))
+img = Image.open(os.path.join(PATH, "resources/backdrop.png")).resize(inky_display.resolution)
 draw = ImageDraw.Draw(img)
 
 # Load our icon files and generate masks
