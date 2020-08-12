@@ -31,14 +31,46 @@ and more.
 Installation
 ============
 
-The Python pip package is named inky, install with:
+The Python pip package is named inky, on the Raspberry Pi install with:
 
 ::
 
-   sudo pip install inky
+   pip3 install inky[rpi,fonts]
+
+This will install Inky along with dependencies for the Raspberry Pi,
+plus fonts used by the examples.
+
+If you want to simulate Inky on your desktop, use:
+
+::
+
+   pip3 install inky
+
+You may need to use ``sudo pip3`` or ``sudo pip`` depending on your
+environment and Python version.
 
 Usage
 =====
+
+Auto Setup
+----------
+
+Inky can try to automatically detect your board and set up accordingly:
+
+.. code:: python
+
+   from inky.auto import auto
+   board = auto()
+
+You can then get the colour and resolution from the board:
+
+.. code:: python
+
+   board.colour
+   board.resolution
+
+Manual Setup
+------------
 
 The Inky library contains modules for both the pHAT and wHAT, load the
 InkyPHAT one as follows:
