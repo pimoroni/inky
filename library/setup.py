@@ -53,6 +53,9 @@ setup(
     include_package_data=True,
     install_requires=['numpy'],
     extras_require={
-        'rpi-gpio-output': ['spidev', 'RPi.GPIO', 'smbus2']
+        'rpi-gpio-output': ['spidev', 'RPi.GPIO', 'smbus2'],
+        'rpi': ['spidev', 'RPi.GPIO', 'smbus2'],
+        'fonts': ['font-fredoka-one', 'font-source-serif-pro', 'font-hanken-grotesk', 'font-intuitive'],
+        'example-depends': ['requests', 'geocoder', 'beautifulsoup4']
     }
 )
