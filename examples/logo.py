@@ -19,8 +19,8 @@ PATH = os.path.dirname(__file__)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--mock', '-m', required=False, action='store_true', help="Simulate Inky using MatPlotLib")
-parser.add_argument('--type', '-t', type=str, required=True, choices=["what", "phat", "phatv2"], help="type of display")
-parser.add_argument('--colour', '-c', type=str, required=True, choices=["red", "black", "yellow"], help="ePaper display colour")
+parser.add_argument('--type', '-t', type=str, required=False, default="auto", choices=["auto", "what", "phat", "phatv2"], help="type of display")
+parser.add_argument('--colour', '-c', type=str, required=False, choices=["red", "black", "yellow"], help="ePaper display colour")
 args = parser.parse_args()
 
 if args.mock:
@@ -39,12 +39,24 @@ elif args.type == "phatssd1608":
     inky_display = InkyPHAT_SSD1608(colour)
 elif args.type == "what":
     inky_display = InkyWHAT(colour)
+elif args.type == "auto":
+    from inky.auto import auto
+    inky_display = auto()
+    resolution = inky_display.resolution
+    colour = inky_display.colour
+    if resolution == (212, 104):
+        args.type = "phat"
+    if resolution == (250, 122):
+        args.type = "phatssd1608"
+    if resolution == (400, 300):
+        args.type = "what"
+
 
 inky_display.set_border(inky_display.BLACK)
 
 # Pick the correct logo image to show depending on display type/colour
 
-if args.type == "phat" or args.type == "phatv2":
+if args.type == "phat" or args.type == "phatssd1608":
     if args.type == "phatssd1608":
         if colour == 'black':
             img = Image.open(os.path.join(PATH, "phat/resources/InkypHAT-250x122-bw.png"))
