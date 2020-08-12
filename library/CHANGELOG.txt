@@ -1,3 +1,15 @@
+1.0.0
+-----
+
+* New: Support for SSD1608-based displays
+* New: Mock Inky pHAT and wHAT displays
+* New: Automatic Inky detection and class constructor
+* Enhancement: Support for alternate i2c_bus when reading eeprom
+* Enhancement: Support for alternate spi_bus
+* Enhancement: Support for alternate GPIO driver
+* Enhancement: Replaced sys.exit calls with ImportError
+* Enhancement: Improved docstrings
+
 0.0.5
 -----
 
