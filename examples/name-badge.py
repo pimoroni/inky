@@ -16,8 +16,8 @@ Use Inky pHAT/wHAT as a personalised name badge!
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--mock', '-m', required=False, action='store_true', help="Simulate Inky using MatPlotLib")
-parser.add_argument('--type', '-t', type=str, required=True, choices=["what", "phat"], help="type of display")
-parser.add_argument('--colour', '-c', type=str, required=True, choices=["red", "black", "yellow"], help="ePaper display colour")
+parser.add_argument('--type', '-t', type=str, required=False, default="auto", choices=["auto", "what", "phat"], help="type of display")
+parser.add_argument('--colour', '-c', type=str, required=False, choices=["red", "black", "yellow"], help="ePaper display colour")
 parser.add_argument('--name', '-n', type=str, required=True, help="Your name")
 args = parser.parse_args()
 
@@ -39,6 +39,15 @@ elif args.type == "what":
     inky_display = InkyWHAT(colour)
     scale_size = 2.20
     padding = 15
+else:
+    from inky.auto import auto
+    inky_display = auto()
+    scale_size = 1
+    padding = 0
+    if inky_display.resolution == (400, 300):
+        scale_size = 2.20
+        padding = 15
+    colour = inky_display.colour
 
 # inky_display.set_rotation(180)
 inky_display.set_border(inky_display.RED)
