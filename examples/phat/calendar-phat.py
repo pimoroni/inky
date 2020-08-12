@@ -25,14 +25,19 @@ PATH = os.path.dirname(__file__)
 # Command line arguments to set display type and colour
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--colour', '-c', type=str, required=True, choices=["red", "black", "yellow"], help="ePaper display colour")
+parser.add_argument('--colour', '-c', type=str, required=False, default="auto", choices=["auto", "red", "black", "yellow"], help="ePaper display colour")
 args = parser.parse_args()
 
 colour = args.colour
 
 # Set up the display
+if colour == "auto":
+    from inky.auto import auto
+    inky_display = auto()
+    colour = inky_display.colour
+else:
+    inky_display = InkyPHAT(colour)
 
-inky_display = InkyPHAT(colour)
 inky_display.set_border(inky_display.BLACK)
 
 # Uncomment the following if you want to rotate the display 180 degrees
@@ -96,7 +101,7 @@ text_mask = create_mask(text, [inky_display.WHITE])
 # See: http://pillow.readthedocs.io/en/3.1.x/reference/Image.html?highlight=paste#PIL.Image.Image.paste
 
 # Load our backdrop image
-img = Image.open(os.path.join(PATH, "resources/empty-backdrop.png"))
+img = Image.open(os.path.join(PATH, "resources/empty-backdrop.png")).resize(inky_display.resolution)
 draw = ImageDraw.Draw(img)
 
 # Grab the current date, and prepare our calendar
