@@ -1,3 +1,8 @@
+1.0.1
+-----
+
+* Enhancement: Tweak setup.py extras for easier dependency install
+
 1.0.0
 -----
 
