@@ -19,15 +19,26 @@ YELLOW = 5
 ORANGE = 6
 CLEAN = 7
 
-PALETTE = [
-    0, 0, 0,
-    255, 255, 255,
-    0, 255, 0,
-    0, 0, 255,
-    255, 0, 0,
-    255, 255, 0,
-    255, 140, 0,
-    255, 255, 255
+DESATURATED_PALETTE = [
+    [0, 0, 0],
+    [255, 255, 255],
+    [0, 255, 0],
+    [0, 0, 255],
+    [255, 0, 0],
+    [255, 255, 0],
+    [255, 140, 0],
+    [255, 255, 255]
+]
+
+SATURATED_PALETTE = [
+    [57, 48, 57],
+    [201, 201, 186],
+    [58, 91, 70],
+    [61, 59, 94],
+    [156, 72, 75],
+    [208, 190, 71],
+    [77, 106, 73],
+    [255, 255, 255]
 ]
 
 RESET_PIN = 27
@@ -135,7 +146,7 @@ class Inky:
         #        # TODO flash correct heights to new EEPROMs
         #        # raise ValueError('Supplied width/height do not match Inky: {}x{}'.format(self.eeprom.width, self.eeprom.height))
 
-        self.buf = numpy.zeros((self.cols, self.rows), dtype=numpy.uint8)
+        self.buf = numpy.zeros((self.rows, self.cols), dtype=numpy.uint8)
 
         self.border_colour = 0
 
@@ -150,6 +161,16 @@ class Inky:
         self._gpio_setup = False
 
         self._luts = None
+
+    def _palette_blend(self, saturation):
+        saturation = float(saturation)
+        palette = []
+        for i in range(7):
+            rs, gs, bs = [c * saturation for c in SATURATED_PALETTE[i]]
+            rd, gd, bd = [c * (1.0 - saturation) for c in DESATURATED_PALETTE[i]]
+            palette += [int(rs + rd), int(gs + gd), int(bs + bd)]
+        palette += [255, 255, 255]
+        return palette
 
     def setup(self):
         """Set up Inky GPIO and reset display."""
@@ -325,13 +346,17 @@ class Inky:
         """Set the border colour."""
         raise NotImplemented
 
-    def set_image(self, image, palette=None):
-        """Copy an image to the display."""
+    def set_image(self, image, saturation=0.5):
+        """Copy an image to the display.
+
+        :param image: PIL image to copy, must be 600x448
+        :param saturation: Saturation for quantization palette - higher value results in a more saturated image
+
+        """
         if not image.size == (self.width, self.height):
             raise ValueError("Image must be ({}x{}) pixels!".format(self.width, self.height))
         if not image.mode == "P":
-            if palette is None:
-                palette = PALETTE
+            palette = self._palette_blend(saturation)
             # Image size doesn't matter since it's just the palette we're using
             palette_image = Image.new("P", (1, 1))
             # Set our 7 colour palette (+ clear) and zero out the other 247 colours
