@@ -192,7 +192,7 @@ class Inky:
                 self._spi_bus = spidev.SpiDev()
 
             self._spi_bus.open(0, self.cs_pin)
-            self._spi_bus.max_speed_hz = 488000
+            self._spi_bus.max_speed_hz = 3000000
 
             self._gpio_setup = True
 
