@@ -3,16 +3,32 @@ import time
 import struct
 
 from PIL import Image
-from . import eeprom, ssd1608
+from . import eeprom
 
 try:
     import numpy
 except ImportError:
     raise ImportError('This library requires the numpy module\nInstall with: sudo apt install python-numpy')
 
-WHITE = 0
-BLACK = 1
-RED = YELLOW = 2
+BLACK = 0
+WHITE = 1
+GREEN = 2
+BLUE = 3
+RED = 4
+YELLOW = 5
+ORANGE = 6
+CLEAN = 7
+
+PALETTE = [
+    0, 0, 0,
+    255, 255, 255,
+    0, 255, 0,
+    0, 0, 255,
+    255, 0, 0,
+    255, 255, 0,
+    255, 140, 0,
+    255, 255, 255
+]
 
 RESET_PIN = 27
 BUSY_PIN = 17
@@ -166,18 +182,22 @@ class Inky:
 
         self._busy_wait()
 
+        # Resolution Setting
+        # 10bit horizontal followed by a 10bit vertical resolution
+        # we'll let struct.pack do the work here and send 16bit values
+        # life is too short for manual bit wrangling
         self._send_command(
             UC8159_TRES,
             struct.pack(">HH", self.width, self.height))
 
-        """
-        eink_data[0] |= 1<<5;
-	    eink_data[0] |= 0b11<<2; # ROTATE_0
-	    eink_data[0] |= 0x01<<1 # BOOSTER_ON
-	    eink_data[0] |= 0x01; # /* Add the soft reset bit */
-	    eink_data[1] = 0x08; # display_colours == UC8159_7C
-        """
-
+        # Panel Setting
+        # 0b11000000 = Resolution select, 0b00 = 640x480, our panel is 0b11 = 600x448
+        # 0b00100000 = LUT selection, 0 = ext flash, 1 = registers, we use ext flash
+        # 0b00010000 = Ignore
+        # 0b00001000 = Gate scan direction, 0 = down, 1 = up (default)
+        # 0b00000100 = Source shift direction, 0 = left, 1 = right (default)
+        # 0b00000010 = DC-DC converter, 0 = off, 1 = on
+        # 0b00000001 = Soft reset, 0 = Reset, 1 = Normal (Default)
         self._send_command(
             UC8159_PSR,
             [
@@ -186,10 +206,11 @@ class Inky:
             ]
         )
 
+        # Power Settings
         self._send_command(
             UC8159_PWR,
             [
-                (0x06 << 3) |  # ???
+                (0x06 << 3) |  # ??? - not documented in UC8159 datasheet
                 (0x01 << 2) |  # SOURCE_INTERNAL_DC_DC
                 (0x01 << 1) |  # GATE_INTERNAL_DC_DC
                 (0x01),        # LV_SOURCE_INTERNAL_DC_DC
@@ -200,14 +221,27 @@ class Inky:
         )
 
         # Set the PLL clock frequency to 50Hz
-        self._send_command(UC8159_PLL, [0x3C])  # ref code writes 3 bytes here??
+        # 0b11000000 = Ignore
+        # 0b00111000 = M
+        # 0b00000111 = N
+        # PLL = 2MHz * (M / N)
+        # PLL = 2MHz * (7 / 4)
+        # PLL = 2,800,000 ???
+        self._send_command(UC8159_PLL, [0x3C])  # 0b00111100
 
         # Send the TSE register to the display
         self._send_command(UC8159_TSE, [0x00])  # Colour
 
-        self._send_command(UC8159_CDI, [0x37])  # ???
+        # VCOM and Data Interval setting
+        # 0b11100000 = Vborder control (0b001 = LUTB voltage)
+        # 0b00010000 = Data polarity
+        # 0b00001111 = Vcom and data interval (0b0111 = 10, default)
+        self._send_command(UC8159_CDI, [0x37])  # 0b00110111
 
-        self._send_command(UC8159_TCON, [0x22])
+        # Gate/Source non-overlap period
+        # 0b11110000 = Source to Gate (0b0010 = 12nS, default)
+        # 0b00001111 = Gate to Source
+        self._send_command(UC8159_TCON, [0x22])  # 0b00100010
 
         # Disable external flash
         self._send_command(UC8159_DAM, [0x00])
@@ -215,6 +249,9 @@ class Inky:
         # UC8159_7C
         self._send_command(UC8159_PWS, [0xAA])
 
+        # Power off sequence
+        # 0b00110000 = power off sequence of VDH and VDL, 0b00 = 1 frame (default)
+        # All other bits ignored?
         self._send_command(
             UC8159_PFS, [0x00]  # PFS_1_FRAME
         )
@@ -259,7 +296,7 @@ class Inky:
         :param v: colour to set
 
         """
-        self.buf[y][x] = v & 0x0F
+        self.buf[y][x] = v & 0x07
 
     def show(self, busy_wait=True):
         """Show buffer on display.
@@ -278,14 +315,6 @@ class Inky:
         if self.rotation:
             region = numpy.rot90(region, self.rotation // 90)
 
-        #buf = numpy.packbits()
-
-        #buf = []
-        #for i in range(self.width * self.height // 2):
-        #    buf.append(
-        #        region[i * 2] << 4) + (region[index * 2 + 1] & 0x0F)
-        #    )
-
         buf = region.flatten()
 
         buf = ((buf[::2] << 4) & 0xF0) | (buf[1::2] & 0x0F)
@@ -295,28 +324,22 @@ class Inky:
     def set_border(self, colour):
         """Set the border colour."""
         raise NotImplemented
-        #if colour in (WHITE, BLACK, RED):
-        #    self.border_colour = colour
 
-    def set_image(self, image):
+    def set_image(self, image, palette=None):
         """Copy an image to the display."""
-        palette = Image.new("P", (16, 16))
-        palette.putpalette([
-            0, 0, 0,
-            255, 255, 255,
-            0, 255, 0,
-            0, 0, 255,
-            255, 0, 0,
-            255,255,0,
-            255,140,0,
-            255, 255, 255
-        ] * 32)
-        image.load()
-        palette.load()
-        #canvas = Image.new("P", (self.rows, self.cols))
-        result = image.im.convert("P", True, palette.im)
-        #canvas.paste(result, (self.offset_x, self.offset_y))
-        self.buf = numpy.array(result, dtype=numpy.uint8).reshape((self.cols, self.rows))
+        if not image.size == (self.width, self.height):
+            raise ValueError("Image must be ({}x{}) pixels!".format(self.width, self.height))
+        if not image.mode == "P":
+            if palette is None:
+                palette = PALETTE
+            # Image size doesn't matter since it's just the palette we're using
+            palette_image = Image.new("P", (1, 1))
+            # Set our 7 colour palette (+ clear) and zero out the other 247 colours
+            palette_image.putpalette(palette + [0, 0, 0] * 248)
+            # Force source image data to be loaded for `.im` to work
+            image.load()
+            image = image.im.convert("P", True, palette_image.im)
+        self.buf = numpy.array(image, dtype=numpy.uint8).reshape((self.cols, self.rows))
 
     def _spi_write(self, dc, values):
         """Write values over SPI.
