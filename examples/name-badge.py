@@ -16,7 +16,7 @@ Use Inky pHAT/wHAT as a personalised name badge!
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--mock', '-m', required=False, action='store_true', help="Simulate Inky using MatPlotLib")
-parser.add_argument('--type', '-t', type=str, required=False, default="auto", choices=["auto", "what", "phat"], help="type of display")
+parser.add_argument('--type', '-t', type=str, required=False, default="auto", choices=["auto", "what", "phat", "phatssd1608"], help="type of display")
 parser.add_argument('--colour', '-c', type=str, required=False, choices=["red", "black", "yellow"], help="ePaper display colour")
 parser.add_argument('--name', '-n', type=str, required=True, help="Your name")
 args = parser.parse_args()
@@ -25,7 +25,7 @@ if args.mock:
     from inky import InkyMockPHAT as InkyPHAT
     from inky import InkyMockWHAT as InkyWHAT
 else:
-    from inky import InkyWHAT, InkyPHAT
+    from inky import InkyWHAT, InkyPHAT, InkyPHAT_SSD1608
 
 colour = args.colour
 
@@ -33,6 +33,10 @@ colour = args.colour
 
 if args.type == "phat":
     inky_display = InkyPHAT(colour)
+    scale_size = 1
+    padding = 0
+elif args.type == "phatssd1608":
+    inky_display = InkyPHAT_SSD1608(colour)
     scale_size = 1
     padding = 0
 elif args.type == "what":
@@ -76,7 +80,7 @@ y_bottom = y_top + int(inky_display.HEIGHT * (4.0 / 10.0))
 
 for y in range(0, y_top):
     for x in range(0, inky_display.width):
-        img.putpixel((x, y), inky_display.RED)
+        img.putpixel((x, y), inky_display.BLACK if colour == "black" else inky_display.RED)
 
 for y in range(y_top, y_bottom):
     for x in range(0, inky_display.width):
@@ -84,7 +88,7 @@ for y in range(y_top, y_bottom):
 
 for y in range(y_bottom, inky_display.HEIGHT):
     for x in range(0, inky_display.width):
-        img.putpixel((x, y), inky_display.RED)
+        img.putpixel((x, y), inky_display.BLACK if colour == "black" else inky_display.RED)
 
 # Calculate the positioning and draw the "Hello" text
 
