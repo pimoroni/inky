@@ -19,7 +19,7 @@ PATH = os.path.dirname(__file__)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--mock', '-m', required=False, action='store_true', help="Simulate Inky using MatPlotLib")
-parser.add_argument('--type', '-t', type=str, required=False, default="auto", choices=["auto", "what", "phat", "phatv2"], help="type of display")
+parser.add_argument('--type', '-t', type=str, required=False, default="auto", choices=["auto", "what", "phat", "phatssd1608"], help="type of display")
 parser.add_argument('--colour', '-c', type=str, required=False, choices=["red", "black", "yellow"], help="ePaper display colour")
 args = parser.parse_args()
 
