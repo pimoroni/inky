@@ -1,3 +1,8 @@
+1.0.2
+-----
+
+* Enhancement: Always install Pi dependencies
+
 1.0.1
 -----
 
