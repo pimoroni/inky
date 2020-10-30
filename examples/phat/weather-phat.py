@@ -53,14 +53,17 @@ parser.add_argument('--colour', '-c', type=str, required=False, default="auto", 
 args = parser.parse_args()
 
 # Set up the display
-
-colour = args.colour
-if colour == "auto":
+try:
     from inky.auto import auto
     inky_display = auto()
     colour = inky_display.colour
-else:
-    inky_display = InkyPHAT(colour)
+    print("Auto-detected {} Inky pHAT".format(colour))
+except RuntimeError:
+    if colour == "auto":
+        raise RuntimeError("Failed to auto-detect your Inky pHAT, try specifying a colour manually.")
+    else:
+        inky_display = InkyPHAT(colour)
+
 inky_display.set_border(inky_display.BLACK)
 
 # Details to customise your weather display

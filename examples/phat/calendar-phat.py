@@ -31,12 +31,16 @@ args = parser.parse_args()
 colour = args.colour
 
 # Set up the display
-if colour == "auto":
+try:
     from inky.auto import auto
     inky_display = auto()
     colour = inky_display.colour
-else:
-    inky_display = InkyPHAT(colour)
+    print("Auto-detected {} Inky pHAT".format(colour))
+except RuntimeError:
+    if colour == "auto":
+        raise RuntimeError("Failed to auto-detect your Inky pHAT, try specifying a colour manually.")
+    else:
+        inky_display = InkyPHAT(colour)
 
 inky_display.set_border(inky_display.BLACK)
 
