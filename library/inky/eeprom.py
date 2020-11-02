@@ -58,7 +58,7 @@ Time: {}""".format(self.width,
                            self.color,
                            self.pcb_variant,
                            self.display_variant,
-                           str(datetime.datetime.now()))
+                           str(datetime.datetime.now()).encode("ASCII"))
 
     def to_list(self):
         """Return a list of bytes representing the EEPROM data structure."""
