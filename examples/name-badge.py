@@ -15,29 +15,8 @@ Use Inky pHAT/wHAT as a personalised name badge!
 
 """)
 
-# Try to auto-detect the display from the EEPROM
-try:
-    from inky.auto import auto
-    inky_display = auto()
-    print("Auto-detected {}".format(inky_display.eeprom.get_variant()))
-except RuntimeError:
-    inky_display = None
-
-# Parse the command-line and try manual display setup
-if inky_display is None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--type', '-t', type=str, required=True, default="auto", choices=["auto", "what", "phat", "phatssd1608"], help="type of display")
-    parser.add_argument('--colour', '-c', type=str, required=True, choices=["red", "black", "yellow"], help="ePaper display colour")
-    args = parser.parse_known_args()
-
-    if args.type == "phat":
-        inky_display = InkyPHAT(colour)
-    elif args.type == "phatssd1608":
-        inky_display = InkyPHAT_SSD1608(colour)
-    elif args.type == "what":
-        inky_display = InkyWHAT(colour)
-    elif args.type == "auto":
-        raise RuntimeError("Failed to auto-detect your Inky board type.")
+from inky.auto import auto
+inky_display = auto(ask_user=True, verbose=True)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--name', '-n', type=str, required=True, help="Your name")
