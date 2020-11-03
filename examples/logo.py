@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 
 import os
-import argparse
 from PIL import Image
 from inky.auto import auto
-from inky import InkyWHAT, InkyPHAT, InkyPHAT_SSD1608
 
 
 print("""Inky pHAT/wHAT: Logo

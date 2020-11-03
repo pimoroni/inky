@@ -6,7 +6,6 @@ from PIL import Image, ImageFont, ImageDraw
 from font_hanken_grotesk import HankenGroteskBold, HankenGroteskMedium
 from font_intuitive import Intuitive
 from inky.auto import auto
-from inky import InkyWHAT, InkyPHAT, InkyPHAT_SSD1608
 
 
 print("""Inky pHAT/wHAT: Hello... my name is:
@@ -15,7 +14,6 @@ Use Inky pHAT/wHAT as a personalised name badge!
 
 """)
 
-from inky.auto import auto
 inky_display = auto(ask_user=True, verbose=True)
 
 parser = argparse.ArgumentParser()
