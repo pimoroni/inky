@@ -10,6 +10,35 @@ EEP_ADRESS = 0x50
 EEP_WP = 12
 
 
+# The EEPROM is used to disambiguate the variants of wHAT and pHAT
+# 1   Red pHAT (High-Temp)
+# 2   Yellow wHAT (1_E)
+# 3   Black wHAT (1_E)
+# 4   Black pHAT (Normal)
+# 5   Yellow pHAT (DEP0213YNS75AFICP)
+# 6   Red wHAT (Regular)
+# 7   Red wHAT (High-Temp)
+# 8   Red wHAT (DEPG0420RWS19AF0HP)
+# 10  BW pHAT (ssd1608) (DEPG0213BNS800F13CP)
+# 11  Red pHAT (ssd1608)
+# 12  Yellow pHAT (ssd1608)
+DISPLAY_VARIANT = [
+    None,
+    'Red pHAT (High-Temp)',
+    'Yellow wHAT',
+    'Black wHAT',
+    'Black pHAT',
+    'Yellow pHAT',
+    'Red wHAT',
+    'Red wHAT (High-Temp)',
+    'Red wHAT',
+    None,
+    'Black pHAT (SSD1608)',
+    'Red pHAT (SSD1608)',
+    'Yellow pHAT (SSD1608)'
+]
+
+
 class EPDType:
     """Class to represent EPD EEPROM structure."""
 
@@ -75,6 +104,12 @@ Time: {}""".format(self.width,
         """Get the stored colour value."""
         try:
             return self.valid_colors[self.color]
+        except KeyError:
+            return None
+
+    def get_variant(self):
+        try:
+            return DISPLAY_VARIANT[self.display_variant]
         except KeyError:
             return None
 

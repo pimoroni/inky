@@ -62,6 +62,7 @@ except RuntimeError:
     if colour == "auto":
         raise RuntimeError("Failed to auto-detect your Inky pHAT, try specifying a colour manually.")
     else:
+        print("No EEPROM detected, assuming Inky pHAT")
         inky_display = InkyPHAT(colour)
 
 inky_display.set_border(inky_display.BLACK)

@@ -5,6 +5,9 @@ import argparse
 from PIL import Image, ImageFont, ImageDraw
 from font_hanken_grotesk import HankenGroteskBold, HankenGroteskMedium
 from font_intuitive import Intuitive
+from inky.auto import auto
+from inky import InkyWHAT, InkyPHAT, InkyPHAT_SSD1608
+
 
 print("""Inky pHAT/wHAT: Hello... my name is:
 
@@ -12,49 +15,45 @@ Use Inky pHAT/wHAT as a personalised name badge!
 
 """)
 
-# Command line arguments to set display type and colour, and enter your name
+# Try to auto-detect the display from the EEPROM
+try:
+    from inky.auto import auto
+    inky_display = auto()
+    print("Auto-detected {}".format(inky_display.eeprom.get_variant()))
+except RuntimeError:
+    inky_display = None
+
+# Parse the command-line and try manual display setup
+if inky_display is None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--type', '-t', type=str, required=True, default="auto", choices=["auto", "what", "phat", "phatssd1608"], help="type of display")
+    parser.add_argument('--colour', '-c', type=str, required=True, choices=["red", "black", "yellow"], help="ePaper display colour")
+    args = parser.parse_known_args()
+
+    if args.type == "phat":
+        inky_display = InkyPHAT(colour)
+    elif args.type == "phatssd1608":
+        inky_display = InkyPHAT_SSD1608(colour)
+    elif args.type == "what":
+        inky_display = InkyWHAT(colour)
+    elif args.type == "auto":
+        raise RuntimeError("Failed to auto-detect your Inky board type.")
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--mock', '-m', required=False, action='store_true', help="Simulate Inky using MatPlotLib")
-parser.add_argument('--type', '-t', type=str, required=False, default="auto", choices=["auto", "what", "phat", "phatssd1608"], help="type of display")
-parser.add_argument('--colour', '-c', type=str, required=False, choices=["red", "black", "yellow"], help="ePaper display colour")
 parser.add_argument('--name', '-n', type=str, required=True, help="Your name")
 args = parser.parse_args()
 
-if args.mock:
-    from inky import InkyMockPHAT as InkyPHAT
-    from inky import InkyMockWHAT as InkyWHAT
-else:
-    from inky import InkyWHAT, InkyPHAT, InkyPHAT_SSD1608
-
-colour = args.colour
-
-# Set up the correct display and scaling factors
-
-if args.type == "phat":
-    inky_display = InkyPHAT(colour)
-    scale_size = 1
-    padding = 0
-elif args.type == "phatssd1608":
-    inky_display = InkyPHAT_SSD1608(colour)
-    scale_size = 1
-    padding = 0
-elif args.type == "what":
-    inky_display = InkyWHAT(colour)
-    scale_size = 2.20
-    padding = 15
-else:
-    from inky.auto import auto
-    inky_display = auto()
-    scale_size = 1
-    padding = 0
-    if inky_display.resolution == (400, 300):
-        scale_size = 2.20
-        padding = 15
-    colour = inky_display.colour
-
 # inky_display.set_rotation(180)
 inky_display.set_border(inky_display.RED)
+
+# Figure out scaling for display size
+
+scale_size = 1.0
+padding = 0
+
+if inky_display.resolution == (400, 300):
+    scale_size = 2.20
+    padding = 15
 
 # Create a new canvas to draw on
 
@@ -80,7 +79,7 @@ y_bottom = y_top + int(inky_display.HEIGHT * (4.0 / 10.0))
 
 for y in range(0, y_top):
     for x in range(0, inky_display.width):
-        img.putpixel((x, y), inky_display.BLACK if colour == "black" else inky_display.RED)
+        img.putpixel((x, y), inky_display.BLACK if inky_display.colour == "black" else inky_display.RED)
 
 for y in range(y_top, y_bottom):
     for x in range(0, inky_display.width):
@@ -88,7 +87,7 @@ for y in range(y_top, y_bottom):
 
 for y in range(y_bottom, inky_display.HEIGHT):
     for x in range(0, inky_display.width):
-        img.putpixel((x, y), inky_display.BLACK if colour == "black" else inky_display.RED)
+        img.putpixel((x, y), inky_display.BLACK if inky_display.colour == "black" else inky_display.RED)
 
 # Calculate the positioning and draw the "Hello" text
 
@@ -115,7 +114,3 @@ draw.text((name_x, name_y), name, inky_display.BLACK, font=intuitive_font)
 
 inky_display.set_image(img)
 inky_display.show()
-
-if args.mock:
-    print("Press Ctrl+C or close window to exit...")
-    inky_display.wait_for_window_close()
