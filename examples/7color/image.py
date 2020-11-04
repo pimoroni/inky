@@ -10,7 +10,7 @@ saturation = 0.5
 
 if len(sys.argv) == 1:
     print("""
-Usage: {file} image-file    
+Usage: {file} image-file
 """.format(file=sys.argv[0]))
     sys.exit(1)
 
@@ -21,4 +21,3 @@ if len(sys.argv) > 2:
 
 inky.set_image(image, saturation=saturation)
 inky.show()
-

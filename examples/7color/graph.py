@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import sys
 import io
 
 from PIL import Image
@@ -17,7 +16,7 @@ You may need to: sudo apt install libatlas-base-dev
 """)
 
 # Convert the built-in palette to a list of colours usable by seaborn,
-# This nets us 6 colours: Green, Blue, Red, Yellow, Orange, Black 
+# This nets us 6 colours: Green, Blue, Red, Yellow, Orange, Black
 palette_colors = [(c[0] / 255.0, c[1] / 255.0, c[2] / 255.0) for c in DESATURATED_PALETTE[2:6] + [(0, 0, 0)]]
 
 parser = argparse.ArgumentParser()
@@ -35,9 +34,10 @@ if args.dataset == "mpg":
     palette = seaborn.color_palette(palette_colors, n_colors=3)
     mpg = seaborn.load_dataset("mpg")
 
-    plot = seaborn.relplot(x="horsepower", y="mpg", hue="origin", size="weight",
-         sizes=(40, 400), alpha=1.0, palette=palette,
-         data=mpg)
+    plot = seaborn.relplot(
+        x="horsepower", y="mpg", hue="origin", size="weight",
+        sizes=(40, 400), alpha=1.0, palette=palette,
+        data=mpg)
 
 if args.dataset == "penguins":
     palette = seaborn.color_palette(palette_colors, n_colors=3)
@@ -67,4 +67,3 @@ image.paste(plot_image, (0, 0))
 
 inky.set_image(image, saturation=saturation)
 inky.show()
-
