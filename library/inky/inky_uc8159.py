@@ -344,7 +344,7 @@ class Inky:
 
     def set_border(self, colour):
         """Set the border colour."""
-        raise NotImplemented
+        raise NotImplementedError
 
     def set_image(self, image, saturation=0.5):
         """Copy an image to the display.
