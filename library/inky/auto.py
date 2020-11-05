@@ -8,7 +8,10 @@ def auto(i2c_bus=None, ask_user=False, verbose=False):
     _eeprom = eeprom.read_eeprom(i2c_bus=i2c_bus)
 
     if _eeprom is None:
-        if fallback:
+        if ask_user:
+            if verbose:
+                print("""Failed to detect an Inky board, you must specify the type and colour manually.
+""")
             parser = argparse.ArgumentParser()
             parser.add_argument('--type', '-t', type=str, required=True, choices=["what", "phat", "phatssd1608"], help="Type of display")
             parser.add_argument('--colour', '-c', type=str, required=False, choices=["red", "black", "yellow"], help="Display colour")
