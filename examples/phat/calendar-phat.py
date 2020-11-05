@@ -21,7 +21,11 @@ composited over the background in a couple of different ways.
 PATH = os.path.dirname(__file__)
 
 # Set up the display
-inky_display = auto(ask_user=True, verbose=True)
+try:
+    inky_display = auto(ask_user=True, verbose=True)
+except TypeError:
+    raise TypeError("You need to update the Inky library to >= v1.1.0")
+
 
 if inky_display.resolution not in ((212, 104), (250, 122)):
     w, h = inky_display.resolution

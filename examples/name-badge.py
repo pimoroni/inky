@@ -14,7 +14,10 @@ Use Inky pHAT/wHAT as a personalised name badge!
 
 """)
 
-inky_display = auto(ask_user=True, verbose=True)
+try:
+    inky_display = auto(ask_user=True, verbose=True)
+except TypeError:
+    raise TypeError("You need to update the Inky library to >= v1.1.0")
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--name', '-n', type=str, required=True, help="Your name")

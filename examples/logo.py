@@ -15,7 +15,11 @@ Displays the Inky pHAT/wHAT logo.
 PATH = os.path.dirname(__file__)
 
 # Set up the Inky display
-inky_display = auto(ask_user=True, verbose=True)
+try:
+    inky_display = auto(ask_user=True, verbose=True)
+except TypeError:
+    raise TypeError("You need to update the Inky library to >= v1.1.0")
+
 inky_display.set_border(inky_display.BLACK)
 
 # Pick the correct logo image to show depending on display resolution/colour
