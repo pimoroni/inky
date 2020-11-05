@@ -97,20 +97,20 @@ Time: {}""".format(self.width,
         """Set the stored colour value."""
         try:
             self.color = self.valid_colors.index(color)
-        except KeyError:
+        except IndexError:
             raise ValueError('Invalid colour: {}'.format(color))
 
     def get_color(self):
         """Get the stored colour value."""
         try:
             return self.valid_colors[self.color]
-        except KeyError:
+        except IndexError:
             return None
 
     def get_variant(self):
         try:
             return DISPLAY_VARIANT[self.display_variant]
-        except KeyError:
+        except IndexError:
             return None
 
 
