@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+import sys
+
+import hitherdither
+from inky.inky_uc8159 import Inky
+from PIL import Image
+
 print("""dither.py
 
 Advanced dithering example using Hitherdither by Henrik Blidh:
@@ -23,12 +29,6 @@ usage: ./dither.py <image_file> <saturation>
 
 """)
 
-import sys
-
-from PIL import Image
-from inky.inky_uc8159 import Inky
-import hitherdither
-
 inky = Inky()
 saturation = 0.5           # Saturation of palette
 thresholds = [64, 64, 64]  # Threshold for snapping colours, I guess?
@@ -46,16 +46,16 @@ palette = hitherdither.palette.Palette(inky._palette_blend(saturation, dtype='ui
 
 image = Image.open(sys.argv[1]).convert("RGB")
 # VERY slow (1m 40s on a Pi 4) - see https://github.com/hbldh/hitherdither for a list of methods
-#image_dithered = hitherdither.diffusion.error_diffusion_dithering(image, palette, method="stucki", order=2)
+# image_dithered = hitherdither.diffusion.error_diffusion_dithering(image, palette, method="stucki", order=2)
 
 # Usably quick, your vanilla dithering
-#image_dithered = hitherdither.ordered.bayer.bayer_dithering(image, palette, thresholds, order=8)
+# image_dithered = hitherdither.ordered.bayer.bayer_dithering(image, palette, thresholds, order=8)
 
 # Usuably quick, half-tone comic-book feel, use order=4 for small dots and order=8 dot bigguns
 image_dithered = hitherdither.ordered.cluster.cluster_dot_dithering(image, palette, thresholds, order=8)
 
 # VERY slow
-#image_dithered = hitherdither.ordered.yliluoma.yliluomas_1_ordered_dithering(image, palette, order=8)
+# image_dithered = hitherdither.ordered.yliluoma.yliluomas_1_ordered_dithering(image, palette, order=8)
 
 inky.set_image(image_dithered.convert("P"))
 inky.show()
