@@ -26,7 +26,6 @@ def test_mock_invalid_size(tkinter, PIL):
         def _simulate(self, region):
             pass
 
-
     with pytest.raises(ValueError):
         InkyMockFAIL('black')
 

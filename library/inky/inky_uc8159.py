@@ -2,7 +2,11 @@
 import time
 import struct
 
-from PIL import Image
+try:
+    from PIL import Image
+except ImportError:
+    Image = None
+
 from . import eeprom
 
 try:
@@ -47,7 +51,7 @@ DC_PIN = 22
 
 MOSI_PIN = 10
 SCLK_PIN = 11
-CS0_PIN = 0
+CS0_PIN = 8
 
 UC8159_PSR = 0x00
 UC8159_PWR = 0x01
@@ -154,6 +158,10 @@ class Inky:
         self.reset_pin = reset_pin
         self.busy_pin = busy_pin
         self.cs_pin = cs_pin
+        try:
+            self.cs_channel = [8, 7].index(cs_pin)
+        except ValueError:
+            self.cs_channel = 0
         self.h_flip = h_flip
         self.v_flip = v_flip
 
@@ -197,7 +205,7 @@ class Inky:
                 import spidev
                 self._spi_bus = spidev.SpiDev()
 
-            self._spi_bus.open(0, self.cs_pin)
+            self._spi_bus.open(0, self.cs_channel)
             self._spi_bus.max_speed_hz = 3000000
 
             self._gpio_setup = True
@@ -361,6 +369,8 @@ class Inky:
         if not image.size == (self.width, self.height):
             raise ValueError("Image must be ({}x{}) pixels!".format(self.width, self.height))
         if not image.mode == "P":
+            if Image is None:
+                raise RuntimeError("PIL is required for converting images: sudo apt install python-pil python3-pil")
             palette = self._palette_blend(saturation)
             # Image size doesn't matter since it's just the palette we're using
             palette_image = Image.new("P", (1, 1))
