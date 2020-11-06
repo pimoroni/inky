@@ -1,3 +1,10 @@
+1.1.0
+-----
+
+* New: Support for UC8159-based 7-colour 600x448 display
+* Enhancement: auto now includes options for fallback
+* Enhancement: EEPROM can now give text string for display variant
+
 1.0.2
 -----
 
