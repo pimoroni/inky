@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import time
 import argparse
-from inky import InkyPHAT, InkyWHAT
+import time
+
+from inky.auto import auto
 from PIL import Image
 
 print("""Inky pHAT: Clean
@@ -13,22 +14,12 @@ display of any ghosting.
 
 """)
 
-# Command line arguments to set display type and colour, and number of cycles to run
+inky_display = auto(ask_user=True, verbose=True)
 
+# Command line arguments to determine number of cycles to run
 parser = argparse.ArgumentParser()
-parser.add_argument('--type', '-t', type=str, required=True, choices=["what", "phat"], help="type of display")
-parser.add_argument('--colour', '-c', type=str, required=True, choices=["red", "black", "yellow"], help="ePaper display colour")
 parser.add_argument('--number', '-n', type=int, required=False, help="number of cycles")
 args = parser.parse_args()
-
-colour = args.colour
-
-# Set up the correct display and scaling factors
-
-if args.type == "phat":
-    inky_display = InkyPHAT(colour)
-elif args.type == "what":
-    inky_display = InkyWHAT(colour)
 
 # The number of red / black / white refreshes to run
 
@@ -38,7 +29,7 @@ else:
     cycles = 3
 
 colours = (inky_display.RED, inky_display.BLACK, inky_display.WHITE)
-colour_names = (colour, "black", "white")
+colour_names = (inky_display.colour, "black", "white")
 
 # Create a new canvas to draw on
 

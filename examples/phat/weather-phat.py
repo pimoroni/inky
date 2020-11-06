@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import glob
-import time
-import argparse
 import os
+import time
 from sys import exit
-from inky import InkyPHAT
-from PIL import Image, ImageDraw, ImageFont
+
 from font_fredoka_one import FredokaOne
+from inky.auto import auto
+from PIL import Image, ImageDraw, ImageFont
 
 """
 To run this example on Python 2.x you should:
@@ -43,26 +43,17 @@ Displays weather information for a given location. The default location is Sheff
 """)
 
 # Get the current path
-
 PATH = os.path.dirname(__file__)
-
-# Command line arguments to set display colour
-
-parser = argparse.ArgumentParser()
-parser.add_argument('--colour', '-c', type=str, required=False, default="auto", choices=["auto", "red", "black", "yellow"], help="ePaper display colour")
-args = parser.parse_args()
 
 # Set up the display
 try:
-    from inky.auto import auto
-    inky_display = auto()
-    colour = inky_display.colour
-    print("Auto-detected {} Inky pHAT".format(colour))
-except RuntimeError:
-    if colour == "auto":
-        raise RuntimeError("Failed to auto-detect your Inky pHAT, try specifying a colour manually.")
-    else:
-        inky_display = InkyPHAT(colour)
+    inky_display = auto(ask_user=True, verbose=True)
+except TypeError:
+    raise TypeError("You need to update the Inky library to >= v1.1.0")
+
+if inky_display.resolution not in ((212, 104), (250, 122)):
+    w, h = inky_display.resolution
+    raise RuntimeError("This example does not support {}x{}".format(w, h))
 
 inky_display.set_border(inky_display.BLACK)
 
