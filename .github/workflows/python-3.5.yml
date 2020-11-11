@@ -23,10 +23,8 @@ jobs:
         run: |
           cd library && tox -e py35 
       - name: Coverage
-        uses: coverallsapp/github-action@master
+        uses: AndreMiras/coveralls-python-action@develop
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          base-path: library
-          path-to-lcov: library/.coverage
 
 
