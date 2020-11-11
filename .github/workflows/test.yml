@@ -1,0 +1,35 @@
+name: Python Tests
+
+on:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: [2.7, 3.5, 3.7]
+
+      steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install Dependencies
+        run: |
+          python -m pip install tox
+      - name: Run Tests
+        working-directory: library
+        run: |
+          tox -e py
+      - name: Coverage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: library
+        run: |
+          python -m pip install coveralls
+          coveralls
+        if: ${{ matrix.python == '3.7' }}
+
+
