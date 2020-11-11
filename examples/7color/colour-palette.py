@@ -16,16 +16,18 @@ args = parser.parse_args()
 
 inky = Inky()
 
-names = ['black', 'white', 'green', 'blue', 'red', 'yellow', 'orange'] 
+names = ['black', 'white', 'green', 'blue', 'red', 'yellow', 'orange']
 
 if args.file is None:
     print("You must specify an output palette file.")
     sys.exit(1)
 
+
 def raw_palette():
     palette = bytearray(768)
     palette[0:8 * 3] = inky._palette_blend(args.saturation, dtype='uint8')
     return palette
+
 
 if args.type == 'css':
     palette = inky._palette_blend(args.saturation, dtype='uint24')
