@@ -21,6 +21,11 @@ jobs:
           python -m pip install pip tox coveralls
       - name: Run tests
         run: |
-          cd library && tox -e py35
+          cd library && tox -e py35 
+      - name: Coverage
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          base-path: library
 
 
