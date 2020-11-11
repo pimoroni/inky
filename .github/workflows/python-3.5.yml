@@ -27,5 +27,6 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           base-path: library
+          path-to-lcov: library/.coverage
 
 
