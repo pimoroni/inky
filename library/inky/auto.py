@@ -1,3 +1,4 @@
+"""Automatic Inky setup from i2c EEPROM"""
 from .phat import InkyPHAT, InkyPHAT_SSD1608  # noqa: F401
 from .what import InkyWHAT                    # noqa: F401
 from . import eeprom
@@ -5,6 +6,7 @@ import argparse
 
 
 def auto(i2c_bus=None, ask_user=False, verbose=False):
+    """Auto-detect Inky board from EEPROM and return an Inky class instance."""
     _eeprom = eeprom.read_eeprom(i2c_bus=i2c_bus)
 
     if _eeprom is None:

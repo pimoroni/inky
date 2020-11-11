@@ -98,6 +98,7 @@ Time: {}""".format(self.width,
             return None
 
     def get_variant(self):
+        """Return text name of the display variant."""
         try:
             return DISPLAY_VARIANT[self.display_variant]
         except IndexError:
