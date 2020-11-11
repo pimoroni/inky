@@ -21,6 +21,6 @@ jobs:
           python -m pip install pip tox coveralls
       - name: Run tests
         run: |
-          cd library && tox -vv
+          cd library && tox -e py35
 
 
