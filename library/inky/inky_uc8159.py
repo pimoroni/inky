@@ -197,6 +197,7 @@ class Inky:
                     raise ImportError('This library requires the RPi.GPIO module\nInstall with: sudo apt install python-rpi.gpio')
             self._gpio.setmode(self._gpio.BCM)
             self._gpio.setwarnings(False)
+            self._gpio.setup(self.cs_pin, self._gpio.OUT, initial=self._gpio.HIGH)
             self._gpio.setup(self.dc_pin, self._gpio.OUT, initial=self._gpio.LOW, pull_up_down=self._gpio.PUD_OFF)
             self._gpio.setup(self.reset_pin, self._gpio.OUT, initial=self._gpio.HIGH, pull_up_down=self._gpio.PUD_OFF)
             self._gpio.setup(self.busy_pin, self._gpio.IN, pull_up_down=self._gpio.PUD_OFF)
@@ -206,6 +207,7 @@ class Inky:
                 self._spi_bus = spidev.SpiDev()
 
             self._spi_bus.open(0, self.cs_channel)
+            self._spi_bus.no_cs = True
             self._spi_bus.max_speed_hz = 3000000
 
             self._gpio_setup = True
@@ -388,6 +390,7 @@ class Inky:
         :param values: list of values to write
 
         """
+        self._gpio.output(self.cs_pin, 0)
         self._gpio.output(self.dc_pin, dc)
         try:
             self._spi_bus.xfer3(values)
@@ -395,6 +398,7 @@ class Inky:
             for x in range(((len(values) - 1) // _SPI_CHUNK_SIZE) + 1):
                 offset = x * _SPI_CHUNK_SIZE
                 self._spi_bus.xfer(values[offset:offset + _SPI_CHUNK_SIZE])
+        self._gpio.output(self.cs_pin, 1)
 
     def _send_command(self, command, data=None):
         """Send command over SPI.
