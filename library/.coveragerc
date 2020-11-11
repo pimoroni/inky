@@ -2,5 +2,5 @@
 source = inky
 omit =
     .tox/*
-relative_files = False
+relative_files = True
 data_file = ../.coverage

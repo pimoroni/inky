@@ -23,6 +23,7 @@ jobs:
         working-directory: library
         run: |
           tox -e py35 
+          cp -r inky ../
       - name: Coverage
         uses: AndreMiras/coveralls-python-action@develop
         with:
