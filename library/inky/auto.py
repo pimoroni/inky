@@ -1,4 +1,4 @@
-"""Automatic Inky setup from i2c EEPROM"""
+"""Automatic Inky setup from i2c EEPROM."""
 from .phat import InkyPHAT, InkyPHAT_SSD1608  # noqa: F401
 from .what import InkyWHAT                    # noqa: F401
 from . import eeprom
