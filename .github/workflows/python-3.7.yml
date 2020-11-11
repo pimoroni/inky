@@ -1,4 +1,4 @@
-name: Python 2.7
+name: Python 3.7
 
 on:
   pull_request:
@@ -10,7 +10,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v1
         with:
-          python-version: 2.7
+          python-version: 3.7
       - name: Checkout Repository
         uses: actions/checkout@v1
         with:
@@ -21,6 +21,5 @@ jobs:
       - name: Run tests
         working-directory: library
         run: |
-          tox -e py27
-
+          tox -e py37
 
