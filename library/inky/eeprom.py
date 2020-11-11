@@ -10,18 +10,6 @@ EEP_ADRESS = 0x50
 EEP_WP = 12
 
 
-# The EEPROM is used to disambiguate the variants of wHAT and pHAT
-# 1   Red pHAT (High-Temp)
-# 2   Yellow wHAT (1_E)
-# 3   Black wHAT (1_E)
-# 4   Black pHAT (Normal)
-# 5   Yellow pHAT (DEP0213YNS75AFICP)
-# 6   Red wHAT (Regular)
-# 7   Red wHAT (High-Temp)
-# 8   Red wHAT (DEPG0420RWS19AF0HP)
-# 10  BW pHAT (ssd1608) (DEPG0213BNS800F13CP)
-# 11  Red pHAT (ssd1608)
-# 12  Yellow pHAT (ssd1608)
 DISPLAY_VARIANT = [
     None,
     'Red pHAT (High-Temp)',
@@ -35,14 +23,16 @@ DISPLAY_VARIANT = [
     None,
     'Black pHAT (SSD1608)',
     'Red pHAT (SSD1608)',
-    'Yellow pHAT (SSD1608)'
+    'Yellow pHAT (SSD1608)',
+    None,
+    '7-Colour (UC8159)'
 ]
 
 
 class EPDType:
     """Class to represent EPD EEPROM structure."""
 
-    valid_colors = [None, 'black', 'red', 'yellow']
+    valid_colors = [None, 'black', 'red', 'yellow', None, '7colour']
 
     def __init__(self, width, height, color, pcb_variant, display_variant, write_time=None):
         """Initialise new EEPROM data structure."""
