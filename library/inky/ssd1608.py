@@ -1,3 +1,4 @@
+"""Constants for SSD1608 driver IC."""
 DRIVER_CONTROL = 0x01
 GATE_VOLTAGE = 0x03
 SOURCE_VOLTAGE = 0x04

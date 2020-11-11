@@ -1,0 +1,32 @@
+name: Python 3.5
+
+on:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.5
+      - name: Checkout Repository
+        uses: actions/checkout@v1
+        with:
+            submodules: true
+      - name: Install Dependencies
+        run: |
+          python -m pip install pip tox coveralls
+      - name: Run tests
+        working-directory: library
+        run: |
+          tox -e py35 
+      - name: Coverage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: library
+        run: |
+          coveralls
+
+
