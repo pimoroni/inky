@@ -21,10 +21,13 @@ except TypeError:
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--name', '-n', type=str, required=True, help="Your name")
-args = parser.parse_args()
+args, _ = parser.parse_known_args()
 
 # inky_display.set_rotation(180)
-inky_display.set_border(inky_display.RED)
+try:
+    inky_display.set_border(inky_display.RED)
+except NotImplementedError:
+    pass
 
 # Figure out scaling for display size
 
@@ -35,9 +38,13 @@ if inky_display.resolution == (400, 300):
     scale_size = 2.20
     padding = 15
 
+if inky_display.resolution == (600, 448):
+    scale_size = 2.20
+    padding = 30
+
 # Create a new canvas to draw on
 
-img = Image.new("P", (inky_display.WIDTH, inky_display.HEIGHT))
+img = Image.new("P", inky_display.resolution)
 draw = ImageDraw.Draw(img)
 
 # Load the fonts
@@ -52,8 +59,8 @@ name = args.name
 
 # Top and bottom y-coordinates for the white strip
 
-y_top = int(inky_display.HEIGHT * (5.0 / 10.0))
-y_bottom = y_top + int(inky_display.HEIGHT * (4.0 / 10.0))
+y_top = int(inky_display.height * (5.0 / 10.0))
+y_bottom = y_top + int(inky_display.height * (4.0 / 10.0))
 
 # Draw the red, white, and red strips
 
@@ -65,28 +72,28 @@ for y in range(y_top, y_bottom):
     for x in range(0, inky_display.width):
         img.putpixel((x, y), inky_display.WHITE)
 
-for y in range(y_bottom, inky_display.HEIGHT):
+for y in range(y_bottom, inky_display.height):
     for x in range(0, inky_display.width):
         img.putpixel((x, y), inky_display.BLACK if inky_display.colour == "black" else inky_display.RED)
 
 # Calculate the positioning and draw the "Hello" text
 
 hello_w, hello_h = hanken_bold_font.getsize("Hello")
-hello_x = int((inky_display.WIDTH - hello_w) / 2)
+hello_x = int((inky_display.width - hello_w) / 2)
 hello_y = 0 + padding
 draw.text((hello_x, hello_y), "Hello", inky_display.WHITE, font=hanken_bold_font)
 
 # Calculate the positioning and draw the "my name is" text
 
 mynameis_w, mynameis_h = hanken_medium_font.getsize("my name is")
-mynameis_x = int((inky_display.WIDTH - mynameis_w) / 2)
+mynameis_x = int((inky_display.width - mynameis_w) / 2)
 mynameis_y = hello_h + padding
 draw.text((mynameis_x, mynameis_y), "my name is", inky_display.WHITE, font=hanken_medium_font)
 
 # Calculate the positioning and draw the name text
 
 name_w, name_h = intuitive_font.getsize(name)
-name_x = int((inky_display.WIDTH - name_w) / 2)
+name_x = int((inky_display.width - name_w) / 2)
 name_y = int(y_top + ((y_bottom - y_top - name_h) / 2))
 draw.text((name_x, name_y), name, inky_display.BLACK, font=intuitive_font)
 

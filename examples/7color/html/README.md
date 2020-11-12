@@ -10,5 +10,5 @@ Then run:
 
 ```
 ./html.sh hello-world.html
-``` 
+```
 

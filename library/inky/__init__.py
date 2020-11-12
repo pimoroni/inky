@@ -5,9 +5,10 @@ from .inky import BLACK, WHITE, RED, YELLOW   # noqa: F401
 from .phat import InkyPHAT, InkyPHAT_SSD1608  # noqa: F401
 from .what import InkyWHAT                    # noqa: F401
 from .mock import InkyMockPHAT, InkyMockWHAT  # noqa: F401
+from .inky_uc8159 import Inky as Inky7Colour  # noqa: F401
 from .auto import auto                        # noqa: F401
 
-__version__ = '1.1.0'
+__version__ = '1.1.1'
 
 try:
     from pkg_resources import declare_namespace
