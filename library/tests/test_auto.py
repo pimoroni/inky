@@ -22,6 +22,6 @@ def test_auto_fallback(spidev, smbus2, PIL, inky_type, inky_colour):
     inky_class = {'phat': InkyPHAT, 'what': InkyWHAT, 'phatssd1608': InkyPHAT_SSD1608, 'impressions': Inky7Colour, '7colour': Inky7Colour}[inky_type]
 
     inky = auto(ask_user=True)
-    assert isinstance(inky, inky_class) == True
+    assert isinstance(inky, inky_class) is True
     if inky_colour is not None:
         assert inky.colour == inky_colour
