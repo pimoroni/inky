@@ -94,10 +94,17 @@ _RESOLUTION = {
 class Inky:
     """Inky e-Ink Display Driver."""
 
-    WHITE = 0
-    BLACK = 1
-    RED = 2
-    YELLOW = 2
+    BLACK = 0
+    WHITE = 1
+    GREEN = 2
+    BLUE = 3
+    RED = 4
+    YELLOW = 5
+    ORANGE = 6
+    CLEAN = 7
+
+    WIDTH = 600
+    HEIGHT = 448
 
     def __init__(self, resolution=(600, 448), colour='multi', cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):  # noqa: E501
         """Initialise an Inky Display.
