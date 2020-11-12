@@ -78,12 +78,6 @@ def test_init_what_setup_no_gpio(spidev, smbus2):
         inky.setup()
 
 
-def test_init_impressions(spidev, smbus2):
-    from inky.inky_uc8159 import Inky
-
-    Inky()
-
-
 def test_init_what_setup(spidev, smbus2, GPIO):
     """Test initialisation and setup of InkyWHAT.
 
@@ -115,6 +109,15 @@ def test_init_what_setup(spidev, smbus2, GPIO):
 
     # Check API will been opened
     spidev.SpiDev().open.assert_called_with(0, inky.cs_channel)
+
+
+def test_init_7colour_setup_no_gpio(spidev, smbus2):
+    from inky.inky_uc8159 import Inky
+
+    inky = Inky()
+
+    with pytest.raises(ImportError):
+        inky.setup()
 
 
 def test_init_7colour_setup(spidev, smbus2, GPIO):
