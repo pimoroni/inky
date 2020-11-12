@@ -4,7 +4,6 @@ from .what import InkyWHAT                    # noqa: F401
 from .inky_uc8159 import Inky as InkyUC8159
 from . import eeprom
 import argparse
-import sys
 
 
 def auto(i2c_bus=None, ask_user=False, verbose=False):
@@ -45,5 +44,3 @@ def auto(i2c_bus=None, ask_user=False, verbose=False):
         raise RuntimeError("No EEPROM detected! You must manually initialise your Inky board.")
     else:
         raise RuntimeError("Can't find a driver this display.")
-
-
