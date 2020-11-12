@@ -78,6 +78,12 @@ def test_init_what_setup_no_gpio(spidev, smbus2):
         inky.setup()
 
 
+def test_init_impressions(spidev, smbus2):
+    from inky.inky_uc8159 import Inky
+
+    Inky()
+
+
 def test_init_what_setup(spidev, smbus2, GPIO):
     """Test initialisation and setup of InkyWHAT.
 
