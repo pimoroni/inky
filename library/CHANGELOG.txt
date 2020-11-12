@@ -1,3 +1,11 @@
+1.1.1
+-----
+
+* Enhancement: drive UC81559 CS with GPIO to avoid conflict with Grow workaround
+* Add 7-colour/UC8159 specifics to EEPROM
+* BugFix: define UC8159 colour and size constants in class
+* BugFix: fix auto to grab args properly, support UC8159 and fallback gracefully
+
 1.1.0
 -----
 
