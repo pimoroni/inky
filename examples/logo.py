@@ -20,7 +20,10 @@ try:
 except TypeError:
     raise TypeError("You need to update the Inky library to >= v1.1.0")
 
-inky_display.set_border(inky_display.BLACK)
+try:
+    inky_display.set_border(inky_display.BLACK)
+except NotImplementedError:
+    pass
 
 # Pick the correct logo image to show depending on display resolution/colour
 
@@ -37,11 +40,15 @@ if inky_display.resolution in ((212, 104), (250, 122)):
         else:
             img = Image.open(os.path.join(PATH, "phat/resources/InkypHAT-212x104.png"))
 
-elif inky_display.resolution in ((400, 300)):
+elif inky_display.resolution in ((400, 300), ):
     if inky_display.colour == 'black':
         img = Image.open(os.path.join(PATH, "what/resources/InkywHAT-400x300-bw.png"))
     else:
         img = Image.open(os.path.join(PATH, "what/resources/InkywHAT-400x300.png"))
+
+elif inky_display.resolution in ((600, 448), ):
+    img = Image.open(os.path.join(PATH, "what/resources/InkywHAT-400x300.png"))
+    img = img.resize(inky_display.resolution)
 
 # Display the logo image
 
