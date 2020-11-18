@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from inky.eeprom import read_eeprom
 
 display = read_eeprom()
