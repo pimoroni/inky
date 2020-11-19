@@ -127,6 +127,7 @@ class Inky:
 
         self.resolution = resolution
         self.width, self.height = resolution
+        self.border_colour = WHITE
         self.cols, self.rows, self.rotation, self.offset_x, self.offset_y = _RESOLUTION[resolution]
 
         if colour not in ('multi'):
@@ -158,8 +159,6 @@ class Inky:
         #        # raise ValueError('Supplied width/height do not match Inky: {}x{}'.format(self.eeprom.width, self.eeprom.height))
 
         self.buf = numpy.zeros((self.rows, self.cols), dtype=numpy.uint8)
-
-        self.border_colour = 0
 
         self.dc_pin = dc_pin
         self.reset_pin = reset_pin
@@ -280,7 +279,8 @@ class Inky:
         # 0b11100000 = Vborder control (0b001 = LUTB voltage)
         # 0b00010000 = Data polarity
         # 0b00001111 = Vcom and data interval (0b0111 = 10, default)
-        self._send_command(UC8159_CDI, [0x37])  # 0b00110111
+        cdi = (self.border_colour << 5) | 0x17
+        self._send_command(UC8159_CDI, [cdi])  # 0b00110111
 
         # Gate/Source non-overlap period
         # 0b11110000 = Source to Gate (0b0010 = 12nS, default)
@@ -366,7 +366,8 @@ class Inky:
 
     def set_border(self, colour):
         """Set the border colour."""
-        raise NotImplementedError
+        if colour in (BLACK, WHITE, GREEN, BLUE, RED, YELLOW, ORANGE, CLEAN):
+            self.border_colour = colour
 
     def set_image(self, image, saturation=0.5):
         """Copy an image to the display.
