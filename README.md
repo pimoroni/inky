@@ -36,6 +36,8 @@ You may need to use `sudo pip3` or `sudo pip` depending on your environment and 
 
 # Usage
 
+The library should be run with python 3
+
 ## Auto Setup
 
 Inky can try to automatically detect your board and set up accordingly:
