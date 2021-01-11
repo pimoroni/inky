@@ -3,6 +3,7 @@ import numpy
 
 
 from . import inky
+from . import inky_uc8159
 
 
 class InkyMock(inky.Inky):
@@ -37,13 +38,22 @@ class InkyMock(inky.Inky):
 
         self.buf = numpy.zeros((self.height, self.width), dtype=numpy.uint8)
 
-        if colour not in ('red', 'black', 'yellow'):
+        if colour not in ('red', 'black', 'yellow', 'multi'):
             raise ValueError('Colour {} is not supported!'.format(colour))
 
         self.colour = colour
 
         self.h_flip = h_flip
         self.v_flip = v_flip
+
+        impression_palette = [57, 48, 57,     # black
+                              255, 255, 255,  # white
+                              58, 91, 70,     # green
+                              61, 59, 94,     # blue
+                              156, 72, 75,    # red
+                              208, 190, 71,   # yellow
+                              177, 106, 73,   # orange
+                              255, 255, 255]  # clear
 
         bw_inky_palette = [255, 255, 255,  # 0 = white
                            0, 0, 0]  # 1 = black
@@ -60,7 +70,8 @@ class InkyMock(inky.Inky):
 
         self.c_palette = {'black': bw_inky_palette,
                           'red': red_inky_palette,
-                          'yellow': ylw_inky_palette}
+                          'yellow': ylw_inky_palette,
+                          'multi': impression_palette}
 
         self._tk_done = False
         self.tk_root = tkinter.Tk()
@@ -170,3 +181,50 @@ class InkyMockWHAT(InkyMock):
         region = numpy.rot90(region, self.rotation // 90)
         region = region.reshape(300, 400)  # for display
         self._display(region)
+
+
+class InkyMockImpression(InkyMock):
+    """Inky Impression e-Ink Display Simulator."""
+
+    BLACK = 0
+    WHITE = 1
+    GREEN = 2
+    BLUE = 3
+    RED = 4
+    YELLOW = 5
+    ORANGE = 6
+    CLEAN = 7
+
+    WIDTH = 600
+    HEIGHT = 448
+
+    def __init__(self):
+        InkyMock.__init__(self, 'multi')
+
+    def _simulate(self, region):
+        self._display(region)
+
+    def set_pixel(self, x, y, v):
+        self.buf[y][x] = v & 0xf
+
+    def set_image(self, image, saturation=0.5):
+        """Copy an image to the display.
+
+        :param image: PIL image to copy, must be 600x448
+        :param saturation: Saturation for quantization palette - higher value results in a more saturated image
+
+        """
+        if not image.size == (self.width, self.height):
+            raise ValueError("Image must be ({}x{}) pixels!".format(self.width, self.height))
+        if not image.mode == "P":
+            if Image is None:
+                raise RuntimeError("PIL is required for converting images: sudo apt install python-pil python3-pil")
+            palette = inky_uc8159.Inky._palette_blend(self, saturation)
+            # Image size doesn't matter since it's just the palette we're using
+            palette_image = Image.new("P", (1, 1))
+            # Set our 7 colour palette (+ clear) and zero out the other 247 colours
+            palette_image.putpalette(palette + [0, 0, 0] * 248)
+            # Force source image data to be loaded for `.im` to work
+            image.load()
+            image = image.im.convert("P", True, palette_image.im)
+        self.buf = numpy.array(image, dtype=numpy.uint8).reshape((self.rows, self.cols))
