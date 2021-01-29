@@ -38,11 +38,12 @@ classifiers = [
 
 setup(
     name='inky',
-    version='1.1.1',
+    version='1.2.0',
     author='Philip Howard',
     author_email='phil@pimoroni.com',
     description='Inky pHAT Driver',
-    long_description=open('README.rst').read() + '\n' + open('CHANGELOG.txt').read(),
+    long_description=open('README.md').read() + '\n' + open('CHANGELOG.txt').read(),
+    long_description_content_type="text/markdown",
     license='MIT',
     keywords='Raspberry Pi e-paper display driver',
     url='http://www.pimoroni.com',

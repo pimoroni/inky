@@ -30,12 +30,12 @@ check:
 	@echo "Checking library/${LIBRARY_NAME}/__init__.py"
 	@cat library/${LIBRARY_NAME}/__init__.py | grep "^__version__ = '${LIBRARY_VERSION}'"
 
-python-readme: library/README.rst
+python-readme: library/README.md
 
 python-license: library/LICENSE.txt
 
-library/README.rst: README.md
-	pandoc --from=markdown --to=rst -o library/README.rst README.md
+library/README.md: README.md
+	cp README.md library/README.md
 
 library/LICENSE.txt: LICENSE
 	cp LICENSE library/LICENSE.txt
