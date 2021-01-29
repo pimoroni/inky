@@ -400,6 +400,10 @@ class Inky:
         """
         self._gpio.output(self.cs_pin, 0)
         self._gpio.output(self.dc_pin, dc)
+
+        if type(values) is str:
+            values = [ord(c) for c in values]
+
         try:
             self._spi_bus.xfer3(values)
         except AttributeError:
