@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import signal
 
 from inky.inky_uc8159 import Inky
 # To simulate:
@@ -15,3 +14,4 @@ for y in range(inky.height - 1):
 inky.show()
 # To simulate:
 # inky.wait_for_window_close()
+
