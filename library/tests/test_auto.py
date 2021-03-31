@@ -1,3 +1,4 @@
+"""Auto-detect tests for Inky."""
 import pytest
 import sys
 

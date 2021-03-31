@@ -199,12 +199,14 @@ class InkyMockImpression(InkyMock):
     HEIGHT = 448
 
     def __init__(self):
+        """Initialize a new mock Inky Impression."""
         InkyMock.__init__(self, 'multi')
 
     def _simulate(self, region):
         self._display(region)
 
     def set_pixel(self, x, y, v):
+        """Set a single pixel on the display."""
         self.buf[y][x] = v & 0xf
 
     def set_image(self, image, saturation=0.5):
