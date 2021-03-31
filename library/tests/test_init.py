@@ -112,6 +112,11 @@ def test_init_what_setup(spidev, smbus2, GPIO):
 
 
 def test_init_7colour_setup_no_gpio(spidev, smbus2):
+    """Test initialisation and setup of 7-colour Inky.
+
+    Verify an error is raised when RPi.GPIO is not present.
+
+    """
     from inky.inky_uc8159 import Inky
 
     inky = Inky()
