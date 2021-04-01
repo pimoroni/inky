@@ -42,6 +42,10 @@ if inky_display.resolution == (600, 448):
     scale_size = 2.20
     padding = 30
 
+if inky_display.resolution == (250, 122):
+    scale_size = 1.30
+    padding = -5
+
 # Create a new canvas to draw on
 
 img = Image.new("P", inky_display.resolution)
