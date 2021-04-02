@@ -191,6 +191,19 @@ class Inky:
         # Write LUT DATA
         self._send_command(ssd1608.WRITE_LUT, self._luts[self.lut])
 
+        if self.border_colour == self.BLACK:
+            self._send_command(ssd1608.WRITE_BORDER, 0b00000000)
+            # GS Transition + Waveform 00 + GSA 0 + GSB 0
+        elif self.border_colour == self.RED and self.colour == 'red':
+            self._send_command(ssd1608.WRITE_BORDER, 0b00000110)
+            # GS Transition + Waveform 01 + GSA 1 + GSB 0
+        elif self.border_colour == self.YELLOW and self.colour == 'yellow':
+            self._send_command(ssd1608.WRITE_BORDER, 0b00001111)
+            # GS Transition + Waveform 11 + GSA 1 + GSB 1
+        elif self.border_colour == self.WHITE:
+            self._send_command(ssd1608.WRITE_BORDER, 0b00000001)
+            # GS Transition + Waveform 00 + GSA 0 + GSB 1
+
         # Set RAM address to 0, 0
         self._send_command(ssd1608.SET_RAMXCOUNT, [0x00])
         self._send_command(ssd1608.SET_RAMYCOUNT, [0x00, 0x00])
