@@ -8,7 +8,7 @@ from .mock import InkyMockPHAT, InkyMockWHAT  # noqa: F401
 from .inky_uc8159 import Inky as Inky7Colour  # noqa: F401
 from .auto import auto                        # noqa: F401
 
-__version__ = '1.2.0'
+__version__ = '1.2.1'
 
 try:
     from pkg_resources import declare_namespace

@@ -1,10 +1,16 @@
+1.2.1
+-----
+
+* BugFix: inky high-temp red fix
+* Enhancement: SSD1608 (250x122) set_border support
+
 1.2.0
 -----
 
-* inky impression set_border support
-* fix inky impression orange colour
-* fix inky impression ivnalid arg bug for Python 2
-* add inky impression simulator
+* New: inky impression set_border support
+* BugFix: inky impression orange colour
+* BugFix: inky impression invalid arg bug for Python 2
+* New: inky impression simulator
 
 1.1.1
 -----
