@@ -1,3 +1,8 @@
+1.2.2
+-----
+
+* BugFix: Raise Impression/7Color/UC8159 busy wait timeout from 15s to 30s
+
 1.2.1
 -----
 
