@@ -25,8 +25,7 @@ def auto(i2c_bus=None, ask_user=False, verbose=False):
 
     if ask_user:
         if verbose:
-            print("""Failed to detect an Inky board, you must specify the type and colour manually.
-""")
+            print("Failed to detect an Inky board. Trying --type/--colour arguments instead...\n")
         parser = argparse.ArgumentParser()
         parser.add_argument('--simulate', '-s', action='store_true', default=False, help="Simulate Inky display")
         parser.add_argument('--type', '-t', type=str, required=True, choices=["what", "phat", "phatssd1608", "impressions", "7colour"], help="Type of display")
