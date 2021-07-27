@@ -19,7 +19,7 @@ inky_display = auto(ask_user=True, verbose=True)
 # Command line arguments to determine number of cycles to run
 parser = argparse.ArgumentParser()
 parser.add_argument('--number', '-n', type=int, required=False, help="number of cycles")
-args = parser.parse_args()
+args, _ = parser.parse_known_args()
 
 # The number of red / black / white refreshes to run
 

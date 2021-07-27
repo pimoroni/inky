@@ -149,10 +149,28 @@ class InkyMock(inky.Inky):
 
 
 class InkyMockPHAT(InkyMock):
-    """Inky wHAT e-Ink Display Simulator."""
+    """Inky PHAT (212x104) e-Ink Display Simulator."""
 
     WIDTH = 212
     HEIGHT = 104
+
+    WHITE = 0
+    BLACK = 1
+    RED = 2
+    YELLOW = 2
+
+    def _simulate(self, region):
+        region = numpy.rot90(region, self.rotation // 90)
+        region = numpy.flipud(region)  # spec: phat rotated -90
+        region = numpy.fliplr(region)  # spec: phat rotated -90
+        self._display(region)
+
+
+class InkyMockPHATSSD1608(InkyMock):
+    """Inky PHAT SSD1608 (250x122) e-Ink Display Simulator."""
+
+    WIDTH = 250
+    HEIGHT = 122
 
     WHITE = 0
     BLACK = 1
