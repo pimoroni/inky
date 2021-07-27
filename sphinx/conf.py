@@ -24,6 +24,7 @@ import inky
 
 from sphinx.ext import autodoc
 
+
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -37,6 +38,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
     'sphinx.ext.intersphinx',
+    'sphinx.ext.autosummary'
 ]
 
 autoclass_content = 'both'
@@ -98,7 +100,7 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'sphinx.virtualenv']
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.
