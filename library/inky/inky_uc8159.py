@@ -389,7 +389,7 @@ class Inky:
             # Force source image data to be loaded for `.im` to work
             image.load()
             image = image.im.convert("P", True, palette_image.im)
-        self.buf = numpy.array(image, dtype=numpy.uint8).reshape((self.cols, self.rows))
+        self.buf = numpy.array(image, dtype=numpy.uint8).reshape((self.rows, self.cols))
 
     def _spi_write(self, dc, values):
         """Write values over SPI.
