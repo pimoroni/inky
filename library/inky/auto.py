@@ -25,20 +25,40 @@ def auto(i2c_bus=None, ask_user=False, verbose=False):
 
     if ask_user:
         if verbose:
-            print("""Failed to detect an Inky board, you must specify the type and colour manually.
-""")
+            print("Failed to detect an Inky board. Trying --type/--colour arguments instead...\n")
         parser = argparse.ArgumentParser()
+        parser.add_argument('--simulate', '-s', action='store_true', default=False, help="Simulate Inky display")
         parser.add_argument('--type', '-t', type=str, required=True, choices=["what", "phat", "phatssd1608", "impressions", "7colour"], help="Type of display")
         parser.add_argument('--colour', '-c', type=str, required=False, choices=["red", "black", "yellow"], help="Display colour")
         args, _ = parser.parse_known_args()
-        if args.type == "phat":
-            return InkyPHAT(args.colour)
-        if args.type == "phatssd1608":
-            return InkyPHAT_SSD1608(args.colour)
-        if args.type == "what":
-            return InkyWHAT(args.colour)
-        if args.type in ("impressions", "7colour"):
-            return InkyUC8159()
+        if args.simulate:
+            cls = None
+            if args.type == "phat":
+                from .mock import InkyMockPHAT
+                cls = InkyMockPHAT(args.colour)
+            if args.type == "phatssd1608":
+                from .mock import InkyMockPHATSSD1608
+                cls = InkyMockPHATSSD1608(args.colour)
+            if args.type == "what":
+                from .mock import InkyMockWHAT
+                cls = InkyMockWHAT(args.colour)
+            if args.type in ("impressions", "7colour"):
+                from .mock import InkyMockImpression
+                cls = InkyMockImpression()
+            if cls is not None:
+                import atexit
+                atexit.register(cls.wait_for_window_close)
+                return cls
+            raise RuntimeError("Unable to simulate {}".format(args.type))
+        else:
+            if args.type == "phat":
+                return InkyPHAT(args.colour)
+            if args.type == "phatssd1608":
+                return InkyPHAT_SSD1608(args.colour)
+            if args.type == "what":
+                return InkyWHAT(args.colour)
+            if args.type in ("impressions", "7colour"):
+                return InkyUC8159()
 
     if _eeprom is None:
         raise RuntimeError("No EEPROM detected! You must manually initialise your Inky board.")
