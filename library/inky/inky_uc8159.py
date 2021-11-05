@@ -87,7 +87,8 @@ _SPI_COMMAND = 0
 _SPI_DATA = 1
 
 _RESOLUTION = {
-    (600, 448): (600, 448, 0, 0, 0)
+    (600, 448): (600, 448, 0, 0, 0, 0b11),
+    (640, 400): (640, 400, 0, 0, 0, 0b10)
 }
 
 
@@ -128,7 +129,7 @@ class Inky:
         self.resolution = resolution
         self.width, self.height = resolution
         self.border_colour = WHITE
-        self.cols, self.rows, self.rotation, self.offset_x, self.offset_y = _RESOLUTION[resolution]
+        self.cols, self.rows, self.rotation, self.offset_x, self.offset_y, self.resolution_setting = _RESOLUTION[resolution]
 
         if colour not in ('multi'):
             raise ValueError('Colour {} is not supported!'.format(colour))
@@ -136,6 +137,14 @@ class Inky:
         self.colour = colour
         self.eeprom = eeprom.read_eeprom(i2c_bus=i2c_bus)
         self.lut = colour
+
+        # Get resolution from the EEPROM if it's valid
+        # Eg: 600x480 and 640x400
+        eeprom_resolution = self.eeprom.width, self.eeprom.height
+        if eeprom_resolution in _RESOLUTION.keys():
+            self.resolution = eeprom_resolution
+            self.width, self.height = eeprom_resolution
+            self.cols, self.rows, self.rotation, self.offset_x, self.offset_y, self.resolution_setting = _RESOLUTION[eeprom_resolution]
 
         # The EEPROM is used to disambiguate the variants of wHAT and pHAT
         # 1   Red pHAT (High-Temp)
@@ -241,11 +250,13 @@ class Inky:
         # 0b00000100 = Source shift direction, 0 = left, 1 = right (default)
         # 0b00000010 = DC-DC converter, 0 = off, 1 = on
         # 0b00000001 = Soft reset, 0 = Reset, 1 = Normal (Default)
+        # 0b11 = 600x448
+        # 0b10 = 640x400
         self._send_command(
             UC8159_PSR,
             [
-                0b11101111,  # See above for more magic numbers
-                0x08         # display_colours == UC8159_7C
+                (self.resolution_setting << 6) | 0b101111,  # See above for more magic numbers
+                0x08                                        # display_colours == UC8159_7C
             ]
         )
 
