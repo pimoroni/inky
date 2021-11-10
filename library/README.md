@@ -21,10 +21,10 @@ Python library for the [Inky pHAT](https://shop.pimoroni.com/products/inky-phat)
 The Python pip package is named inky, on the Raspberry Pi install with:
 
 ```
-pip3 install inky[rpi,fonts]
+pip3 install inky[rpi,example-depends]
 ```
 
-This will install Inky along with dependencies for the Raspberry Pi, plus fonts used by the examples.
+This will install Inky along with dependencies for the Raspberry Pi, plus modules used by the examples.
 
 If you want to simulate Inky on your desktop, use:
 
