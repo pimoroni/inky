@@ -56,7 +56,6 @@ setup(
     extras_require={
         'rpi-gpio-output': ['RPi.GPIO'],
         'rpi': ['RPi.GPIO'],
-        'fonts': ['font-fredoka-one', 'font-source-serif-pro', 'font-hanken-grotesk', 'font-intuitive'],
-        'example-depends': ['requests', 'geocoder', 'beautifulsoup4']
+        'example-depends': ['requests', 'geocoder', 'beautifulsoup4', 'font-fredoka-one', 'font-source-serif-pro', 'font-hanken-grotesk', 'font-intuitive']
     }
 )
