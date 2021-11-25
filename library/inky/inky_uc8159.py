@@ -138,34 +138,13 @@ class Inky:
         self.eeprom = eeprom.read_eeprom(i2c_bus=i2c_bus)
         self.lut = colour
 
-        # Get resolution from the EEPROM if it's valid
+        # Check for supported display variant and select the correct resolution
         # Eg: 600x480 and 640x400
-        eeprom_resolution = self.eeprom.width, self.eeprom.height
-        if eeprom_resolution in _RESOLUTION.keys():
+        if self.eeprom.display_variant in (14, 15):
+            eeprom_resolution = _RESOLUTION.keys[self.eeprom.display_variant - 14]
             self.resolution = eeprom_resolution
             self.width, self.height = eeprom_resolution
             self.cols, self.rows, self.rotation, self.offset_x, self.offset_y, self.resolution_setting = _RESOLUTION[eeprom_resolution]
-
-        # The EEPROM is used to disambiguate the variants of wHAT and pHAT
-        # 1   Red pHAT (High-Temp)
-        # 2   Yellow wHAT (1_E)
-        # 3   Black wHAT (1_E)
-        # 4   Black pHAT (Normal)
-        # 5   Yellow pHAT (DEP0213YNS75AFICP)
-        # 6   Red wHAT (Regular)
-        # 7   Red wHAT (High-Temp)
-        # 8   Red wHAT (DEPG0420RWS19AF0HP)
-        # 10  BW pHAT (ssd1608) (DEPG0213BNS800F13CP)
-        # 11  Red pHAT (ssd1608)
-        # 12  Yellow pHAT (ssd1608)
-        # if self.eeprom is not None:
-        #    # Only support new-style variants
-        #    if self.eeprom.display_variant not in (10, 11, 12):
-        #        raise RuntimeError('This driver is not compatible with your board.')
-        #    if self.eeprom.width != self.width or self.eeprom.height != self.height:
-        #        pass
-        #        # TODO flash correct heights to new EEPROMs
-        #        # raise ValueError('Supplied width/height do not match Inky: {}x{}'.format(self.eeprom.width, self.eeprom.height))
 
         self.buf = numpy.zeros((self.rows, self.cols), dtype=numpy.uint8)
 
