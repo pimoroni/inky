@@ -10,7 +10,7 @@ import argparse
 
 print("""
 
-Requires the seaborn library: suso python3 -m pip install seaborn
+Requires the seaborn library: sudo python3 -m pip install seaborn
 You may need to: sudo apt install libatlas-base-dev
 
 """)
