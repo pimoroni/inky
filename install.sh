@@ -7,16 +7,15 @@ if [ $(id -u) -ne 0 ]; then
 	exit 1
 fi
 
-cd library
+function py_install() {
+	if [ -f "$1" ]; then
+		VERSION=`$1 --version 2>&1`
+		printf "Installing for $VERSION..\n"
+		$1 -m pip install --no-binary .[example-depends] ./library/
+	fi
+}
 
-printf "Installing for Python 2..\n"
-python setup.py install
-
-if [ -f "/usr/bin/python3" ]; then
-	printf "Installing for Python 3..\n"
-	python3 setup.py install
-fi
-
-cd ..
+py_install /usr/bin/python
+py_install /usr/bin/python3
 
 printf "Done!\n"
