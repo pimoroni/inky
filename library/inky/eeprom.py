@@ -25,7 +25,8 @@ DISPLAY_VARIANT = [
     'Red pHAT (SSD1608)',
     'Yellow pHAT (SSD1608)',
     None,
-    '7-Colour (UC8159)'
+    '7-Colour (UC8159)',
+    '7-Colour 640x400 (UC8159)'
 ]
 
 
