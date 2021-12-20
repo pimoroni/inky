@@ -140,7 +140,7 @@ class Inky:
 
         # Check for supported display variant and select the correct resolution
         # Eg: 600x480 and 640x400
-        if self.eeprom.display_variant in (14, 15):
+        if self.eeprom is not None and self.eeprom.display_variant in (14, 15):
             eeprom_resolution = _RESOLUTION.keys[self.eeprom.display_variant - 14]
             self.resolution = eeprom_resolution
             self.width, self.height = eeprom_resolution
