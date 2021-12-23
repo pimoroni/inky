@@ -54,7 +54,7 @@ image_resized = image.resize(inky.resolution)
 image_dithered = hitherdither.ordered.bayer.bayer_dithering(image_resized, palette, thresholds, order=8)
 
 # Usuably quick, half-tone comic-book feel, use order=4 for small dots and order=8 dot bigguns
-#image_dithered = hitherdither.ordered.cluster.cluster_dot_dithering(image_resized, palette, thresholds, order=8)
+# image_dithered = hitherdither.ordered.cluster.cluster_dot_dithering(image_resized, palette, thresholds, order=8)
 
 # VERY slow
 # image_dithered = hitherdither.ordered.yliluoma.yliluomas_1_ordered_dithering(image_resized, palette, order=8)
