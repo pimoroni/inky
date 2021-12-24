@@ -293,7 +293,7 @@ class Inky:
             UC8159_PFS, [0x00]  # PFS_1_FRAME
         )
 
-    def _busy_wait(self, timeout=30.0):
+    def _busy_wait(self, timeout=60.0):
         """Wait for busy/wait pin."""
         t_start = time.time()
         while not self._gpio.input(self.busy_pin):
