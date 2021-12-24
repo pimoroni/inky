@@ -21,7 +21,7 @@ def auto(i2c_bus=None, ask_user=False, verbose=False):
         if _eeprom.display_variant in (2, 3, 6, 7, 8):
             return InkyWHAT(_eeprom.get_color())
         if _eeprom.display_variant == 14:
-            return InkyUC8159()
+            return InkyUC8159(resolution=(600, 448))
         if _eeprom.display_variant in (15, 16):
             return InkyUC8159(resolution=(640, 400))
 
