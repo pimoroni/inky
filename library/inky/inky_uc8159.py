@@ -148,7 +148,7 @@ class Inky:
 
         self.colour = colour
         self.lut = colour
-    
+
         self.buf = numpy.zeros((self.rows, self.cols), dtype=numpy.uint8)
 
         self.dc_pin = dc_pin
