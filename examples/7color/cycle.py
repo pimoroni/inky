@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 import time
 
-from inky.inky_uc8159 import Inky
+from inky.auto import auto
 
-
-inky = Inky()
+inky = auto(ask_user=True, verbose=True)
 
 colors = ['Black', 'White', 'Green', 'Blue', 'Red', 'Yellow', 'Orange']
 

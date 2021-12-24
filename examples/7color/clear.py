@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
+
 import time
 
-from inky.inky_uc8159 import Inky, CLEAN
+from inky.auto import auto
+from inky.inky_uc8159 import CLEAN
 
-
-inky = Inky()
+inky = auto(ask_user=True, verbose=True)
 
 for _ in range(2):
     for y in range(inky.height - 1):

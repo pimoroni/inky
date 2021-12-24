@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
-from inky.inky_uc8159 import Inky
+from inky.auto import auto
+
 # To simulate:
 # from inky.mock import InkyMockImpression as Inky
 
-inky = Inky()
+inky = auto(ask_user=True, verbose=True)
 
 for y in range(inky.height - 1):
     color = y // (inky.height // 7)
