@@ -38,7 +38,7 @@ classifiers = [
 
 setup(
     name='inky',
-    version='1.3.0',
+    version='1.3.1',
     author='Philip Howard',
     author_email='phil@pimoroni.com',
     description='Inky pHAT Driver',
