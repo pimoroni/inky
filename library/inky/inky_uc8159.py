@@ -86,9 +86,12 @@ _SPI_CHUNK_SIZE = 4096
 _SPI_COMMAND = 0
 _SPI_DATA = 1
 
+_RESOLUTION_5_7_INCH = (600, 448)  # Inky Impression 5.7"
+_RESOLUTION_4_INCH = (640, 400)    # Inky Impression 4"
+
 _RESOLUTION = {
-    (600, 448): (600, 448, 0, 0, 0, 0b11),
-    (640, 400): (640, 400, 0, 0, 0, 0b10)
+    _RESOLUTION_5_7_INCH: (_RESOLUTION_5_7_INCH[0], _RESOLUTION_5_7_INCH[1], 0, 0, 0, 0b11),
+    _RESOLUTION_4_INCH: (_RESOLUTION_4_INCH[0], _RESOLUTION_4_INCH[1], 0, 0, 0, 0b10)
 }
 
 
@@ -107,7 +110,7 @@ class Inky:
     WIDTH = 600
     HEIGHT = 448
 
-    def __init__(self, resolution=(600, 448), colour='multi', cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):  # noqa: E501
+    def __init__(self, resolution=None, colour='multi', cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):  # noqa: E501
         """Initialise an Inky Display.
 
         :param resolution: (width, height) in pixels, default: (600, 448)
@@ -122,6 +125,15 @@ class Inky:
         """
         self._spi_bus = spi_bus
         self._i2c_bus = i2c_bus
+        self.eeprom = eeprom.read_eeprom(i2c_bus=i2c_bus)
+
+        # Check for supported display variant and select the correct resolution
+        # Eg: 600x480 and 640x400
+        if resolution is None:
+            if self.eeprom is not None and self.eeprom.display_variant in (14, 15, 16):
+                resolution = [_RESOLUTION_5_7_INCH, None, _RESOLUTION_4_INCH][self.eeprom.display_variant - 14]
+            else:
+                resolution = _RESOLUTION_5_7_INCH
 
         if resolution not in _RESOLUTION.keys():
             raise ValueError('Resolution {}x{} not supported!'.format(*resolution))
@@ -135,17 +147,8 @@ class Inky:
             raise ValueError('Colour {} is not supported!'.format(colour))
 
         self.colour = colour
-        self.eeprom = eeprom.read_eeprom(i2c_bus=i2c_bus)
         self.lut = colour
-
-        # Check for supported display variant and select the correct resolution
-        # Eg: 600x480 and 640x400
-        if self.eeprom is not None and self.eeprom.display_variant in (14, 15):
-            eeprom_resolution = _RESOLUTION.keys[self.eeprom.display_variant - 14]
-            self.resolution = eeprom_resolution
-            self.width, self.height = eeprom_resolution
-            self.cols, self.rows, self.rotation, self.offset_x, self.offset_y, self.resolution_setting = _RESOLUTION[eeprom_resolution]
-
+    
         self.buf = numpy.zeros((self.rows, self.cols), dtype=numpy.uint8)
 
         self.dc_pin = dc_pin

@@ -34,6 +34,14 @@ def smbus2():
 
 
 @pytest.fixture(scope='function', autouse=False)
+def smbus2_eeprom():
+    """Mock smbus2 module."""
+    sys.modules['smbus2'] = mock.MagicMock()
+    yield sys.modules['smbus2']
+    del sys.modules['smbus2']
+
+
+@pytest.fixture(scope='function', autouse=False)
 def spidev():
     """Mock spidev module."""
     spidev = mock.MagicMock()
