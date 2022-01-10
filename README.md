@@ -22,10 +22,12 @@ Python library for [Inky pHAT](https://shop.pimoroni.com/products/inky-phat), [I
 
 # Installation
 
+First, make sure you have I2C and SPI enabled in `sudo raspi-config`.
+
 The Python pip package is named inky, on the Raspberry Pi install with:
 
 ```
-pip3 install inky[rpi,fonts]
+pip3 install inky[rpi,example-depends]
 ```
 
 This will install Inky along with dependencies for the Raspberry Pi, plus fonts used by the examples.
