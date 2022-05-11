@@ -1,6 +1,7 @@
 """Inky e-Ink Display Driver."""
 import time
 import struct
+import warnings
 
 try:
     from PIL import Image
@@ -212,9 +213,8 @@ class Inky:
         self._gpio.output(self.reset_pin, self._gpio.LOW)
         time.sleep(0.1)
         self._gpio.output(self.reset_pin, self._gpio.HIGH)
-        time.sleep(0.1)
 
-        self._busy_wait()
+        self._busy_wait(1.0)
 
         # Resolution Setting
         # 10bit horizontal followed by a 10bit vertical resolution
@@ -293,15 +293,27 @@ class Inky:
             UC8159_PFS, [0x00]  # PFS_1_FRAME
         )
 
-    def _busy_wait(self, timeout=60.0):
+    def _busy_wait(self, timeout=40.0):
         """Wait for busy/wait pin."""
+
+        # If the busy_pin is *high* (pulled up by host)
+        # then assume we're not getting a signal from inky
+        # and wait the timeout period to be safe.
+        if self._gpio.input(self.busy_pin):
+            warnings.warn("Busy Wait: Held high. Waiting for {:0.2f}s".format(timeout))
+            time.sleep(timeout)
+            return
+
+        # If the busy_pin is *low* (pulled down by inky)
+        # then wait for it to high.
         t_start = time.time()
         while not self._gpio.input(self.busy_pin):
             time.sleep(0.01)
             if time.time() - t_start >= timeout:
-                raise RuntimeError("Timeout waiting for busy signal to clear.")
+                warnings.warn("Busy Wait: Timed out after {:0.2f}s".format(time.time() - t_start))
+                return
 
-    def _update(self, buf, busy_wait=True):
+    def _update(self, buf):
         """Update display.
 
         Dispatches display update to correct driver.
@@ -313,16 +325,15 @@ class Inky:
         self.setup()
 
         self._send_command(UC8159_DTM1, buf)
-        self._busy_wait()
 
         self._send_command(UC8159_PON)
-        self._busy_wait()
+        self._busy_wait(0.2)
 
         self._send_command(UC8159_DRF)
-        self._busy_wait()
+        self._busy_wait(32.0)
 
         self._send_command(UC8159_POF)
-        self._busy_wait()
+        self._busy_wait(0.2)
 
     def set_pixel(self, x, y, v):
         """Set a single pixel.
@@ -355,7 +366,7 @@ class Inky:
 
         buf = ((buf[::2] << 4) & 0xF0) | (buf[1::2] & 0x0F)
 
-        self._update(buf.astype('uint8').tolist(), busy_wait=busy_wait)
+        self._update(buf.astype('uint8').tolist())
 
     def set_border(self, colour):
         """Set the border colour."""
