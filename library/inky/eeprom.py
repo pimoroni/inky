@@ -27,7 +27,10 @@ DISPLAY_VARIANT = [
     None,
     '7-Colour (UC8159)',
     '7-Colour 640x400 (UC8159)',
-    '7-Colour 640x400 (UC8159)'
+    '7-Colour 640x400 (UC8159)',
+    'Black wHAT (SSD1683)',
+    'Red wHAT (SSD1683)',
+    'Yellow wHAT (SSD1683)'
 ]
 
 
