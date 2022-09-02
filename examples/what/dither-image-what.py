@@ -2,27 +2,25 @@
 
 import argparse
 from PIL import Image
-from inky import InkyWHAT
+from inky.auto import auto
 
 print("""Inky wHAT: Dither image
 
 Converts and displays dithered images on Inky wHAT.
 """)
 
-# Command line arguments to set display type and colour, and enter your name
+# Set up the inky wHAT display and border colour
+
+inky_display = auto(ask_user=True, verbose=True)
+inky_display.set_border(inky_display.WHITE)
+
+# Grab the image argument from the command line
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--colour', '-c', type=str, required=True, choices=["red", "black", "yellow"], help="ePaper display colour")
 parser.add_argument('--image', '-i', type=str, required=True, help="Input image to be converted/displayed")
 args = parser.parse_args()
 
-colour = args.colour
 img_file = args.image
-
-# Set up the inky wHAT display and border colour
-
-inky_display = InkyWHAT(colour)
-inky_display.set_border(inky_display.WHITE)
 
 # Open our image file that was passed in from the command line
 

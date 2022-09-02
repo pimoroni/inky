@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import argparse
 import random
 import sys
 
-from inky import InkyWHAT
+from inky.auto import auto
 
 from PIL import Image, ImageFont, ImageDraw
 from font_source_serif_pro import SourceSerifProSemibold
@@ -22,18 +21,16 @@ except ImportError:
     print("""This script requires the wikiquotes module.
 
 Install with:
-    sudo apt install python-lxml
-    sudo pip install wikiquotes
+    sudo apt install python3-lxml
+    python3 -m pip install wikiquotes
 """)
     sys.exit(1)
 
-# Command line arguments to set display type and colour, and enter your name
+# Set up the correct display and scaling factors
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--colour', '-c', type=str, required=True, choices=["red", "black", "yellow"], help="ePaper display colour")
-args = parser.parse_args()
-
-colour = args.colour
+inky_display = auto(ask_user=True, verbose=True)
+inky_display.set_border(inky_display.WHITE)
+# inky_display.set_rotation(180)
 
 # This function will take a quote as a string, a width to fit
 # it into, and a font (one that's been loaded) and then reflow
@@ -61,17 +58,12 @@ def reflow_quote(quote, width, font):
     return reflowed
 
 
-# Set up the correct display and scaling factors
-inky_display = InkyWHAT(colour)
-inky_display.set_border(inky_display.WHITE)
-# inky_display.set_rotation(180)
-
-w = inky_display.WIDTH
-h = inky_display.HEIGHT
+WIDTH = inky_display.width
+HEIGHT = inky_display.height
 
 # Create a new canvas to draw on
 
-img = Image.new("P", (inky_display.WIDTH, inky_display.HEIGHT))
+img = Image.new("P", (WIDTH, HEIGHT))
 draw = ImageDraw.Draw(img)
 
 # Load the fonts
@@ -112,8 +104,8 @@ people = [
 # Also define the max width and height for the quote.
 
 padding = 50
-max_width = w - padding
-max_height = h - padding - author_font.getsize("ABCD ")[1]
+max_width = WIDTH - padding
+max_height = HEIGHT - padding - author_font.getsize("ABCD ")[1]
 
 below_max_length = False
 
@@ -136,8 +128,8 @@ while not below_max_length:
 
 # x- and y-coordinates for the top left of the quote
 
-quote_x = (w - max_width) / 2
-quote_y = ((h - max_height) + (max_height - p_h - author_font.getsize("ABCD ")[1])) / 2
+quote_x = (WIDTH - max_width) / 2
+quote_y = ((HEIGHT - max_height) + (max_height - p_h - author_font.getsize("ABCD ")[1])) / 2
 
 # x- and y-coordinates for the top left of the author
 
@@ -148,16 +140,16 @@ author = "- " + person
 
 # Draw red rectangles top and bottom to frame quote
 
-draw.rectangle((padding / 4, padding / 4, w - (padding / 4), quote_y - (padding / 4)), fill=inky_display.RED)
-draw.rectangle((padding / 4, author_y + author_font.getsize("ABCD ")[1] + (padding / 4) + 5, w - (padding / 4), h - (padding / 4)), fill=inky_display.RED)
+draw.rectangle((padding / 4, padding / 4, WIDTH - (padding / 4), quote_y - (padding / 4)), fill=inky_display.RED)
+draw.rectangle((padding / 4, author_y + author_font.getsize("ABCD ")[1] + (padding / 4) + 5, WIDTH - (padding / 4), HEIGHT - (padding / 4)), fill=inky_display.RED)
 
 # Add some white hatching to the red rectangles to make
 # it look a bit more interesting
 
 hatch_spacing = 12
 
-for x in range(0, 2 * w, hatch_spacing):
-    draw.line((x, 0, x - w, h), fill=inky_display.WHITE, width=3)
+for x in range(0, 2 * WIDTH, hatch_spacing):
+    draw.line((x, 0, x - WIDTH, HEIGHT), fill=inky_display.WHITE, width=3)
 
 # Write our quote and author to the canvas
 
