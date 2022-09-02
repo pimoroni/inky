@@ -86,6 +86,9 @@ Time: {}""".format(self.width,
 
     def to_list(self):
         """Return a list of bytes representing the EEPROM data structure."""
+        result = self.encode()
+        if type(result) is bytes:
+            return result
         return [ord(c) for c in self.encode()]
 
     def set_color(self, color):
