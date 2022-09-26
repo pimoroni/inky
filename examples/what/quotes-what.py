@@ -140,8 +140,21 @@ author = "- " + person
 
 # Draw red rectangles top and bottom to frame quote
 
-draw.rectangle((padding / 4, padding / 4, WIDTH - (padding / 4), quote_y - (padding / 4)), fill=inky_display.RED)
-draw.rectangle((padding / 4, author_y + author_font.getsize("ABCD ")[1] + (padding / 4) + 5, WIDTH - (padding / 4), HEIGHT - (padding / 4)), fill=inky_display.RED)
+draw.rectangle(
+    (
+        padding / 4,
+        padding / 4,
+        WIDTH - (padding / 4),
+        quote_y - (padding / 4)
+    ), fill=inky_display.RED)
+
+draw.rectangle(
+    (
+        padding / 4,
+        author_y + author_font.getsize("ABCD ")[1] + (padding / 4) + 5,
+        WIDTH - (padding / 4),
+        HEIGHT - (padding / 4)
+    ), fill=inky_display.RED)
 
 # Add some white hatching to the red rectangles to make
 # it look a bit more interesting

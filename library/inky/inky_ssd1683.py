@@ -177,7 +177,7 @@ class Inky:
         # VCOM Voltage
         self._send_command(ssd1683.WRITE_VCOM, [0x70])
         # Write LUT DATA
-        #self._send_command(ssd1683.WRITE_LUT, self._luts[self.lut])
+        # self._send_command(ssd1683.WRITE_LUT, self._luts[self.lut])
 
         if self.border_colour == self.BLACK:
             self._send_command(ssd1683.WRITE_BORDER, 0b00000000)

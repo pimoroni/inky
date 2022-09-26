@@ -246,9 +246,9 @@ class Inky:
         self._send_command(
             UC8159_PWR,
             [
-                (0x06 << 3) |  # ??? - not documented in UC8159 datasheet
-                (0x01 << 2) |  # SOURCE_INTERNAL_DC_DC
-                (0x01 << 1) |  # GATE_INTERNAL_DC_DC
+                (0x06 << 3) |  # ??? - not documented in UC8159 datasheet  # noqa: W504
+                (0x01 << 2) |  # SOURCE_INTERNAL_DC_DC                     # noqa: W504
+                (0x01 << 1) |  # GATE_INTERNAL_DC_DC                       # noqa: W504
                 (0x01),        # LV_SOURCE_INTERNAL_DC_DC
                 0x00,          # VGx_20V
                 0x23,          # UC8159_7C
@@ -295,7 +295,6 @@ class Inky:
 
     def _busy_wait(self, timeout=40.0):
         """Wait for busy/wait pin."""
-
         # If the busy_pin is *high* (pulled up by host)
         # then assume we're not getting a signal from inky
         # and wait the timeout period to be safe.

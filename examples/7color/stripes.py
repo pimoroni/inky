@@ -15,4 +15,3 @@ for y in range(inky.height - 1):
 inky.show()
 # To simulate:
 # inky.wait_for_window_close()
-
