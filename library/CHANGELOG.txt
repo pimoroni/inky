@@ -1,4 +1,10 @@
+1.4.0
+-----
+
+* New: inky SSD1683 support for WHAT variant
+
 1.3.2
+-----
 
 * BugFix: (ish) handle busy_wait failure cases for UC8159 (Inky Impression)
 
