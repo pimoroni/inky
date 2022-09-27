@@ -27,7 +27,10 @@ DISPLAY_VARIANT = [
     None,
     '7-Colour (UC8159)',
     '7-Colour 640x400 (UC8159)',
-    '7-Colour 640x400 (UC8159)'
+    '7-Colour 640x400 (UC8159)',
+    'Black wHAT (SSD1683)',
+    'Red wHAT (SSD1683)',
+    'Yellow wHAT (SSD1683)'
 ]
 
 
@@ -83,6 +86,9 @@ Time: {}""".format(self.width,
 
     def to_list(self):
         """Return a list of bytes representing the EEPROM data structure."""
+        result = self.encode()
+        if type(result) is bytes:
+            return result
         return [ord(c) for c in self.encode()]
 
     def set_color(self, color):

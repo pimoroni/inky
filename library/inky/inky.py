@@ -249,7 +249,7 @@ class Inky:
 
     def _busy_wait(self):
         """Wait for busy/wait pin."""
-        while(self._gpio.input(self.busy_pin) != self._gpio.LOW):
+        while self._gpio.input(self.busy_pin) != self._gpio.LOW:
             time.sleep(0.01)
 
     def _update(self, buf_a, buf_b, busy_wait=True):
