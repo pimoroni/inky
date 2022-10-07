@@ -3,7 +3,7 @@
 import sys
 import site
 
-import mock
+from unittest import mock
 PACKAGE_NAME = u"Inky"
 PACKAGE_HANDLE = "Inky"
 PACKAGE_MODULE = "inky"
