@@ -141,6 +141,7 @@ class Inky:
 
         self.resolution = resolution
         self.width, self.height = resolution
+        self.WIDTH, self.HEIGHT = resolution
         self.border_colour = WHITE
         self.cols, self.rows, self.rotation, self.offset_x, self.offset_y, self.resolution_setting = _RESOLUTION[resolution]
 
