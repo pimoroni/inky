@@ -4,6 +4,7 @@
 
 import datetime
 import struct
+import os
 
 
 EEP_ADDRESS = 0x50
@@ -134,7 +135,9 @@ def read_eeprom(i2c_bus=None):
                 from smbus2 import SMBus
             except ImportError:
                 raise ImportError('This library requires the smbus2 module\nInstall with: sudo pip install smbus2')
-            i2c_bus = SMBus(1)
+
+            i2c_list = list(filter(lambda x: ("i2c-" in x), os.listdir("/dev")))
+            i2c_bus = SMBus(bus=f"/dev/{i2c_list[0]}")
         i2c_bus.write_i2c_block_data(EEP_ADDRESS, 0x00, [0x00])
         return EPDType.from_bytes(i2c_bus.read_i2c_block_data(EEP_ADDRESS, 0, 29))
     except IOError:
