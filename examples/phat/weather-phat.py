@@ -4,6 +4,7 @@
 import glob
 import os
 import time
+import json
 from sys import exit
 
 from font_fredoka_one import FredokaOne
@@ -13,11 +14,11 @@ from PIL import Image, ImageDraw, ImageFont
 """
 To run this example on Python 2.x you should:
     sudo apt install python-lxml
-    sudo pip install geocoder requests font-fredoka-one beautifulsoup4=4.6.3
+    sudo pip install geocoder requests font-fredoka-one
 
 On Python 3.x:
     sudo apt install python3-lxml
-    sudo pip3 install geocoder requests font-fredoka-one beautifulsoup4
+    sudo pip3 install geocoder requests font-fredoka-one
 """
 
 try:
@@ -29,12 +30,6 @@ try:
     import geocoder
 except ImportError:
     exit("This script requires the geocoder module\nInstall with: sudo pip install geocoder")
-
-try:
-    from bs4 import BeautifulSoup
-except ImportError:
-    exit("This script requires the bs4 module\nInstall with: sudo pip install beautifulsoup4==4.6.3")
-
 
 print("""Inky pHAT: Weather
 
@@ -71,18 +66,17 @@ def get_coords(address):
     return coords
 
 
-# Query Dark Sky (https://darksky.net/) to scrape current weather data
+# Query OpenMeteo (https://open-meteo.com) to get current weather data
 def get_weather(address):
     coords = get_coords(address)
     weather = {}
-    res = requests.get("https://darksky.net/forecast/{}/uk212/en".format(",".join([str(c) for c in coords])))
+    res = requests.get("https://api.open-meteo.com/v1/forecast?latitude=" + str(coords[0]) + "&longitude=" + str(coords[1]) + "&current_weather=true")
     if res.status_code == 200:
-        soup = BeautifulSoup(res.content, "lxml")
-        curr = soup.find_all("span", "currently")
-        weather["summary"] = curr[0].img["alt"].split()[0]
-        weather["temperature"] = int(curr[0].find("span", "summary").text.split()[0][:-1])
-        press = soup.find_all("div", "pressure")
-        weather["pressure"] = int(press[0].find("span", "num").text)
+        j = json.loads(res.text)
+        current = j["current_weather"]
+        weather["temperature"] = current["temperature"]
+        weather["windspeed"] = current["windspeed"]
+        weather["weathercode"] = current["weathercode"]
         return weather
     else:
         return weather
@@ -117,29 +111,30 @@ masks = {}
 location_string = "{city}, {countrycode}".format(city=CITY, countrycode=COUNTRYCODE)
 weather = get_weather(location_string)
 
-# This maps the weather summary from Dark Sky
+# This maps the weather code from Open Meteo
 # to the appropriate weather icons
+# Weather codes from https://open-meteo.com/en/docs
 icon_map = {
-    "snow": ["snow", "sleet"],
-    "rain": ["rain"],
-    "cloud": ["fog", "cloudy", "partly-cloudy-day", "partly-cloudy-night"],
-    "sun": ["clear-day", "clear-night"],
-    "storm": [],
-    "wind": ["wind"]
+    "snow": [71, 73, 75, 77, 85, 86],
+    "rain": [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82],
+    "cloud": [1, 2, 3, 45, 48],
+    "sun": [0],
+    "storm": [95, 96, 99],
+    "wind": []
 }
 
 # Placeholder variables
-pressure = 0
-temperature = 0
+windspeed = 0.0
+temperature = 0.0
 weather_icon = None
 
 if weather:
     temperature = weather["temperature"]
-    pressure = weather["pressure"]
-    summary = weather["summary"]
+    windspeed = weather["windspeed"]
+    weathercode = weather["weathercode"]
 
     for icon in icon_map:
-        if summary in icon_map[icon]:
+        if weathercode in icon_map[icon]:
             weather_icon = icon
             break
 
@@ -169,13 +164,13 @@ draw.line((169, 58, 169, 58), 2)  # Red seaweed pixel :D
 # Write text with weather values to the canvas
 datetime = time.strftime("%d/%m %H:%M")
 
-draw.text((36, 12), datetime, inky_display.WHITE, font=font)
+draw.text((41, 12), datetime, inky_display.WHITE, font=font)
 
 draw.text((72, 34), "T", inky_display.WHITE, font=font)
-draw.text((92, 34), u"{}°".format(temperature), inky_display.WHITE if temperature < WARNING_TEMP else inky_display.RED, font=font)
+draw.text((97, 34), "{}°C".format(temperature), inky_display.WHITE if temperature < WARNING_TEMP else inky_display.RED, font=font)
 
-draw.text((72, 58), "P", inky_display.WHITE, font=font)
-draw.text((92, 58), "{}".format(pressure), inky_display.WHITE, font=font)
+draw.text((72, 58), "W", inky_display.WHITE, font=font)
+draw.text((97, 58), "{}kmh".format(windspeed), inky_display.WHITE, font=font)
 
 # Draw the current weather icon over the backdrop
 if weather_icon is not None:
