@@ -167,10 +167,10 @@ datetime = time.strftime("%d/%m %H:%M")
 draw.text((41, 12), datetime, inky_display.WHITE, font=font)
 
 draw.text((72, 34), "T", inky_display.WHITE, font=font)
-draw.text((97, 34), "{}°C".format(temperature), inky_display.WHITE if temperature < WARNING_TEMP else inky_display.RED, font=font)
+draw.text((92, 34), "{}°C".format(temperature), inky_display.WHITE if temperature < WARNING_TEMP else inky_display.RED, font=font)
 
 draw.text((72, 58), "W", inky_display.WHITE, font=font)
-draw.text((97, 58), "{}kmh".format(windspeed), inky_display.WHITE, font=font)
+draw.text((92, 58), "{}kmh".format(windspeed), inky_display.WHITE, font=font)
 
 # Draw the current weather icon over the backdrop
 if weather_icon is not None:
