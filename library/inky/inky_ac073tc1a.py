@@ -66,7 +66,7 @@ AC073TC1_PON = 0x04
 AC073TC1_BTST1 = 0x05
 AC073TC1_BTST2 = 0x06
 AC073TC1_DSLP = 0x07
-AC073TC1_BTST3 = 0x06
+AC073TC1_BTST3 = 0x08
 AC073TC1_DTM = 0x10
 AC073TC1_DSP = 0x11
 AC073TC1_DRF = 0x12
@@ -92,7 +92,6 @@ AC073TC1_CMDH = 0xAA
 AC073TC1_CCSET = 0xE0
 AC073TC1_PWS = 0xE3
 AC073TC1_TSSET = 0xE6
-AC073TC1_TSSET = 0xE5
 
 _SPI_CHUNK_SIZE = 4096
 _SPI_COMMAND = 0
@@ -223,11 +222,16 @@ class Inky:
         self._gpio.output(self.reset_pin, self._gpio.LOW)
         time.sleep(0.1)
         self._gpio.output(self.reset_pin, self._gpio.HIGH)
+        time.sleep(0.1)
+
+        self._gpio.output(self.reset_pin, self._gpio.LOW)
+        time.sleep(0.1)
+        self._gpio.output(self.reset_pin, self._gpio.HIGH)
 
         self._busy_wait(1.0)
 
         # Sending init commands to display
-        self._send_command(AC073TC1_CMDH, 
+        self._send_command(AC073TC1_CMDH, #0xAA
         [
             0x49,
             0x55,
@@ -237,7 +241,7 @@ class Inky:
             0x18
         ])
 
-        self._send_command(AC073TC1_PWR,
+        self._send_command(AC073TC1_PWR, #0x01
         [
             0x3F,
             0x00,
@@ -248,14 +252,14 @@ class Inky:
         ]
         )
 
-        self._send_command(AC073TC1_PSR,
+        self._send_command(AC073TC1_PSR, #0x00
         [
             0x5F,
             0x69
         ]
         )
 
-        self._send_command(AC073TC1_POFS,
+        self._send_command(AC073TC1_POFS,#0x03
         [
             0x00,
             0x54,
@@ -264,7 +268,7 @@ class Inky:
         ]
         )
 
-        self._send_command(AC073TC1_BTST1,
+        self._send_command(AC073TC1_BTST1,#0x05
         [
             0x40,
             0x1F,
@@ -273,7 +277,7 @@ class Inky:
         ]
         )
 
-        self._send_command(AC073TC1_BTST2,
+        self._send_command(AC073TC1_BTST2,#0x06
         [
             0x6F,
             0x1F,
@@ -282,7 +286,7 @@ class Inky:
         ]
         )
 
-        self._send_command(AC073TC1_BTST3,
+        self._send_command(AC073TC1_BTST3,#0x08
         [
             0x6F,
             0x1F,
@@ -291,39 +295,39 @@ class Inky:
         ]
         )
 
-        self._send_command(AC073TC1_IPC,
+        self._send_command(AC073TC1_IPC,#0x13
         [
             0x00,
             0x04
         ]
         )
 
-        self._send_command(AC073TC1_PLL,
+        self._send_command(AC073TC1_PLL,#0x30
         [
             0x02
         ]
         )
 
-        self._send_command(AC073TC1_TSE,
+        self._send_command(AC073TC1_TSE,#0x41
         [
             0x00
         ]
         )
 
-        self._send_command(AC073TC1_CDI,
+        self._send_command(AC073TC1_CDI,#0x50
         [
             0x3F
         ]
         )
 
-        self._send_command(AC073TC1_TCON,
+        self._send_command(AC073TC1_TCON,#0x60
         [
             0x02,
             0x00
         ]
         )
 
-        self._send_command(AC073TC1_TRES,
+        self._send_command(AC073TC1_TRES,#0x61
         [
             0x03,
             0x20,
@@ -332,37 +336,37 @@ class Inky:
         ]
         )
 
-        self._send_command(AC073TC1_VDCS,
+        self._send_command(AC073TC1_VDCS,#0x82
         [
             0x1E
         ]
         )
 
-        self._send_command(AC073TC1_T_VDCS,
+        self._send_command(AC073TC1_T_VDCS,#0x84
         [
             0x00
         ]
         )
 
-        self._send_command(AC073TC1_AGID,
+        self._send_command(AC073TC1_AGID,#0x86
         [
             0x00
         ]
         )
 
-        self._send_command(AC073TC1_PWS,
+        self._send_command(AC073TC1_PWS,#0xE3
         [
             0x2F
         ]
         )
 
-        self._send_command(AC073TC1_CCSET,
+        self._send_command(AC073TC1_CCSET,#0xE0
         [
             0x00
         ]
         )
 
-        self._send_command(AC073TC1_TSSET,
+        self._send_command(AC073TC1_TSSET,#0xE6
         [
             0x00
         ]
@@ -465,6 +469,8 @@ class Inky:
                 warnings.warn("Busy Wait: Timed out after {:0.2f}s".format(time.time() - t_start))
                 return
 
+        # print("Busy_waited",  time.time()-t_start, "out of", timeout, "seconds")
+
     def _update(self, buf):
         """Update display.
 
@@ -476,18 +482,17 @@ class Inky:
         """
         
         self.setup()
-        
-        self._send_command(AC073TC1_PON)
-        self._busy_wait(0.2)
-        
+
         self._send_command(AC073TC1_DTM, buf)
 
+        self._send_command(AC073TC1_PON)
+        self._busy_wait(0.4)
 
-        self._send_command(AC073TC1_DRF, [0x01])
-        self._busy_wait(32.0)
+        self._send_command(AC073TC1_DRF, [0x00])
+        self._busy_wait(45.0) # 41 seconds in testing
 
-        #self._send_command(AC073TC1_POF)
-        self._busy_wait(0.2)
+        self._send_command(AC073TC1_POF, [0x00])
+        self._busy_wait(0.4)
 
     def set_pixel(self, x, y, v):
         """Set a single pixel.
@@ -556,18 +561,16 @@ class Inky:
         :param values: list of values to write
 
         """
-        #self._gpio.output(self.cs_pin, 0)
+        self._gpio.output(self.cs_pin, 0)
         self._gpio.output(self.dc_pin, dc)
 
         if type(values) is str:
             values = [ord(c) for c in values]
 
         for byte_value in values:
-            self._gpio.output(self.cs_pin, 0)
             self._spi_bus.xfer([byte_value])
-            self._gpio.output(self.cs_pin, 1)
 
-        #self._gpio.output(self.cs_pin, 1)
+        self._gpio.output(self.cs_pin, 1)
 
     def _send_command(self, command, data=None):
         """Send command over SPI.
