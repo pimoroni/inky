@@ -1,6 +1,6 @@
 """Initialization tests for Inky."""
 
-import mock
+from unittest import mock
 import pytest
 
 
