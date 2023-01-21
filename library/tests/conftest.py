@@ -5,7 +5,7 @@ that might otherwise have runtime side-effects.
 
 """
 import sys
-import mock
+from unittest import mock
 import pytest
 
 from tools import MockSMBus

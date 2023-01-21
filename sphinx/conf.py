@@ -3,7 +3,7 @@
 import sys
 import site
 
-import mock
+from unittest import mock
 PACKAGE_NAME = u"Inky"
 PACKAGE_HANDLE = "Inky"
 PACKAGE_MODULE = "inky"
@@ -13,7 +13,7 @@ PACKAGE_MODULE = "inky"
 
 import sphinx_rtd_theme
 
-MOCK_MODULES = ['RPi', 'RPi.GPIO', 'smbus2', 'smbus', 'numpy', 'spidev']
+MOCK_MODULES = ['RPi', 'RPi.GPIO', 'smbus2', 'smbus', 'numpy', 'spidev', 'PIL']
 for module_name in MOCK_MODULES:
     sys.modules[module_name] = mock.MagicMock()
 
