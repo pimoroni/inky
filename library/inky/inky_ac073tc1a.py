@@ -29,26 +29,70 @@ ORANGE = 6
 CLEAN = 7
 
 DESATURATED_PALETTE = [
-    [0, 0, 0],
-    [255, 255, 255],
-    [0, 255, 0],
-    [0, 0, 255],
-    [255, 0, 0],
-    [255, 255, 0],
-    [255, 140, 0],
-    [255, 255, 255]
+    [0, 0, 0],        # Black
+    [255, 255, 255],  # White
+    [0, 255, 0],      # Green
+    [0, 0, 255],      # Blue
+    [255, 0, 0],      # Red
+    [255, 255, 0],    # Yellow
+    [255, 140, 0],    # Orange
+    [255, 255, 255]   # Clear
 ]
 
 SATURATED_PALETTE = [
-    [57, 48, 57],
-    [255, 255, 255],
-    [58, 91, 70],
-    [61, 59, 94],
-    [156, 72, 75],
-    [208, 190, 71],
-    [177, 106, 73],
-    [255, 255, 255]
+#    [57, 48, 57],     # Black
+#    [255, 255, 255],  # White
+#    [58, 91, 70],     # Green
+#    [61, 59, 94],     # Blue
+#    [156, 72, 75],    # Red
+#    [208, 190, 71],   # Yellow
+#    [177, 106, 73],   # Orange
+#    [255, 255, 255]   # Clear
+
+    # Measured palette:
+    # [56, 38, 52],     # Black
+    # [200, 194, 178],  # White
+    # [58, 118, 90],    # Green
+    # [74, 68, 150],    # Blue
+    # [219, 90, 69],    # Red
+    # [225, 202, 86],   # Yellow
+    # [215, 116, 74],   # Orange
+    # [255, 255, 255]   # Clear
+
+    # Palette generated with the min/max code below
+    [0, 0, 0],        # Black
+    [217, 242, 255],  # White
+    [3, 124, 76],     # Green
+    [27, 46, 198],    # Blue
+    [245, 80, 34],    # Red
+    [255, 255, 68],   # Yellow
+    [239, 121, 44],   # Orange
+    [255, 255, 255]   # Clear
+
+
+
 ]
+
+# mins = [255, 255, 255]
+# maxs = [0,0,0]
+
+# for x in range(3):
+#     for colour in range(7):
+#         mins[x] = min(SATURATED_PALETTE[colour][x], mins[x])
+#         maxs[x] = max(SATURATED_PALETTE[colour][x], maxs[x])
+
+# # print "mins", mins
+# # print "maxs", maxs
+
+# for colour in range(7):
+#     newcolour = []
+#     for x in range(3):
+#         shade = SATURATED_PALETTE[colour][x]
+#         newshade = int((shade - mins[x]) * (255.0/(maxs[x]-mins[x])))
+#         newcolour.append(newshade)
+#     # print "changing", SATURATED_PALETTE[colour], "to", newcolour
+#     SATURATED_PALETTE[colour] = newcolour
+
 
 RESET_PIN = 27
 BUSY_PIN = 17
@@ -482,6 +526,16 @@ class Inky:
         """
         
         self.setup()
+
+        # TODO there has to be a better way to force the white colour to be used instead of clear...
+
+        for i in range(len(buf)):
+            if buf[i] & 0xf == 7:
+                buf[i] = (buf[i]&0xf0)+1
+                # print buf[i]
+            if buf[i] & 0xf0 == 0x70:
+                buf[i] = (buf[i]&0xf)+0x10
+                # print buf[i]
 
         self._send_command(AC073TC1_DTM, buf)
 
