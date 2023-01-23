@@ -49,17 +49,6 @@ SATURATED_PALETTE = [
 #    [177, 106, 73],   # Orange
 #    [255, 255, 255]   # Clear
 
-    # Measured palette:
-    # [56, 38, 52],     # Black
-    # [200, 194, 178],  # White
-    # [58, 118, 90],    # Green
-    # [74, 68, 150],    # Blue
-    # [219, 90, 69],    # Red
-    # [225, 202, 86],   # Yellow
-    # [215, 116, 74],   # Orange
-    # [255, 255, 255]   # Clear
-
-    # Palette generated with the min/max code below
     [0, 0, 0],        # Black
     [217, 242, 255],  # White
     [3, 124, 76],     # Green
@@ -68,31 +57,7 @@ SATURATED_PALETTE = [
     [255, 255, 68],   # Yellow
     [239, 121, 44],   # Orange
     [255, 255, 255]   # Clear
-
-
-
 ]
-
-# mins = [255, 255, 255]
-# maxs = [0,0,0]
-
-# for x in range(3):
-#     for colour in range(7):
-#         mins[x] = min(SATURATED_PALETTE[colour][x], mins[x])
-#         maxs[x] = max(SATURATED_PALETTE[colour][x], maxs[x])
-
-# # print "mins", mins
-# # print "maxs", maxs
-
-# for colour in range(7):
-#     newcolour = []
-#     for x in range(3):
-#         shade = SATURATED_PALETTE[colour][x]
-#         newshade = int((shade - mins[x]) * (255.0/(maxs[x]-mins[x])))
-#         newcolour.append(newshade)
-#     # print "changing", SATURATED_PALETTE[colour], "to", newcolour
-#     SATURATED_PALETTE[colour] = newcolour
-
 
 RESET_PIN = 27
 BUSY_PIN = 17
