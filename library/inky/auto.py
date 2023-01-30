@@ -3,6 +3,7 @@ from .phat import InkyPHAT, InkyPHAT_SSD1608  # noqa: F401
 from .what import InkyWHAT                    # noqa: F401
 from .inky_uc8159 import Inky as InkyUC8159   # noqa: F401
 from .inky_ssd1683 import Inky as InkyWHAT_SSD1683  # noqa: F401
+from .inky_ac073t
 from . import eeprom
 import argparse
 

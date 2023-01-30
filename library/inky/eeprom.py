@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Inky display-type EEPROM tools."""
@@ -30,7 +31,8 @@ DISPLAY_VARIANT = [
     '7-Colour 640x400 (UC8159)',
     'Black wHAT (SSD1683)',
     'Red wHAT (SSD1683)',
-    'Yellow wHAT (SSD1683)'
+    'Yellow wHAT (SSD1683)',
+    '7-Colour 800x480 (AC073TC1A)'
 ]
 
 
