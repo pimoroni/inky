@@ -40,15 +40,6 @@ DESATURATED_PALETTE = [
 ]
 
 SATURATED_PALETTE = [
-#    [57, 48, 57],     # Black
-#    [255, 255, 255],  # White
-#    [58, 91, 70],     # Green
-#    [61, 59, 94],     # Blue
-#    [156, 72, 75],    # Red
-#    [208, 190, 71],   # Yellow
-#    [177, 106, 73],   # Orange
-#    [255, 255, 255]   # Clear
-
     [0, 0, 0],        # Black
     [217, 242, 255],  # White
     [3, 124, 76],     # Green
@@ -381,84 +372,6 @@ class Inky:
         ]
         )
 
-        ''' UC8159 settings left here fro referance
-        # Resolution Setting
-        # 10bit horizontal followed by a 10bit vertical resolution
-        # we'll let struct.pack do the work here and send 16bit values
-        # life is too short for manual bit wrangling
-        self._send_command(
-            AC073TC1_TRES,
-            struct.pack(">HH", self.width, self.height))
-
-        # Panel Setting
-        # 0b11000000 = Resolution select, 0b00 = 640x480, our panel is 0b11 = 600x448
-        # 0b00100000 = LUT selection, 0 = ext flash, 1 = registers, we use ext flash
-        # 0b00010000 = Ignore
-        # 0b00001000 = Gate scan direction, 0 = down, 1 = up (default)
-        # 0b00000100 = Source shift direction, 0 = left, 1 = right (default)
-        # 0b00000010 = DC-DC converter, 0 = off, 1 = on
-        # 0b00000001 = Soft reset, 0 = Reset, 1 = Normal (Default)
-        # 0b11 = 600x448
-        # 0b10 = 640x400
-        self._send_command(
-            AC073TC1_PSR,
-            [
-                (self.resolution_setting << 6) | 0b101111,  # See above for more magic numbers
-                0x08                                        # display_colours == AC073TC1_7C
-            ]
-        )
-
-        # Power Settings
-        self._send_command(
-            AC073TC1_PWR,
-            [
-                (0x06 << 3) |  # ??? - not documented in AC073TC1 datasheet  # noqa: W504
-                (0x01 << 2) |  # SOURCE_INTERNAL_DC_DC                     # noqa: W504
-                (0x01 << 1) |  # GATE_INTERNAL_DC_DC                       # noqa: W504
-                (0x01),        # LV_SOURCE_INTERNAL_DC_DC
-                0x00,          # VGx_20V
-                0x23,          # AC073TC1_7C
-                0x23           # AC073TC1_7C
-            ]
-        )
-
-        # Set the PLL clock frequency to 50Hz
-        # 0b11000000 = Ignore
-        # 0b00111000 = M
-        # 0b00000111 = N
-        # PLL = 2MHz * (M / N)
-        # PLL = 2MHz * (7 / 4)
-        # PLL = 2,800,000 ???
-        self._send_command(AC073TC1_PLL, [0x3C])  # 0b00111100
-
-        # Send the TSE register to the display
-        self._send_command(AC073TC1_TSE, [0x00])  # Colour
-
-        # VCOM and Data Interval setting
-        # 0b11100000 = Vborder control (0b001 = LUTB voltage)
-        # 0b00010000 = Data polarity
-        # 0b00001111 = Vcom and data interval (0b0111 = 10, default)
-        cdi = (self.border_colour << 5) | 0x17
-        self._send_command(AC073TC1_CDI, [cdi])  # 0b00110111
-
-        # Gate/Source non-overlap period
-        # 0b11110000 = Source to Gate (0b0010 = 12nS, default)
-        # 0b00001111 = Gate to Source
-        self._send_command(AC073TC1_TCON, [0x22])  # 0b00100010
-
-        # Disable external flash
-        self._send_command(AC073TC1_DAM, [0x00])
-
-        # AC073TC1_7C
-        self._send_command(AC073TC1_PWS, [0xAA])
-
-        # Power off sequence
-        # 0b00110000 = power off sequence of VDH and VDL, 0b00 = 1 frame (default)
-        # All other bits ignored?
-        self._send_command(
-            AC073TC1_PFS, [0x00]  # PFS_1_FRAME
-        )
-        '''
     def _busy_wait(self, timeout=40.0):
         """Wait for busy/wait pin."""
         # If the busy_pin is *high* (pulled up by host)
