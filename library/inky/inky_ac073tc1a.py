@@ -107,9 +107,9 @@ class Inky:
     [255, 255, 0],    # Yellow
     [255, 140, 0],    # Orange
     [255, 255, 255]   # Clear
-]
+    ]
 
-SATURATED_PALETTE = [
+    SATURATED_PALETTE = [
     [0, 0, 0],        # Black
     [217, 242, 255],  # White
     [3, 124, 76],     # Green
@@ -118,7 +118,7 @@ SATURATED_PALETTE = [
     [255, 255, 68],   # Yellow
     [239, 121, 44],   # Orange
     [255, 255, 255]   # Clear
-]
+    ]
 
     def __init__(self, resolution=None, colour='multi', cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):  # noqa: E501
         """Initialise an Inky Display.
@@ -181,8 +181,8 @@ SATURATED_PALETTE = [
         saturation = float(saturation)
         palette = []
         for i in range(7):
-            rs, gs, bs = [c * saturation for c in SATURATED_PALETTE[i]]
-            rd, gd, bd = [c * (1.0 - saturation) for c in DESATURATED_PALETTE[i]]
+            rs, gs, bs = [c * saturation for c in self.SATURATED_PALETTE[i]]
+            rd, gd, bd = [c * (1.0 - saturation) for c in self.DESATURATED_PALETTE[i]]
             if dtype == 'uint8':
                 palette += [int(rs + rd), int(gs + gd), int(bs + bd)]
             if dtype == 'uint24':
@@ -215,7 +215,7 @@ SATURATED_PALETTE = [
 
             self._spi_bus.open(0, self.cs_channel)
             self._spi_bus.no_cs = True
-            self._spi_bus.max_speed_hz = 500000
+            self._spi_bus.max_speed_hz = 5000000
 
             self._gpio_setup = True
 

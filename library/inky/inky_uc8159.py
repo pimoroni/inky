@@ -120,9 +120,9 @@ class Inky:
     [255, 255, 0],
     [255, 140, 0],
     [255, 255, 255]
-]
+    ]
 
-SATURATED_PALETTE = [
+    SATURATED_PALETTE = [
     [57, 48, 57],
     [255, 255, 255],
     [58, 91, 70],
@@ -131,7 +131,7 @@ SATURATED_PALETTE = [
     [208, 190, 71],
     [177, 106, 73],
     [255, 255, 255]
-]
+    ]
 
     def __init__(self, resolution=None, colour='multi', cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):  # noqa: E501
         """Initialise an Inky Display.
@@ -194,8 +194,8 @@ SATURATED_PALETTE = [
         saturation = float(saturation)
         palette = []
         for i in range(7):
-            rs, gs, bs = [c * saturation for c in SATURATED_PALETTE[i]]
-            rd, gd, bd = [c * (1.0 - saturation) for c in DESATURATED_PALETTE[i]]
+            rs, gs, bs = [c * saturation for c in self.SATURATED_PALETTE[i]]
+            rd, gd, bd = [c * (1.0 - saturation) for c in self.DESATURATED_PALETTE[i]]
             if dtype == 'uint8':
                 palette += [int(rs + rd), int(gs + gd), int(bs + bd)]
             if dtype == 'uint24':
