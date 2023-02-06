@@ -35,7 +35,6 @@ def auto(i2c_bus=None, ask_user=False, verbose=False):
         if _eeprom.display_variant == 20:
             return InkyAC073TC1A(resolution=(800, 480))
 
-
     if ask_user:
         if verbose:
             print("Failed to detect an Inky board. Trying --type/--colour arguments instead...\n")

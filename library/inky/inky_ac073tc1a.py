@@ -1,10 +1,5 @@
-'''
-inky_ac073tc1a.py
-device driver for the inky 7.3inch colour display
-'''
 """Inky e-Ink Display Driver."""
 import time
-import struct
 import warnings
 
 try:
@@ -99,25 +94,25 @@ class Inky:
     HEIGHT = 480
 
     DESATURATED_PALETTE = [
-    [0, 0, 0],        # Black
-    [255, 255, 255],  # White
-    [0, 255, 0],      # Green
-    [0, 0, 255],      # Blue
-    [255, 0, 0],      # Red
-    [255, 255, 0],    # Yellow
-    [255, 140, 0],    # Orange
-    [255, 255, 255]   # Clear
+        [0, 0, 0],        # Black
+        [255, 255, 255],  # White
+        [0, 255, 0],      # Green
+        [0, 0, 255],      # Blue
+        [255, 0, 0],      # Red
+        [255, 255, 0],    # Yellow
+        [255, 140, 0],    # Orange
+        [255, 255, 255]   # Clear
     ]
 
     SATURATED_PALETTE = [
-    [0, 0, 0],        # Black
-    [217, 242, 255],  # White
-    [3, 124, 76],     # Green
-    [27, 46, 198],    # Blue
-    [245, 80, 34],    # Red
-    [255, 255, 68],   # Yellow
-    [239, 121, 44],   # Orange
-    [255, 255, 255]   # Clear
+        [0, 0, 0],        # Black
+        [217, 242, 255],  # White
+        [3, 124, 76],     # Green
+        [27, 46, 198],    # Blue
+        [245, 80, 34],    # Red
+        [255, 255, 68],   # Yellow
+        [239, 121, 44],   # Orange
+        [255, 255, 255]   # Clear
     ]
 
     def __init__(self, resolution=None, colour='multi', cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):  # noqa: E501
@@ -231,146 +226,43 @@ class Inky:
         self._busy_wait(1.0)
 
         # Sending init commands to display
-        self._send_command(AC073TC1_CMDH, #0xAA
-        [
-            0x49,
-            0x55,
-            0x20,
-            0x08,
-            0x09,
-            0x18
-        ])
+        self._send_command(AC073TC1_CMDH, [0x49, 0x55, 0x20, 0x08, 0x09, 0x18])
 
-        self._send_command(AC073TC1_PWR, #0x01
-        [
-            0x3F,
-            0x00,
-            0x32,
-            0x2A,
-            0x0E,
-            0x2A
-        ]
-        )
+        self._send_command(AC073TC1_PWR, [0x3F, 0x00, 0x32, 0x2A, 0x0E, 0x2A])
 
-        self._send_command(AC073TC1_PSR, #0x00
-        [
-            0x5F,
-            0x69
-        ]
-        )
+        self._send_command(AC073TC1_PSR, [0x5F, 0x69])
 
-        self._send_command(AC073TC1_POFS,#0x03
-        [
-            0x00,
-            0x54,
-            0x00,
-            0x44
-        ]
-        )
+        self._send_command(AC073TC1_POFS, [0x00, 0x54, 0x00, 0x44])
 
-        self._send_command(AC073TC1_BTST1,#0x05
-        [
-            0x40,
-            0x1F,
-            0x1F,
-            0x2C
-        ]
-        )
+        self._send_command(AC073TC1_BTST1, [0x40, 0x1F, 0x1F, 0x2C])
 
-        self._send_command(AC073TC1_BTST2,#0x06
-        [
-            0x6F,
-            0x1F,
-            0x16,
-            0x25
-        ]
-        )
+        self._send_command(AC073TC1_BTST2, [0x6F, 0x1F, 0x16, 0x25])
 
-        self._send_command(AC073TC1_BTST3,#0x08
-        [
-            0x6F,
-            0x1F,
-            0x1F,
-            0x22
-        ]
-        )
+        self._send_command(AC073TC1_BTST3, [0x6F, 0x1F, 0x1F, 0x22])
 
-        self._send_command(AC073TC1_IPC,#0x13
-        [
-            0x00,
-            0x04
-        ]
-        )
+        self._send_command(AC073TC1_IPC, [0x00, 0x04])
 
-        self._send_command(AC073TC1_PLL,#0x30
-        [
-            0x02
-        ]
-        )
+        self._send_command(AC073TC1_PLL, [0x02])
 
-        self._send_command(AC073TC1_TSE,#0x41
-        [
-            0x00
-        ]
-        )
+        self._send_command(AC073TC1_TSE, [0x00])
 
-        self._send_command(AC073TC1_CDI,#0x50
-        [
-            0x3F
-        ]
-        )
+        self._send_command(AC073TC1_CDI, [0x3F])
 
-        self._send_command(AC073TC1_TCON,#0x60
-        [
-            0x02,
-            0x00
-        ]
-        )
+        self._send_command(AC073TC1_TCON, [0x02, 0x00])
 
-        self._send_command(AC073TC1_TRES,#0x61
-        [
-            0x03,
-            0x20,
-            0x01,
-            0xE0
-        ]
-        )
+        self._send_command(AC073TC1_TRES, [0x03, 0x20, 0x01, 0xE0])
 
-        self._send_command(AC073TC1_VDCS,#0x82
-        [
-            0x1E
-        ]
-        )
+        self._send_command(AC073TC1_VDCS, [0x1E])
 
-        self._send_command(AC073TC1_T_VDCS,#0x84
-        [
-            0x00
-        ]
-        )
+        self._send_command(AC073TC1_T_VDCS, [0x00])
 
-        self._send_command(AC073TC1_AGID,#0x86
-        [
-            0x00
-        ]
-        )
+        self._send_command(AC073TC1_AGID, [0x00])
 
-        self._send_command(AC073TC1_PWS,#0xE3
-        [
-            0x2F
-        ]
-        )
+        self._send_command(AC073TC1_PWS, [0x2F])
 
-        self._send_command(AC073TC1_CCSET,#0xE0
-        [
-            0x00
-        ]
-        )
+        self._send_command(AC073TC1_CCSET, [0x00])
 
-        self._send_command(AC073TC1_TSSET,#0xE6
-        [
-            0x00
-        ]
-        )
+        self._send_command(AC073TC1_TSSET, [0x00])
 
     def _busy_wait(self, timeout=40.0):
         """Wait for busy/wait pin."""
@@ -402,17 +294,17 @@ class Inky:
         :param buf_b: Yellow/Red pixels
 
         """
-        
+
         self.setup()
 
         # TODO there has to be a better way to force the white colour to be used instead of clear...
 
         for i in range(len(buf)):
             if buf[i] & 0xf == 7:
-                buf[i] = (buf[i]&0xf0)+1
+                buf[i] = (buf[i] & 0xf0) + 1
                 # print buf[i]
             if buf[i] & 0xf0 == 0x70:
-                buf[i] = (buf[i]&0xf)+0x10
+                buf[i] = (buf[i] & 0xf) + 0x10
                 # print buf[i]
 
         self._send_command(AC073TC1_DTM, buf)
@@ -421,7 +313,7 @@ class Inky:
         self._busy_wait(0.4)
 
         self._send_command(AC073TC1_DRF, [0x00])
-        self._busy_wait(45.0) # 41 seconds in testing
+        self._busy_wait(45.0)  # 41 seconds in testing
 
         self._send_command(AC073TC1_POF, [0x00])
         self._busy_wait(0.4)
