@@ -27,3 +27,17 @@ def test_eeprom_7color_4_inch(spidev, smbus2_eeprom, PIL):
     inky = Inky()
 
     assert inky.resolution == (640, 400)
+
+
+def test_eeprom_7color_7_3_inch(spidev, smbus2_eeprom, PIL):
+    """Test EEPROM for 7color 4" Inky."""
+    from inky.inky_ac073tc1a import Inky
+    from inky.eeprom import EPDType
+
+    eeprom_data = EPDType(800, 480, 0, 0, 20).encode()
+
+    smbus2_eeprom.SMBus(1).read_i2c_block_data.return_value = eeprom_data
+
+    inky = Inky()
+
+    assert inky.resolution == (800, 480)

@@ -156,3 +156,36 @@ def test_init_7colour_setup(spidev, smbus2, GPIO):
 
     # Check API will been opened
     spidev.SpiDev().open.assert_called_with(0, inky.cs_channel)
+
+
+def test_init_7_3_colour_setup(spidev, smbus2, GPIO):
+    """Test initialisation and setup of 7-colour Inky.
+
+    Verify our expectations for GPIO setup in order to catch regressions.
+
+    """
+    from inky.inky_ac073tc1a import Inky
+
+    # TODO: _busy_wait should timeout after N seconds
+    GPIO.input.return_value = GPIO.LOW
+
+    inky = Inky()
+    inky.setup()
+
+    # Check GPIO setup
+    GPIO.setwarnings.assert_called_with(False)
+    GPIO.setmode.assert_called_with(GPIO.BCM)
+    GPIO.setup.assert_has_calls([
+        mock.call(inky.dc_pin, GPIO.OUT, initial=GPIO.LOW, pull_up_down=GPIO.PUD_OFF),
+        mock.call(inky.reset_pin, GPIO.OUT, initial=GPIO.HIGH, pull_up_down=GPIO.PUD_OFF),
+        mock.call(inky.busy_pin, GPIO.IN, pull_up_down=GPIO.PUD_OFF)
+    ])
+
+    # Check device will been reset
+    GPIO.output.assert_has_calls([
+        mock.call(inky.reset_pin, GPIO.LOW),
+        mock.call(inky.reset_pin, GPIO.HIGH)
+    ])
+
+    # Check API will been opened
+    spidev.SpiDev().open.assert_called_with(0, inky.cs_channel)
