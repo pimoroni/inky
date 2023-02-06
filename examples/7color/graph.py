@@ -3,7 +3,7 @@
 import io
 
 from PIL import Image
-from inky.inky_uc8159 import Inky, DESATURATED_PALETTE
+from inky.auto import auto
 from matplotlib import pyplot
 import seaborn
 import argparse
@@ -14,16 +14,15 @@ Requires the seaborn library: sudo python3 -m pip install seaborn
 You may need to: sudo apt install libatlas-base-dev
 
 """)
-
+inky = auto(ask_user=True, verbose=True)
 # Convert the built-in palette to a list of colours usable by seaborn,
 # This nets us 6 colours: Green, Blue, Red, Yellow, Orange, Black
-palette_colors = [(c[0] / 255.0, c[1] / 255.0, c[2] / 255.0) for c in DESATURATED_PALETTE[2:6] + [(0, 0, 0)]]
+palette_colors = [(c[0] / 255.0, c[1] / 255.0, c[2] / 255.0) for c in inky.DESATURATED_PALETTE[2:6] + [(0, 0, 0)]]
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--dataset", "-d", choices=["penguins", "dots", "mpg"], default="mpg")
 args = parser.parse_args()
 
-inky = Inky()
 saturation = 0
 dpi = 80
 buf = io.BytesIO()
