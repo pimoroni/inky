@@ -10,7 +10,7 @@ from .inky_ssd1683 import Inky as InkyWHAT_SSD1683    # noqa: F401
 from .inky_ac073tc1a import Inky as Inky_Impressions_7  # noqa: F401
 from .auto import auto                        # noqa: F401
 
-__version__ = '1.4.0'
+__version__ = '1.5.0'
 
 try:
     from pkg_resources import declare_namespace

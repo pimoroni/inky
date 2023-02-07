@@ -42,10 +42,9 @@ library/LICENSE.txt: LICENSE
 
 python-wheels: python-readme python-license
 	cd library; python3 setup.py bdist_wheel
-	cd library; python setup.py bdist_wheel
 
 python-sdist: python-readme python-license
-	cd library; python setup.py sdist
+	cd library; python3 setup.py sdist
 
 python-clean:
 	-rm -r library/dist
