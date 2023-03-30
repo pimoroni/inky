@@ -3,11 +3,12 @@ from .phat import InkyPHAT, InkyPHAT_SSD1608  # noqa: F401
 from .what import InkyWHAT                    # noqa: F401
 from .inky_uc8159 import Inky as InkyUC8159   # noqa: F401
 from .inky_ssd1683 import Inky as InkyWHAT_SSD1683  # noqa: F401
+from .inky_ac073tc1a import Inky as InkyAC073TC1A  # noqa: F401
 from . import eeprom
 import argparse
 
 
-DISPLAY_TYPES = ["what", "phat", "phatssd1608", "impressions", "7colour", "whatssd1683"]
+DISPLAY_TYPES = ["what", "phat", "phatssd1608", "impressions", "7colour", "whatssd1683", "impressions73"]
 DISPLAY_COLORS = ["red", "black", "yellow"]
 
 
@@ -31,6 +32,8 @@ def auto(i2c_bus=None, ask_user=False, verbose=False):
             return InkyUC8159(resolution=(640, 400))
         if _eeprom.display_variant in (17, 18, 19):
             return InkyWHAT_SSD1683((400, 300), _eeprom.get_color())
+        if _eeprom.display_variant == 20:
+            return InkyAC073TC1A(resolution=(800, 480))
 
     if ask_user:
         if verbose:
@@ -73,6 +76,8 @@ def auto(i2c_bus=None, ask_user=False, verbose=False):
                 return InkyWHAT_SSD1683(colour=args.colour)
             if args.type in ("impressions", "7colour"):
                 return InkyUC8159()
+            if args.type == "impressions73":
+                return InkyAC073TC1A()
 
     if _eeprom is None:
         raise RuntimeError("No EEPROM detected! You must manually initialise your Inky board.")

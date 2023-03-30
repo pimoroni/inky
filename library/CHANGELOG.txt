@@ -1,3 +1,9 @@
+1.5.0
+-----
+
+* New: inky impression 7.3" support.
+* BugFix: WIDTH / HEIGHT set on uc8159.
+
 1.4.0
 -----
 
