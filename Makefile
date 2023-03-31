@@ -1,61 +1,68 @@
-LIBRARY_VERSION=`cat library/setup.py | grep version | awk -F"'" '{print $$2}'`
-LIBRARY_NAME=`cat library/setup.py | grep name | awk -F"'" '{print $$2}'`
+LIBRARY_NAME=$(shell grep -m 1 name pyproject.toml | awk -F" = " '{print $$2}')
+LIBRARY_VERSION=$(shell grep __version__ ${LIBRARY_NAME}/__init__.py | awk -F" = " '{print substr($$2,2,length($$2)-2)}' | awk -F"." '{print $$1"."$$2"."$$3}')
 
-.PHONY: usage install uninstall
+.PHONY: usage install uninstall check pytest qa build-deps check tag wheel sdist clean dist testdeploy deploy
 usage:
+	@echo "Library: ${LIBRARY_NAME}"
+	@echo "Version: ${LIBRARY_VERSION}\n"
 	@echo "Usage: make <target>, where target is one of:\n"
-	@echo "install:       install the library locally from source"
-	@echo "uninstall:     uninstall the local library"
-	@echo "check:         peform basic integrity checks on the codebase"
-	@echo "python-readme: generate library/README.rst from README.md"
-	@echo "python-wheels: build python .whl files for distribution"
-	@echo "python-sdist:  build python source distribution"
-	@echo "python-clean:  clean python build and dist directories"
-	@echo "python-dist:   build all python distribution files"
-	@echo "python-testdeploy: build all and deploy to test PyPi"
+	@echo "install:      install the library locally from source"
+	@echo "uninstall:    uninstall the local library"
+	@echo "build-deps:   install essential python build dependencies"
+	@echo "test-deps:    install essential python test dependencies"
+	@echo "check:        perform basic integrity checks on the codebase"
+	@echo "qa:           run linting and package QA"
+	@echo "pytest:       run python test fixtures"
+	@echo "wheel:        build python .whl files for distribution"
+	@echo "sdist:        build python source distribution"
+	@echo "clean:        clean python build and dist directories"
+	@echo "dist:         build all python distribution files"
+	@echo "testdeploy:   build all and deploy to test PyPi"
+	@echo "deploy:       build all and deploy to PyPi"
+	@echo "tag:          tag the repository with the current version"
 
 install:
-	./install.sh
+	./install.sh --unstable
 
 uninstall:
 	./uninstall.sh
 
+build-deps:
+	python3 -m pip install build
+
+test-deps:
+	python3 -m pip install tox
+	sudo apt install dos2unix
+
 check:
-	@echo "Checking for trailing whitespace"
-	@! grep -IlUrn --color "[[:blank:]]$$" --exclude-dir=sphinx --exclude-dir=.tox --exclude-dir=.git --exclude=PKG-INFO
-	@echo "Checking for DOS line-endings"
-	@! grep -IlUrn --color "" --exclude-dir=sphinx --exclude-dir=.tox --exclude-dir=.git --exclude=Makefile
-	@echo "Checking library/CHANGELOG.txt"
-	@cat library/CHANGELOG.txt | grep ^${LIBRARY_VERSION}
-	@echo "Checking library/${LIBRARY_NAME}/__init__.py"
-	@cat library/${LIBRARY_NAME}/__init__.py | grep "^__version__ = '${LIBRARY_VERSION}'"
+	@bash check.sh
 
-python-readme: library/README.md
+qa:
+	tox -e qa
 
-python-license: library/LICENSE.txt
+pytest:
+	tox -e py
 
-library/README.md: README.md
-	cp README.md library/README.md
+nopost:
+	@bash check.sh --nopost
 
-library/LICENSE.txt: LICENSE
-	cp LICENSE library/LICENSE.txt
+tag:
+	git tag -a "v${LIBRARY_VERSION}" -m "Version ${LIBRARY_VERSION}"
 
-python-wheels: python-readme python-license
-	cd library; python3 setup.py bdist_wheel
+wheel: check
+	python3 -m build --wheel
 
-python-sdist: python-readme python-license
-	cd library; python3 setup.py sdist
+sdist: check
+	python3 -m build --sdist
 
-python-clean:
-	-rm -r library/dist
-	-rm -r library/build
-	-rm -r library/*.egg-info
+clean:
+	-rm -r dist
 
-python-dist: python-clean python-wheels python-sdist
-	ls library/dist
+dist: clean wheel sdist
+	ls dist
 
-python-testdeploy: python-dist
-	twine upload --repository-url https://test.pypi.org/legacy/ library/dist/*
+testdeploy: dist
+	twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 
-python-deploy: check python-dist
-	twine upload library/dist/*
+deploy: nopost dist
+	twine upload dist/*
