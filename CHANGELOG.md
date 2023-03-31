@@ -1,3 +1,8 @@
+2.0.0
+-----
+
+* Repackage & drop Python 2.x support.
+
 1.5.0
 -----
 
