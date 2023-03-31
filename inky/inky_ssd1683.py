@@ -166,7 +166,7 @@ class Inky:
         self._send_command(ssd1683.WRITE_DUMMY, [0x1B])
         # Set Line Width
         self._send_command(ssd1683.WRITE_GATELINE, [0x0B])
-        # Data entry squence (scan direction leftward and downward)
+        # Data entry sequence (scan direction leftward and downward)
         self._send_command(ssd1683.DATA_MODE, [0x03])
         # Set ram X start and end position
         xposBuf = [0x00, self.cols // 8 - 1]
