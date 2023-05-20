@@ -216,8 +216,14 @@ class InkyMockImpression(InkyMock):
     WIDTH = 600
     HEIGHT = 448
 
-    def __init__(self):
-        """Initialize a new mock Inky Impression."""
+    def __init__(self, resolution=None):
+        """Initialize a new mock Inky Impression.
+        
+        :param resolution: (width, height) in pixels, default: (600, 448)
+        
+        """
+        if resolution is not None:
+            self.WIDTH, self.HEIGHT = resolution
         InkyMock.__init__(self, 'multi')
 
     def _simulate(self, region):
