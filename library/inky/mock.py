@@ -218,9 +218,9 @@ class InkyMockImpression(InkyMock):
 
     def __init__(self, resolution=None):
         """Initialize a new mock Inky Impression.
-        
+
         :param resolution: (width, height) in pixels, default: (600, 448)
-        
+
         """
         if resolution is not None:
             self.WIDTH, self.HEIGHT = resolution
