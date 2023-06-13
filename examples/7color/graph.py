@@ -10,8 +10,12 @@ import argparse
 
 print("""
 
-Requires the seaborn library: sudo python3 -m pip install seaborn
-You may need to: sudo apt install libatlas-base-dev
+Requires the seaborn library:
+    sudo apt install python3-seaborn
+
+Or from pypi (slower, requires building):
+    sudo python3 -m pip install seaborn
+    You may also need to: sudo apt install libatlas-base-dev
 
 """)
 inky = auto(ask_user=True, verbose=True)
