@@ -216,6 +216,26 @@ class InkyMockImpression(InkyMock):
     WIDTH = 600
     HEIGHT = 448
 
+    DESATURATED_PALETTE = [
+        [0, 0, 0],
+        [255, 255, 255],
+        [0, 255, 0],
+        [0, 0, 255],
+        [255, 0, 0],
+        [255, 255, 0],
+        [255, 140, 0],
+        [255, 255, 255]]
+
+    SATURATED_PALETTE = [
+        [57, 48, 57],
+        [255, 255, 255],
+        [58, 91, 70],
+        [61, 59, 94],
+        [156, 72, 75],
+        [208, 190, 71],
+        [177, 106, 73],
+        [255, 255, 255]]
+
     def __init__(self):
         """Initialize a new mock Inky Impression."""
         InkyMock.__init__(self, 'multi')
