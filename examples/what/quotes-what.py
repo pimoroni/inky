@@ -32,11 +32,13 @@ inky_display = auto(ask_user=True, verbose=True)
 inky_display.set_border(inky_display.WHITE)
 # inky_display.set_rotation(180)
 
+def getsize(font, text):
+    _, _, right, bottom = font.getbbox(text)
+    return (right, bottom)
+
 # This function will take a quote as a string, a width to fit
 # it into, and a font (one that's been loaded) and then reflow
 # that quote with newlines to fit into the space required.
-
-
 def reflow_quote(quote, width, font):
     words = quote.split(" ")
     reflowed = '"'
@@ -44,7 +46,7 @@ def reflow_quote(quote, width, font):
 
     for i in range(len(words)):
         word = words[i] + " "
-        word_length = font.getsize(word)[0]
+        word_length = getsize(font, word)[0]
         line_length += word_length
 
         if line_length < width:
@@ -105,7 +107,7 @@ people = [
 
 padding = 50
 max_width = WIDTH - padding
-max_height = HEIGHT - padding - author_font.getsize("ABCD ")[1]
+max_height = HEIGHT - padding - getsize(author_font, "ABCD ")[1]
 
 below_max_length = False
 
@@ -117,7 +119,7 @@ while not below_max_length:
     quote = wikiquotes.random_quote(person, "english")
 
     reflowed = reflow_quote(quote, max_width, quote_font)
-    p_w, p_h = quote_font.getsize(reflowed)  # Width and height of quote
+    p_w, p_h = getsize(quote_font, reflowed)  # Width and height of quote
     p_h = p_h * (reflowed.count("\n") + 1)   # Multiply through by number of lines
 
     if p_h < max_height:
@@ -129,7 +131,7 @@ while not below_max_length:
 # x- and y-coordinates for the top left of the quote
 
 quote_x = (WIDTH - max_width) / 2
-quote_y = ((HEIGHT - max_height) + (max_height - p_h - author_font.getsize("ABCD ")[1])) / 2
+quote_y = ((HEIGHT - max_height) + (max_height - p_h - getsize(author_font, "ABCD ")[1])) / 2
 
 # x- and y-coordinates for the top left of the author
 
@@ -151,7 +153,7 @@ draw.rectangle(
 draw.rectangle(
     (
         padding / 4,
-        author_y + author_font.getsize("ABCD ")[1] + (padding / 4) + 5,
+        author_y + getsize(author_font, "ABCD ")[1] + (padding / 4) + 5,
         WIDTH - (padding / 4),
         HEIGHT - (padding / 4)
     ), fill=inky_display.RED)
