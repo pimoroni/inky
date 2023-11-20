@@ -7,6 +7,9 @@ from font_hanken_grotesk import HankenGroteskBold, HankenGroteskMedium
 from font_intuitive import Intuitive
 from inky.auto import auto
 
+def getsize(font, text):
+    _, _, right, bottom = font.getbbox(text)
+    return (right, bottom)
 
 print("""Inky pHAT/wHAT: Hello... my name is:
 
@@ -82,21 +85,21 @@ for y in range(y_bottom, inky_display.height):
 
 # Calculate the positioning and draw the "Hello" text
 
-hello_w, hello_h = hanken_bold_font.getsize("Hello")
+hello_w, hello_h = getsize(hanken_bold_font, "Hello")
 hello_x = int((inky_display.width - hello_w) / 2)
 hello_y = 0 + padding
 draw.text((hello_x, hello_y), "Hello", inky_display.WHITE, font=hanken_bold_font)
 
 # Calculate the positioning and draw the "my name is" text
 
-mynameis_w, mynameis_h = hanken_medium_font.getsize("my name is")
+mynameis_w, mynameis_h = getsize(hanken_medium_font, "my name is")
 mynameis_x = int((inky_display.width - mynameis_w) / 2)
 mynameis_y = hello_h + padding
 draw.text((mynameis_x, mynameis_y), "my name is", inky_display.WHITE, font=hanken_medium_font)
 
 # Calculate the positioning and draw the name text
 
-name_w, name_h = intuitive_font.getsize(name)
+name_w, name_h = getsize(intuitive_font, name)
 name_x = int((inky_display.width - name_w) / 2)
 name_y = int(y_top + ((y_bottom - y_top - name_h) / 2))
 draw.text((name_x, name_y), name, inky_display.BLACK, font=intuitive_font)
