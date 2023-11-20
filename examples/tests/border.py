@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
-import time
 import sys
+import time
+
 from PIL import Image
+
 from inky import InkyPHAT
 
 INKY_COLOUR = None

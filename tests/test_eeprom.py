@@ -3,8 +3,8 @@
 
 def test_eeprom_7color_5_7_inch(spidev, smbus2_eeprom, PIL):
     """Test EEPROM for 7color 5.7" Inky."""
-    from inky.inky_uc8159 import Inky
     from inky.eeprom import EPDType
+    from inky.inky_uc8159 import Inky
 
     eeprom_data = EPDType(600, 448, 0, 0, 14).encode()
 
@@ -17,8 +17,8 @@ def test_eeprom_7color_5_7_inch(spidev, smbus2_eeprom, PIL):
 
 def test_eeprom_7color_4_inch(spidev, smbus2_eeprom, PIL):
     """Test EEPROM for 7color 4" Inky."""
-    from inky.inky_uc8159 import Inky
     from inky.eeprom import EPDType
+    from inky.inky_uc8159 import Inky
 
     eeprom_data = EPDType(640, 400, 0, 0, 16).encode()
 

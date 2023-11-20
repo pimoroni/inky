@@ -4,8 +4,9 @@
 import argparse
 import time
 
-from inky.auto import auto
 from PIL import Image
+
+from inky.auto import auto
 
 print("""Inky pHAT: Clean
 

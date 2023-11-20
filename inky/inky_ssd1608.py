@@ -2,6 +2,7 @@
 import time
 
 from PIL import Image
+
 from . import eeprom, ssd1608
 
 try:

@@ -5,7 +5,6 @@
 import datetime
 import struct
 
-
 EEP_ADDRESS = 0x50
 EEP_WP = 12
 

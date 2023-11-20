@@ -1,9 +1,7 @@
 """PIL/Tkinter based simulator for InkyWHAT and InkyWHAT."""
 import numpy
 
-
-from . import inky
-from . import inky_uc8159
+from . import inky, inky_uc8159
 
 
 class InkyMock(inky.Inky):
@@ -23,7 +21,7 @@ class InkyMock(inky.Inky):
             raise ImportError('Simulation requires tkinter')
 
         try:
-            from PIL import ImageTk, Image
+            from PIL import Image, ImageTk
         except ImportError:
             raise ImportError('Simulation requires PIL ImageTk and Image')
 

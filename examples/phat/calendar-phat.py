@@ -5,8 +5,9 @@ import calendar
 import datetime
 import os
 
-from inky.auto import auto
 from PIL import Image, ImageDraw
+
+from inky.auto import auto
 
 print("""Inky pHAT: Calendar
 

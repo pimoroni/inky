@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
+import argparse
 import io
 
-from PIL import Image
-from inky.auto import auto
-from matplotlib import pyplot
 import seaborn
-import argparse
+from matplotlib import pyplot
+from PIL import Image
+
+from inky.auto import auto
 
 print("""
 

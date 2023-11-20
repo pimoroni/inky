@@ -1,6 +1,6 @@
 """Inky e-Ink Display Driver."""
-import time
 import struct
+import time
 import warnings
 
 try:

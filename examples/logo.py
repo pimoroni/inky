@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
 import os
-from PIL import Image
-from inky.auto import auto
 
+from PIL import Image
+
+from inky.auto import auto
 
 print("""Inky pHAT/wHAT: Logo
 

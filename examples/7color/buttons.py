@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import signal
+
 import RPi.GPIO as GPIO
 
 print("""buttons.py - Detect which button has been pressed

@@ -3,8 +3,9 @@
 import sys
 
 import hitherdither
-from inky import auto
 from PIL import Image
+
+from inky import auto
 
 print("""dither.py
 

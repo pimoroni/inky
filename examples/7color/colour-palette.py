@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
-from inky.inky_uc8159 import Inky
 import argparse
 import pathlib
 import struct
 import sys
+
+from inky.inky_uc8159 import Inky
 
 parser = argparse.ArgumentParser()
 

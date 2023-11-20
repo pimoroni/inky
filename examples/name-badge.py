@@ -2,20 +2,21 @@
 
 import argparse
 
-from PIL import Image, ImageFont, ImageDraw
 from font_hanken_grotesk import HankenGroteskBold, HankenGroteskMedium
 from font_intuitive import Intuitive
-from inky.auto import auto
+from PIL import Image, ImageDraw, ImageFont
 
-def getsize(font, text):
-    _, _, right, bottom = font.getbbox(text)
-    return (right, bottom)
+from inky.auto import auto
 
 print("""Inky pHAT/wHAT: Hello... my name is:
 
 Use Inky pHAT/wHAT as a personalised name badge!
 
 """)
+
+def getsize(font, text):
+    _, _, right, bottom = font.getbbox(text)
+    return (right, bottom)
 
 try:
     inky_display = auto(ask_user=True, verbose=True)
