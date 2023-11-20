@@ -42,6 +42,7 @@ dependencies = [
 
 [project.optional-dependencies]
 example-depends = [
+    "pillow",
     "requests",
     "geocoder",
     "beautifulsoup4",
