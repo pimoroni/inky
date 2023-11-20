@@ -1,16 +1,16 @@
 # Inky
 
-[![Build Status](https://travis-ci.com/pimoroni/inky.svg?branch=master)](https://travis-ci.com/pimoroni/inky)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/pimoroni/inky/test.yml?branch=main)](https://github.com/pimoroni/inky/actions/workflows/test.yml)
 [![Coverage Status](https://coveralls.io/repos/github/pimoroni/inky/badge.svg?branch=master)](https://coveralls.io/github/pimoroni/inky?branch=master)
 [![PyPi Package](https://img.shields.io/pypi/v/inky.svg)](https://pypi.python.org/pypi/inky)
 [![Python Versions](https://img.shields.io/pypi/pyversions/inky.svg)](https://pypi.python.org/pypi/inky)
+
 
 Python library for [Inky pHAT](https://shop.pimoroni.com/products/inky-phat), [Inky wHAT](https://shop.pimoroni.com/products/inky-what) and [Inky Impression](https://shop.pimoroni.com/?q=inky+impression) e-paper displays for Raspberry Pi.
 
 ## Inky pHAT
 
 [Inky pHAT](https://shop.pimoroni.com/products/inky-phat) is a 250x122 pixel e-paper display, available in red/black/white, yellow/black/white and black/white. It's great for nametags and displaying very low frequency information such as a daily calendar or weather overview.
-
 
 ## Inky wHAT
 
@@ -27,18 +27,10 @@ First, make sure you have I2C and SPI enabled in `sudo raspi-config`.
 The Python pip package is named inky, on the Raspberry Pi install with:
 
 ```
-pip3 install inky[rpi,example-depends]
+python3 -m pip install inky
 ```
 
 This will install Inky along with dependencies for the Raspberry Pi, plus fonts used by the examples.
-
-If you want to simulate Inky on your desktop, use:
-
-```
-pip3 install inky
-```
-
-You may need to use `sudo pip3` or `sudo pip` depending on your environment and Python version.
 
 # Usage
 

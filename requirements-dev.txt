@@ -1,0 +1,9 @@
+check-manifest
+ruff
+codespell
+isort
+twine
+hatch
+hatch-fancy-pypi-readme
+tox
+pdoc

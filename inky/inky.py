@@ -9,6 +9,8 @@ try:
 except ImportError:
     raise ImportError('This library requires the numpy module\nInstall with: sudo apt install python-numpy')
 
+__version__ = "1.5.0"
+
 # Display colour codes
 WHITE = 0
 BLACK = 1
