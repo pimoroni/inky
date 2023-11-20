@@ -44,7 +44,7 @@ class EPDType:
         self.width = width
         self.height = height
         self.color = color
-        if type(color) == str:
+        if isinstance(color, str):
             self.set_color(color)
         self.pcb_variant = pcb_variant
         self.display_variant = display_variant
@@ -87,7 +87,7 @@ Time: {}""".format(self.width,
     def to_list(self):
         """Return a list of bytes representing the EEPROM data structure."""
         result = self.encode()
-        if type(result) is bytes:
+        if isinstance(result, bytes):
             return result
         return [ord(c) for c in self.encode()]
 

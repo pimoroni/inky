@@ -425,7 +425,7 @@ class Inky:
         self._gpio.output(self.cs_pin, 0)
         self._gpio.output(self.dc_pin, dc)
 
-        if type(values) is str:
+        if isinstance(values, str):
             values = [ord(c) for c in values]
 
         try:
