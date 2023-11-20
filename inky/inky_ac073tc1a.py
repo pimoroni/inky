@@ -12,7 +12,7 @@ from . import eeprom
 try:
     import numpy
 except ImportError:
-    raise ImportError('This library requires the numpy module\nInstall with: sudo apt install python-numpy')
+    raise ImportError("This library requires the numpy module\nInstall with: sudo apt install python-numpy")
 
 BLACK = 0
 WHITE = 1
@@ -115,7 +115,7 @@ class Inky:
         [255, 255, 255]   # Clear
     ]
 
-    def __init__(self, resolution=None, colour='multi', cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):  # noqa: E501
+    def __init__(self, resolution=None, colour="multi", cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):  # noqa: E501
         """Initialise an Inky Display.
 
         :param resolution: (width, height) in pixels, default: (600, 448)
@@ -141,15 +141,15 @@ class Inky:
                 resolution = _RESOLUTION_7_3_INCH
 
         if resolution not in _RESOLUTION.keys():
-            raise ValueError('Resolution {}x{} not supported!'.format(*resolution))
+            raise ValueError("Resolution {}x{} not supported!".format(*resolution))
 
         self.resolution = resolution
         self.width, self.height = resolution
         self.border_colour = WHITE
         self.cols, self.rows, self.rotation, self.offset_x, self.offset_y, self.resolution_setting = _RESOLUTION[resolution]
 
-        if colour not in ('multi'):
-            raise ValueError('Colour {} is not supported!'.format(colour))
+        if colour not in ("multi"):
+            raise ValueError("Colour {} is not supported!".format(colour))
 
         self.colour = colour
         self.lut = colour
@@ -172,20 +172,20 @@ class Inky:
 
         self._luts = None
 
-    def _palette_blend(self, saturation, dtype='uint8'):
+    def _palette_blend(self, saturation, dtype="uint8"):
         saturation = float(saturation)
         palette = []
         for i in range(7):
             rs, gs, bs = [c * saturation for c in self.SATURATED_PALETTE[i]]
             rd, gd, bd = [c * (1.0 - saturation) for c in self.DESATURATED_PALETTE[i]]
-            if dtype == 'uint8':
+            if dtype == "uint8":
                 palette += [int(rs + rd), int(gs + gd), int(bs + bd)]
-            if dtype == 'uint24':
+            if dtype == "uint24":
                 palette += [(int(rs + rd) << 16) | (int(gs + gd) << 8) | int(bs + bd)]
-        if dtype == 'uint8':
+        if dtype == "uint8":
             palette += [255, 255, 255]
-        if dtype == 'uint24':
-            palette += [0xffffff]
+        if dtype == "uint24":
+            palette += [0xFFFFFF]
         return palette
 
     def setup(self):
@@ -196,7 +196,7 @@ class Inky:
                     import RPi.GPIO as GPIO
                     self._gpio = GPIO
                 except ImportError:
-                    raise ImportError('This library requires the RPi.GPIO module\nInstall with: sudo apt install python-rpi.gpio')
+                    raise ImportError("This library requires the RPi.GPIO module\nInstall with: sudo apt install python-rpi.gpio")
             self._gpio.setmode(self._gpio.BCM)
             self._gpio.setwarnings(False)
             self._gpio.setup(self.cs_pin, self._gpio.OUT)
@@ -300,11 +300,11 @@ class Inky:
         # TODO there has to be a better way to force the white colour to be used instead of clear...
 
         for i in range(len(buf)):
-            if buf[i] & 0xf == 7:
-                buf[i] = (buf[i] & 0xf0) + 1
+            if buf[i] & 0xF == 7:
+                buf[i] = (buf[i] & 0xF0) + 1
                 # print buf[i]
-            if buf[i] & 0xf0 == 0x70:
-                buf[i] = (buf[i] & 0xf) + 0x10
+            if buf[i] & 0xF0 == 0x70:
+                buf[i] = (buf[i] & 0xF) + 0x10
                 # print buf[i]
 
         self._send_command(AC073TC1_DTM, buf)
@@ -349,7 +349,7 @@ class Inky:
 
         buf = ((buf[::2] << 4) & 0xF0) | (buf[1::2] & 0x0F)
 
-        self._update(buf.astype('uint8').tolist())
+        self._update(buf.astype("uint8").tolist())
 
     def set_border(self, colour):
         """Set the border colour."""

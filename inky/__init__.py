@@ -10,11 +10,13 @@ from .mock import InkyMockPHAT, InkyMockWHAT  # noqa: F401
 from .phat import InkyPHAT, InkyPHAT_SSD1608  # noqa: F401
 from .what import InkyWHAT  # noqa: F401
 
-__version__ = '1.5.0'
+__version__ = "1.5.0"
 
 try:
     from pkg_resources import declare_namespace
+
     declare_namespace(__name__)
 except ImportError:
     from pkgutil import extend_path
+
     __path__ = extend_path(__path__, __name__)

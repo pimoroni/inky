@@ -39,9 +39,9 @@ def auto(i2c_bus=None, ask_user=False, verbose=False):
         if verbose:
             print("Failed to detect an Inky board. Trying --type/--colour arguments instead...\n")
         parser = argparse.ArgumentParser()
-        parser.add_argument('--simulate', '-s', action='store_true', default=False, help="Simulate Inky display")
-        parser.add_argument('--type', '-t', type=str, required=True, choices=DISPLAY_TYPES, help="Type of display")
-        parser.add_argument('--colour', '-c', type=str, required=False, choices=DISPLAY_COLORS, help="Display colour")
+        parser.add_argument("--simulate", "-s", action="store_true", default=False, help="Simulate Inky display")
+        parser.add_argument("--type", "-t", type=str, required=True, choices=DISPLAY_TYPES, help="Type of display")
+        parser.add_argument("--colour", "-c", type=str, required=False, choices=DISPLAY_COLORS, help="Display colour")
         args, _ = parser.parse_known_args()
         if args.simulate:
             cls = None

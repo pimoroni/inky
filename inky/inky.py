@@ -7,7 +7,7 @@ from . import eeprom
 try:
     import numpy
 except ImportError:
-    raise ImportError('This library requires the numpy module\nInstall with: sudo apt install python-numpy')
+    raise ImportError("This library requires the numpy module\nInstall with: sudo apt install python-numpy")
 
 __version__ = "1.5.0"
 
@@ -54,13 +54,13 @@ class Inky:
     RED = 2
     YELLOW = 2
 
-    def __init__(self, resolution=(400, 300), colour='black', cs_channel=CS0, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False,
+    def __init__(self, resolution=(400, 300), colour="black", cs_channel=CS0, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False,
                  spi_bus=None, i2c_bus=None, gpio=None):
         """Initialise an Inky Display.
 
         :param resolution: Display resolution (width, height) in pixels, default: (400, 300).
         :type resolution: tuple(int, int)
-        :param str colour: One of 'red', 'black' or 'yellow', default: 'black'.
+        :param str colour: One of "red", "black" or "yellow", default: "black".
         :param int cs_channel: Chip-select channel for SPI communication, default: `0`.
         :param int dc_pin: Data/command pin for SPI communication, default: `22`.
         :param int reset_pin: Device reset pin, default: `27`.
@@ -78,14 +78,14 @@ class Inky:
         self._i2c_bus = i2c_bus
 
         if resolution not in _RESOLUTION.keys():
-            raise ValueError('Resolution {}x{} not supported!'.format(*resolution))
+            raise ValueError("Resolution {}x{} not supported!".format(*resolution))
 
         self.resolution = resolution
         self.width, self.height = resolution
         self.cols, self.rows, self.rotation = _RESOLUTION[resolution]
 
-        if colour not in ('red', 'black', 'yellow'):
-            raise ValueError('Colour {} is not supported!'.format(colour))
+        if colour not in ("red", "black", "yellow"):
+            raise ValueError("Colour {} is not supported!".format(colour))
 
         self.colour = colour
         self.eeprom = eeprom.read_eeprom(i2c_bus=i2c_bus)
@@ -93,9 +93,9 @@ class Inky:
 
         if self.eeprom is not None:
             if self.eeprom.width != self.width or self.eeprom.height != self.height:
-                raise ValueError('Supplied width/height do not match Inky: {}x{}'.format(self.eeprom.width, self.eeprom.height))
-            if self.eeprom.display_variant in (1, 6) and self.eeprom.get_color() == 'red':
-                self.lut = 'red_ht'
+                raise ValueError("Supplied width/height do not match Inky: {}x{}".format(self.eeprom.width, self.eeprom.height))
+            if self.eeprom.display_variant in (1, 6) and self.eeprom.get_color() == "red":
+                self.lut = "red_ht"
 
         self.buf = numpy.zeros((self.height, self.width), dtype=numpy.uint8)
         self.border_colour = 0
@@ -160,7 +160,7 @@ class Inky:
 
         """
         self._luts = {
-            'black': [
+            "black": [
                 0b01001000, 0b10100000, 0b00010000, 0b00010000, 0b00010011, 0b00000000, 0b00000000,
                 0b01001000, 0b10100000, 0b10000000, 0b00000000, 0b00000011, 0b00000000, 0b00000000,
                 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
@@ -174,7 +174,7 @@ class Inky:
                 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00,
             ],
-            'red': [
+            "red": [
                 0b01001000, 0b10100000, 0b00010000, 0b00010000, 0b00010011, 0b00000000, 0b00000000,
                 0b01001000, 0b10100000, 0b10000000, 0b00000000, 0b00000011, 0b00000000, 0b00000000,
                 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
@@ -188,7 +188,7 @@ class Inky:
                 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00
             ],
-            'red_ht': [
+            "red_ht": [
                 0b01001000, 0b10100000, 0b00010000, 0b00010000, 0b00010011, 0b00010000, 0b00010000,
                 0b01001000, 0b10100000, 0b10000000, 0b00000000, 0b00000011, 0b10000000, 0b10000000,
                 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
@@ -202,7 +202,7 @@ class Inky:
                 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00
             ],
-            'yellow': [
+            "yellow": [
                 0b11111010, 0b10010100, 0b10001100, 0b11000000, 0b11010000, 0b00000000, 0b00000000,
                 0b11111010, 0b10010100, 0b00101100, 0b10000000, 0b11100000, 0b00000000, 0b00000000,
                 0b11111010, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
@@ -226,7 +226,7 @@ class Inky:
                     import RPi.GPIO as GPIO
                     self._gpio = GPIO
                 except ImportError:
-                    raise ImportError('This library requires the RPi.GPIO module\nInstall with: sudo apt install python-rpi.gpio')
+                    raise ImportError("This library requires the RPi.GPIO module\nInstall with: sudo apt install python-rpi.gpio")
             self._gpio.setmode(self._gpio.BCM)
             self._gpio.setwarnings(False)
             self._gpio.setup(self.dc_pin, self._gpio.OUT, initial=self._gpio.LOW, pull_up_down=self._gpio.PUD_OFF)
@@ -264,38 +264,38 @@ class Inky:
         """
         self.setup()
 
-        packed_height = list(struct.pack('<H', self.rows))
+        packed_height = list(struct.pack("<H", self.rows))
 
         if isinstance(packed_height[0], str):
             packed_height = map(ord, packed_height)
 
         self._send_command(0x74, 0x54)  # Set Analog Block Control
-        self._send_command(0x7e, 0x3b)  # Set Digital Block Control
+        self._send_command(0x7E, 0x3B)  # Set Digital Block Control
 
         self._send_command(0x01, packed_height + [0x00])  # Gate setting
 
         self._send_command(0x03, 0x17)  # Gate Driving Voltage
         self._send_command(0x04, [0x41, 0xAC, 0x32])  # Source Driving Voltage
 
-        self._send_command(0x3a, 0x07)  # Dummy line period
-        self._send_command(0x3b, 0x04)  # Gate line width
+        self._send_command(0x3A, 0x07)  # Dummy line period
+        self._send_command(0x3B, 0x04)  # Gate line width
         self._send_command(0x11, 0x03)  # Data entry mode setting 0x03 = X/Y increment
 
-        self._send_command(0x2c, 0x3c)  # VCOM Register, 0x3c = -1.5v?
+        self._send_command(0x2C, 0x3C)  # VCOM Register, 0x3c = -1.5v?
 
-        self._send_command(0x3c, 0b00000000)
+        self._send_command(0x3C, 0b00000000)
         if self.border_colour == self.BLACK:
-            self._send_command(0x3c, 0b00000000)  # GS Transition Define A + VSS + LUT0
-        elif self.border_colour == self.RED and self.colour == 'red':
-            self._send_command(0x3c, 0b01110011)  # Fix Level Define A + VSH2 + LUT3
-        elif self.border_colour == self.YELLOW and self.colour == 'yellow':
-            self._send_command(0x3c, 0b00110011)  # GS Transition Define A + VSH2 + LUT3
+            self._send_command(0x3C, 0b00000000)  # GS Transition Define A + VSS + LUT0
+        elif self.border_colour == self.RED and self.colour == "red":
+            self._send_command(0x3C, 0b01110011)  # Fix Level Define A + VSH2 + LUT3
+        elif self.border_colour == self.YELLOW and self.colour == "yellow":
+            self._send_command(0x3C, 0b00110011)  # GS Transition Define A + VSH2 + LUT3
         elif self.border_colour == self.WHITE:
-            self._send_command(0x3c, 0b00110001)  # GS Transition Define A + VSH2 + LUT1
+            self._send_command(0x3C, 0b00110001)  # GS Transition Define A + VSH2 + LUT1
 
-        if self.colour == 'yellow':
+        if self.colour == "yellow":
             self._send_command(0x04, [0x07, 0xAC, 0x32])  # Set voltage of VSH and VSL
-        if self.colour == 'red' and self.resolution == (400, 300):
+        if self.colour == "red" and self.resolution == (400, 300):
             self._send_command(0x04, [0x30, 0xAC, 0x22])
 
         self._send_command(0x32, self._luts[self.lut])  # Set LUTs
@@ -306,8 +306,8 @@ class Inky:
         # 0x24 == RAM B/W, 0x26 == RAM Red/Yellow/etc
         for data in ((0x24, buf_a), (0x26, buf_b)):
             cmd, buf = data
-            self._send_command(0x4e, 0x00)  # Set RAM X Pointer Start
-            self._send_command(0x4f, [0x00, 0x00])  # Set RAM Y Pointer Start
+            self._send_command(0x4E, 0x00)  # Set RAM X Pointer Start
+            self._send_command(0x4F, [0x00, 0x00])  # Set RAM Y Pointer Start
             self._send_command(cmd, buf)
 
         self._send_command(0x22, 0xC7)  # Display Update Sequence
@@ -382,7 +382,7 @@ class Inky:
         except AttributeError:
             for x in range(((len(values) - 1) // _SPI_CHUNK_SIZE) + 1):
                 offset = x * _SPI_CHUNK_SIZE
-                self._spi_bus.xfer(values[offset:offset + _SPI_CHUNK_SIZE])
+                self._spi_bus.xfer(values[offset : offset + _SPI_CHUNK_SIZE])
 
     def _send_command(self, command, data=None):
         """Send command over SPI.

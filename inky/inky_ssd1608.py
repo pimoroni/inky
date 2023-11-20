@@ -8,7 +8,7 @@ from . import eeprom, ssd1608
 try:
     import numpy
 except ImportError:
-    raise ImportError('This library requires the numpy module\nInstall with: sudo apt install python-numpy')
+    raise ImportError("This library requires the numpy module\nInstall with: sudo apt install python-numpy")
 
 WHITE = 0
 BLACK = 1
@@ -39,7 +39,7 @@ class Inky:
     RED = 2
     YELLOW = 2
 
-    def __init__(self, resolution=(250, 122), colour='black', cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):  # noqa: E501
+    def __init__(self, resolution=(250, 122), colour="black", cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):  # noqa: E501
         """Initialise an Inky Display.
 
         :param resolution: (width, height) in pixels, default: (400, 300)
@@ -56,14 +56,14 @@ class Inky:
         self._i2c_bus = i2c_bus
 
         if resolution not in _RESOLUTION.keys():
-            raise ValueError('Resolution {}x{} not supported!'.format(*resolution))
+            raise ValueError("Resolution {}x{} not supported!".format(*resolution))
 
         self.resolution = resolution
         self.width, self.height = resolution
         self.cols, self.rows, self.rotation, self.offset_x, self.offset_y = _RESOLUTION[resolution]
 
-        if colour not in ('red', 'black', 'yellow'):
-            raise ValueError('Colour {} is not supported!'.format(colour))
+        if colour not in ("red", "black", "yellow"):
+            raise ValueError("Colour {} is not supported!".format(colour))
 
         self.colour = colour
         self.eeprom = eeprom.read_eeprom(i2c_bus=i2c_bus)
@@ -84,11 +84,11 @@ class Inky:
         if self.eeprom is not None:
             # Only support new-style variants
             if self.eeprom.display_variant not in (10, 11, 12):
-                raise RuntimeError('This driver is not compatible with your board.')
+                raise RuntimeError("This driver is not compatible with your board.")
             if self.eeprom.width != self.width or self.eeprom.height != self.height:
                 pass
                 # TODO flash correct heights to new EEPROMs
-                # raise ValueError('Supplied width/height do not match Inky: {}x{}'.format(self.eeprom.width, self.eeprom.height))
+                # raise ValueError("Supplied width/height do not match Inky: {}x{}".format(self.eeprom.width, self.eeprom.height))
 
         self.buf = numpy.zeros((self.cols, self.rows), dtype=numpy.uint8)
 
@@ -105,17 +105,17 @@ class Inky:
         self._gpio_setup = False
 
         self._luts = {
-            'black': [
+            "black": [
                 0x02, 0x02, 0x01, 0x11, 0x12, 0x12, 0x22, 0x22, 0x66, 0x69,
                 0x69, 0x59, 0x58, 0x99, 0x99, 0x88, 0x00, 0x00, 0x00, 0x00,
                 0xF8, 0xB4, 0x13, 0x51, 0x35, 0x51, 0x51, 0x19, 0x01, 0x00
             ],
-            'red': [
+            "red": [
                 0x02, 0x02, 0x01, 0x11, 0x12, 0x12, 0x22, 0x22, 0x66, 0x69,
                 0x69, 0x59, 0x58, 0x99, 0x99, 0x88, 0x00, 0x00, 0x00, 0x00,
                 0xF8, 0xB4, 0x13, 0x51, 0x35, 0x51, 0x51, 0x19, 0x01, 0x00
             ],
-            'yellow': [
+            "yellow": [
                 0x02, 0x02, 0x01, 0x11, 0x12, 0x12, 0x22, 0x22, 0x66, 0x69,
                 0x69, 0x59, 0x58, 0x99, 0x99, 0x88, 0x00, 0x00, 0x00, 0x00,
                 0xF8, 0xB4, 0x13, 0x51, 0x35, 0x51, 0x51, 0x19, 0x01, 0x00
@@ -128,9 +128,10 @@ class Inky:
             if self._gpio is None:
                 try:
                     import RPi.GPIO as GPIO
+
                     self._gpio = GPIO
                 except ImportError:
-                    raise ImportError('This library requires the RPi.GPIO module\nInstall with: sudo apt install python-rpi.gpio')
+                    raise ImportError("This library requires the RPi.GPIO module\nInstall with: sudo apt install python-rpi.gpio")
             self._gpio.setmode(self._gpio.BCM)
             self._gpio.setwarnings(False)
             self._gpio.setup(self.dc_pin, self._gpio.OUT, initial=self._gpio.LOW, pull_up_down=self._gpio.PUD_OFF)
@@ -139,6 +140,7 @@ class Inky:
 
             if self._spi_bus is None:
                 import spidev
+
                 self._spi_bus = spidev.SpiDev()
 
             self._spi_bus.open(0, self.cs_pin)
@@ -195,10 +197,10 @@ class Inky:
         if self.border_colour == self.BLACK:
             self._send_command(ssd1608.WRITE_BORDER, 0b00000000)
             # GS Transition + Waveform 00 + GSA 0 + GSB 0
-        elif self.border_colour == self.RED and self.colour == 'red':
+        elif self.border_colour == self.RED and self.colour == "red":
             self._send_command(ssd1608.WRITE_BORDER, 0b00000110)
             # GS Transition + Waveform 01 + GSA 1 + GSB 0
-        elif self.border_colour == self.YELLOW and self.colour == 'yellow':
+        elif self.border_colour == self.YELLOW and self.colour == "yellow":
             self._send_command(ssd1608.WRITE_BORDER, 0b00001111)
             # GS Transition + Waveform 11 + GSA 1 + GSB 1
         elif self.border_colour == self.WHITE:
@@ -273,7 +275,7 @@ class Inky:
         except AttributeError:
             for x in range(((len(values) - 1) // _SPI_CHUNK_SIZE) + 1):
                 offset = x * _SPI_CHUNK_SIZE
-                self._spi_bus.xfer(values[offset:offset + _SPI_CHUNK_SIZE])
+                self._spi_bus.xfer(values[offset : offset + _SPI_CHUNK_SIZE])
 
     def _send_command(self, command, data=None):
         """Send command over SPI.
