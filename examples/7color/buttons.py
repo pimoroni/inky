@@ -18,7 +18,7 @@ Press Ctrl+C to exit!
 BUTTONS = [5, 6, 16, 24]
 
 # These correspond to buttons A, B, C and D respectively
-LABELS = ['A', 'B', 'C', 'D']
+LABELS = ["A", "B", "C", "D"]
 
 # Set up RPi.GPIO with the "BCM" numbering scheme
 GPIO.setmode(GPIO.BCM)

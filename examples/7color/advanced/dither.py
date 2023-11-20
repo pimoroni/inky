@@ -43,7 +43,7 @@ Usage: {file} image-file
 if len(sys.argv) > 2:
     saturation = float(sys.argv[2])
 
-palette = hitherdither.palette.Palette(inky._palette_blend(saturation, dtype='uint24'))
+palette = hitherdither.palette.Palette(inky._palette_blend(saturation, dtype="uint24"))
 
 image = Image.open(sys.argv[1]).convert("RGB")
 image_resized = image.resize(inky.resolution)

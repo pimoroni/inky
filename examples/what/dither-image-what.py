@@ -19,7 +19,7 @@ inky_display.set_border(inky_display.WHITE)
 # Grab the image argument from the command line
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--image', '-i', type=str, required=True, help="Input image to be converted/displayed")
+parser.add_argument("--image", "-i", type=str, required=True, help="Input image to be converted/displayed")
 args, _ = parser.parse_known_args()
 
 img_file = args.image

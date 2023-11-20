@@ -24,7 +24,7 @@ except TypeError:
     raise TypeError("You need to update the Inky library to >= v1.1.0")
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--name', '-n', type=str, required=True, help="Your name")
+parser.add_argument("--name", "-n", type=str, required=True, help="Your name")
 args, _ = parser.parse_known_args()
 
 # inky_display.set_rotation(180)

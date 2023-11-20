@@ -96,7 +96,7 @@ people = [
     "Niels Bohr",
     "Nikola Tesla",
     "Rosalind Franklin",
-    "Stephen Hawking"
+    "Stephen Hawking",
 ]
 
 # The amount of padding around the quote. Note that
