@@ -1,13 +1,14 @@
 """Inky e-Ink Display Driver."""
 import struct
 import time
+from datetime import timedelta
+
+import gpiod
+import gpiodevice
+import numpy
+from gpiod.line import Direction, Edge, Value
 
 from . import eeprom
-
-try:
-    import numpy
-except ImportError:
-    raise ImportError("This library requires the numpy module\nInstall with: sudo apt install python-numpy")
 
 __version__ = "1.5.0"
 
@@ -17,9 +18,9 @@ BLACK = 1
 RED = YELLOW = 2
 
 # GPIO pins required by BCM number
-RESET_PIN = 27
-BUSY_PIN = 17
-DC_PIN = 22
+RESET_PIN = "PIN13" # GPIO 27
+BUSY_PIN = "PIN11" # GPIO 17
+DC_PIN = "PIN15" # GPIO 22
 
 # In addition the following pins are used for SPI
 # CS_PIN = 8
@@ -71,8 +72,7 @@ class Inky:
         :type spi_bus: :class:`spidev.SpiDev`
         :param i2c_bus: SMB object. If `None` then :class:`smbus2.SMBus(1)` is used.
         :type i2c_bus: :class:`smbus2.SMBus`
-        :param gpio: GPIO module. If `None` then `RPi.GPIO` is imported. Default: `None`.
-        :type gpio: :class:`RPi.GPIO`
+        :param gpio: deprecated
         """
         self._spi_bus = spi_bus
         self._i2c_bus = i2c_bus
@@ -222,16 +222,22 @@ class Inky:
         """Set up Inky GPIO and reset display."""
         if not self._gpio_setup:
             if self._gpio is None:
-                try:
-                    import RPi.GPIO as GPIO
-                    self._gpio = GPIO
-                except ImportError:
-                    raise ImportError("This library requires the RPi.GPIO module\nInstall with: sudo apt install python-rpi.gpio")
-            self._gpio.setmode(self._gpio.BCM)
-            self._gpio.setwarnings(False)
-            self._gpio.setup(self.dc_pin, self._gpio.OUT, initial=self._gpio.LOW, pull_up_down=self._gpio.PUD_OFF)
-            self._gpio.setup(self.reset_pin, self._gpio.OUT, initial=self._gpio.HIGH, pull_up_down=self._gpio.PUD_OFF)
-            self._gpio.setup(self.busy_pin, self._gpio.IN, pull_up_down=self._gpio.PUD_OFF)
+                gpiochip = gpiodevice.find_chip_by_platform()
+
+                if gpiodevice.check_pins_available(gpiochip, {
+                        "Data/Command": self.dc_pin,
+                        "Reset": self.reset_pin,
+                        "Busy": self.busy_pin
+                    }):
+                    self.dc_pin = gpiochip.line_offset_from_id(self.dc_pin)
+                    self.reset_pin = gpiochip.line_offset_from_id(self.reset_pin)
+                    self.busy_pin = gpiochip.line_offset_from_id(self.busy_pin)
+
+                    self._gpio = gpiochip.request_lines(consumer="inky", config={
+                        self.dc_pin: gpiod.LineSettings(direction=Direction.OUTPUT),
+                        self.reset_pin: gpiod.LineSettings(direction=Direction.OUTPUT),
+                        self.busy_pin: gpiod.LineSettings(direction=Direction.INPUT, edge_detection=Edge.FALLING)
+                    })
 
             if self._spi_bus is None:
                 import spidev
@@ -242,18 +248,19 @@ class Inky:
 
             self._gpio_setup = True
 
-        self._gpio.output(self.reset_pin, self._gpio.LOW)
+        self._gpio.set_value(self.reset_pin, Value.INACTIVE)
         time.sleep(0.1)
-        self._gpio.output(self.reset_pin, self._gpio.HIGH)
+        self._gpio.set_value(self.reset_pin, Value.ACTIVE)
         time.sleep(0.1)
 
         self._send_command(0x12)  # Soft Reset
         self._busy_wait()
 
-    def _busy_wait(self):
+    def _busy_wait(self, timeout=30.0):
         """Wait for busy/wait pin."""
-        while self._gpio.input(self.busy_pin) != self._gpio.LOW:
-            time.sleep(0.01)
+        event = self._gpio.wait_edge_events(timedelta(seconds=timeout))
+        if not event:
+            raise RuntimeError("Timeout waiting for busy signal to clear.")
 
     def _update(self, buf_a, buf_b, busy_wait=True):
         """Update display.
@@ -376,7 +383,7 @@ class Inky:
         :param dc: whether to write as data or command
         :param values: list of values to write
         """
-        self._gpio.output(self.dc_pin, dc)
+        self._gpio.set_value(self.dc_pin, Value.ACTIVE if dc else Value.INACTIVE)
         try:
             self._spi_bus.xfer3(values)
         except AttributeError:
