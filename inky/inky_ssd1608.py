@@ -261,9 +261,21 @@ class Inky:
 
     def set_image(self, image):
         """Copy an image to the display."""
-        canvas = Image.new("P", (self.rows, self.cols))
-        canvas.paste(image, (self.offset_x, self.offset_y))
-        self.buf = numpy.array(canvas, dtype=numpy.uint8).reshape((self.cols, self.rows))
+        if not image.mode == "P":
+            palette_image = Image.new("P", (1, 1))
+            r, g, b = 0, 0, 0
+            if self.colour == "red":
+                r = 255
+            if self.colour == "yellow":
+                g = 255
+            palette_image.putpalette([255, 255, 255, 0, 0, 0, r, g, b] + [0, 0, 0] * 252)
+            image.load()
+            image = image.im.convert("P", True, palette_image.im)
+
+        canvas = Image.new("P", (self.cols, self.rows))
+        width, height = image.size
+        canvas.paste(image, (self.offset_x, self.offset_y, width, height))
+        self.buf = numpy.array(canvas, dtype=numpy.uint8).reshape((self.rows, self.cols))
 
     def _spi_write(self, dc, values):
         """Write values over SPI.
