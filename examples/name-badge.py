@@ -84,18 +84,18 @@ for y in range(y_bottom, inky_display.height):
         img.putpixel((x, y), inky_display.BLACK if inky_display.colour == "black" else inky_display.RED)
 
 # Calculate the positioning and draw the "Hello" text
-
-hello_w, hello_h = getsize(hanken_bold_font, "Hello")
+hello_text = "Hello"
+hello_w, hello_h = getsize(hanken_bold_font, hello_text)
 hello_x = int((inky_display.width - hello_w) / 2)
 hello_y = 0 + padding
-draw.text((hello_x, hello_y), "Hello", inky_display.WHITE, font=hanken_bold_font)
+draw.text((hello_x, hello_y), hello_text, inky_display.WHITE, font=hanken_bold_font)
 
 # Calculate the positioning and draw the "my name is" text
-
-mynameis_w, mynameis_h = getsize(hanken_medium_font, "my name is")
+mynameis_text = "my name is"
+mynameis_w, mynameis_h = getsize(hanken_medium_font, mynameis_text)
 mynameis_x = int((inky_display.width - mynameis_w) / 2)
 mynameis_y = hello_h + padding
-draw.text((mynameis_x, mynameis_y), "my name is", inky_display.WHITE, font=hanken_medium_font)
+draw.text((mynameis_x, mynameis_y), mynameis_text, inky_display.WHITE, font=hanken_medium_font)
 
 # Calculate the positioning and draw the name text
 
