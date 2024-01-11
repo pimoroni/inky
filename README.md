@@ -1,7 +1,7 @@
 # Inky
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/pimoroni/inky/test.yml?branch=main)](https://github.com/pimoroni/inky/actions/workflows/test.yml)
-[![Coverage Status](https://coveralls.io/repos/github/pimoroni/inky/badge.svg?branch=master)](https://coveralls.io/github/pimoroni/inky?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/pimoroni/inky/badge.svg?branch=main)](https://coveralls.io/github/pimoroni/inky?branch=main)
 [![PyPi Package](https://img.shields.io/pypi/v/inky.svg)](https://pypi.python.org/pypi/inky)
 [![Python Versions](https://img.shields.io/pypi/pyversions/inky.svg)](https://pypi.python.org/pypi/inky)
 

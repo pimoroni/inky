@@ -1,13 +1,13 @@
 #!/bin/bash
 
 FORCE=false
-LIBRARY_NAME=`grep -m 1 name pyproject.toml | awk -F" = " '{print substr($2,2,length($2)-2)}'`
+LIBRARY_NAME=$(grep -m 1 name pyproject.toml | awk -F" = " '{print substr($2,2,length($2)-2)}')
 RESOURCES_DIR=$HOME/Pimoroni/$LIBRARY_NAME
 PYTHON="python"
 
 
 venv_check() {
-	PYTHON_BIN=`which $PYTHON`
+	PYTHON_BIN=$(which $PYTHON)
 	if [[ $VIRTUAL_ENV == "" ]] || [[ $PYTHON_BIN != $VIRTUAL_ENV* ]]; then
 		printf "This script should be run in a virtual Python environment.\n"
 		exit 1
@@ -15,7 +15,7 @@ venv_check() {
 }
 
 user_check() {
-	if [ $(id -u) -eq 0 ]; then
+	if [ "$(id -u)" -eq 0 ]; then
 		printf "Script should not be run as root. Try './uninstall.sh'\n"
 		exit 1
 	fi
@@ -55,17 +55,17 @@ warning() {
 	echo -e "$(tput setaf 1)$1$(tput sgr0)"
 }
 
-printf "$LIBRARY_NAME Python Library: Uninstaller\n\n"
+printf "%s Python Library: Uninstaller\n\n" "$LIBRARY_NAME"
 
 user_check
 venv_check
 
 printf "Uninstalling for Python 3...\n"
-$PYTHON -m pip uninstall $LIBRARY_NAME
+$PYTHON -m pip uninstall "$LIBRARY_NAME"
 
-if [ -d $RESOURCES_DIR ]; then
+if [ -d "$RESOURCES_DIR" ]; then
 	if confirm "Would you like to delete $RESOURCES_DIR?"; then
-		rm -r $RESOURCES_DIR
+		rm -r "$RESOURCES_DIR"
 	fi
 fi
 

@@ -3,9 +3,9 @@
 # This script handles some basic QA checks on the source
 
 NOPOST=$1
-LIBRARY_NAME=`hatch project metadata name`
-LIBRARY_VERSION=`hatch version | awk -F "." '{print $1"."$2"."$3}'`
-POST_VERSION=`hatch version | awk -F "." '{print substr($4,0,length($4))}'`
+LIBRARY_NAME=$(hatch project metadata name)
+LIBRARY_VERSION=$(hatch version | awk -F "." '{print $1"."$2"."$3}')
+POST_VERSION=$(hatch version | awk -F "." '{print substr($4,0,length($4))}')
 TERM=${TERM:="xterm-256color"}
 
 success() {
@@ -29,7 +29,7 @@ while [[ $# -gt 0 ]]; do
 		;;
 	*)
 		if [[ $1 == -* ]]; then
-			printf "Unrecognised option: $1\n";
+			printf "Unrecognised option: %s\n" "$1";
 			exit 1
 		fi
 		POSITIONAL_ARGS+=("$1")
@@ -40,8 +40,7 @@ done
 inform "Checking $LIBRARY_NAME $LIBRARY_VERSION\n"
 
 inform "Checking for trailing whitespace..."
-grep -IUrn --color "[[:blank:]]$" --exclude-dir=dist --exclude-dir=.tox --exclude-dir=.git --exclude=PKG-INFO
-if [[ $? -eq 0 ]]; then
+if grep -IUrn --color "[[:blank:]]$" --exclude-dir=dist --exclude-dir=.tox --exclude-dir=.git --exclude=PKG-INFO; then
     warning "Trailing whitespace found!"
     exit 1
 else
@@ -50,8 +49,7 @@ fi
 printf "\n"
 
 inform "Checking for DOS line-endings..."
-grep -lIUrn --color $'\r' --exclude-dir=dist --exclude-dir=.tox --exclude-dir=.git --exclude=Makefile
-if [[ $? -eq 0 ]]; then
+if grep -lIUrn --color $'\r' --exclude-dir=dist --exclude-dir=.tox --exclude-dir=.git --exclude=Makefile; then
     warning "DOS line-endings found!"
     exit 1
 else
@@ -60,8 +58,7 @@ fi
 printf "\n"
 
 inform "Checking CHANGELOG.md..."
-cat CHANGELOG.md | grep ^${LIBRARY_VERSION} > /dev/null 2>&1
-if [[ $? -eq 1 ]]; then
+if ! grep "^${LIBRARY_VERSION}" CHANGELOG.md > /dev/null 2>&1; then
     warning "Changes missing for version ${LIBRARY_VERSION}! Please update CHANGELOG.md."
     exit 1
 else
@@ -70,8 +67,7 @@ fi
 printf "\n"
 
 inform "Checking for git tag ${LIBRARY_VERSION}..."
-git tag -l | grep -E "${LIBRARY_VERSION}$"
-if [[ $? -eq 1 ]]; then
+if ! git tag -l | grep -E "${LIBRARY_VERSION}$"; then
     warning "Missing git tag for version ${LIBRARY_VERSION}"
 fi
 printf "\n"
