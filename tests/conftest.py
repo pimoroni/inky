@@ -12,17 +12,33 @@ import pytest
 from tools import MockSMBus
 
 
+@pytest.fixture(scope='function', autouse=True)
+def cleanup():
+    for module in list(sys.modules.keys()):
+        if module.startswith('inky'):
+            del sys.modules[module]
+
+
+@pytest.fixture(scope='function', autouse=False)
+def nopath():
+    path = sys.path
+    sys.path = [path for path in sys.path if not path.startswith("/usr/lib") and not path.startswith("/opt/hostedtoolcache")]
+    yield
+    sys.path = path
+
+
 @pytest.fixture(scope='function', autouse=False)
 def GPIO():
-    """Mock RPi.GPIO module."""
-    GPIO = mock.MagicMock()
-    # Fudge for Python < 37 (possibly earlier)
-    sys.modules['RPi'] = mock.MagicMock()
-    sys.modules['RPi'].GPIO = GPIO
-    sys.modules['RPi.GPIO'] = GPIO
-    yield GPIO
-    del sys.modules['RPi']
-    del sys.modules['RPi.GPIO']
+    """Mock gpiod and gpiodevice modules."""
+    gpiod = mock.MagicMock()
+    gpiodevice = mock.MagicMock()
+    sys.modules['gpiod'] = gpiod
+    sys.modules['gpiodevice'] = gpiodevice
+    sys.modules['gpiodevice.platform'] = mock.MagicMock()
+    yield gpiod, gpiodevice
+    del sys.modules['gpiod']
+    del sys.modules['gpiodevice']
+    del sys.modules['gpiodevice.platform']
 
 
 @pytest.fixture(scope='function', autouse=False)
