@@ -37,7 +37,8 @@ classifiers = [
 dependencies = [
     "numpy",
     "smbus2",
-    "spidev"
+    "spidev",
+    "gpiodevice>=0.0.3"
 ]
 
 [project.optional-dependencies]
@@ -130,5 +131,11 @@ ignore = [
 
 [tool.pimoroni]
 apt_packages = []
-configtxt = []
-commands = []
+configtxt = [
+    "dtoverlay=i2c1",
+    "dtoverlay=i2c1-pi5",
+    "dtoverlay=spi0-0cs"
+]
+commands = [
+    "sudo raspi-config nonint do_spi 0"
+]
