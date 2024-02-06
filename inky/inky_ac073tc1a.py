@@ -6,6 +6,7 @@ from datetime import timedelta
 import gpiod
 import gpiodevice
 from gpiod.line import Direction, Edge, Value
+from gpiodevice import platform
 from PIL import Image
 
 from . import eeprom
@@ -24,9 +25,14 @@ YELLOW = 5
 ORANGE = 6
 CLEAN = 7
 
-RESET_PIN = "PIN13" # GPIO 27
-BUSY_PIN = "PIN11" # GPIO 17
-DC_PIN = "PIN15" # GPIO 22
+if platform.get_name().startswith("Raspberry Pi 5"):
+    RESET_PIN = "PIN13" # GPIO 27
+    BUSY_PIN = "PIN11" # GPIO 17
+    DC_PIN = "PIN15" # GPIO 22
+else:
+    RESET_PIN = "GPIO27"
+    BUSY_PIN = "GPIO17"
+    DC_PIN = "GPIO22"
 
 MOSI_PIN = 10
 SCLK_PIN = 11

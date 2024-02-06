@@ -7,7 +7,8 @@ from datetime import timedelta
 import gpiod
 import gpiodevice
 import numpy
-from gpiod.line import Direction, Edge, Value
+from gpiod.line import Bias, Direction, Edge, Value
+from gpiodevice import platform
 from PIL import Image
 
 from . import eeprom
@@ -43,9 +44,14 @@ SATURATED_PALETTE = [
     [255, 255, 255]
 ]
 
-RESET_PIN = "PIN13" # GPIO 27
-BUSY_PIN = "PIN11" # GPIO 17
-DC_PIN = "PIN15" # GPIO 22
+if platform.get_name().startswith("Raspberry Pi 5"):
+    RESET_PIN = "PIN13" # GPIO 27
+    BUSY_PIN = "PIN11" # GPIO 17
+    DC_PIN = "PIN15" # GPIO 22
+else:
+    RESET_PIN = "GPIO27"
+    BUSY_PIN = "GPIO17"
+    DC_PIN = "GPIO22"
 
 MOSI_PIN = 10
 SCLK_PIN = 11
@@ -218,12 +224,11 @@ class Inky:
                     self.dc_pin = gpiochip.line_offset_from_id(self.dc_pin)
                     self.reset_pin = gpiochip.line_offset_from_id(self.reset_pin)
                     self.busy_pin = gpiochip.line_offset_from_id(self.busy_pin)
-
                     self._gpio = gpiochip.request_lines(consumer="inky", config={
-                        self.cs_pin: gpiod.LineSettings(direction=Direction.OUTPUT, output_value=Value.ACTIVE),
-                        self.dc_pin: gpiod.LineSettings(direction=Direction.OUTPUT, output_value=Value.INACTIVE),
-                        self.reset_pin: gpiod.LineSettings(direction=Direction.OUTPUT, output_value=Value.ACTIVE),
-                        self.busy_pin: gpiod.LineSettings(direction=Direction.INPUT, edge_detection=Edge.RISING, debounce_period=timedelta(milliseconds=10))
+                        self.cs_pin: gpiod.LineSettings(direction=Direction.OUTPUT, output_value=Value.ACTIVE, bias=Bias.DISABLED),
+                        self.dc_pin: gpiod.LineSettings(direction=Direction.OUTPUT, output_value=Value.INACTIVE, bias=Bias.DISABLED),
+                        self.reset_pin: gpiod.LineSettings(direction=Direction.OUTPUT, output_value=Value.ACTIVE, bias=Bias.DISABLED),
+                        self.busy_pin: gpiod.LineSettings(direction=Direction.INPUT, edge_detection=Edge.RISING, debounce_period=timedelta(milliseconds=10), bias=Bias.DISABLED)
                     })
 
             if self._spi_bus is None:
@@ -242,6 +247,7 @@ class Inky:
         self._gpio.set_value(self.reset_pin, Value.INACTIVE)
         time.sleep(0.1)
         self._gpio.set_value(self.reset_pin, Value.ACTIVE)
+        time.sleep(0.1)
 
         self._busy_wait(1.0)
 
@@ -338,15 +344,13 @@ class Inky:
             return
 
         for event in self._gpio.read_edge_events():
-            print(timeout, event)
+            if event.Type == Edge.RISING:
+                return
 
     def _update(self, buf):
         """Update display.
 
         Dispatches display update to correct driver.
-
-        :param buf_a: Black/White pixels
-        :param buf_b: Yellow/Red pixels
 
         """
         self.setup()
@@ -438,6 +442,7 @@ class Inky:
             for x in range(((len(values) - 1) // _SPI_CHUNK_SIZE) + 1):
                 offset = x * _SPI_CHUNK_SIZE
                 self._spi_bus.xfer(values[offset : offset + _SPI_CHUNK_SIZE])
+
         self._gpio.set_value(self.cs_pin, Value.ACTIVE)
 
     def _send_command(self, command, data=None):
