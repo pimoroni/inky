@@ -1,11 +1,12 @@
 """Inky e-Ink Display Driver."""
 import time
 import warnings
+from datetime import timedelta
 
-try:
-    from PIL import Image
-except ImportError:
-    Image = None
+import gpiod
+import gpiodevice
+from gpiod.line import Direction, Edge, Value
+from PIL import Image
 
 from . import eeprom
 
@@ -23,9 +24,9 @@ YELLOW = 5
 ORANGE = 6
 CLEAN = 7
 
-RESET_PIN = 27
-BUSY_PIN = 17
-DC_PIN = 22
+RESET_PIN = "PIN13" # GPIO 27
+BUSY_PIN = "PIN11" # GPIO 17
+DC_PIN = "PIN15" # GPIO 22
 
 MOSI_PIN = 10
 SCLK_PIN = 11
@@ -192,36 +193,47 @@ class Inky:
         """Set up Inky GPIO and reset display."""
         if not self._gpio_setup:
             if self._gpio is None:
-                try:
-                    import RPi.GPIO as GPIO
-                    self._gpio = GPIO
-                except ImportError:
-                    raise ImportError("This library requires the RPi.GPIO module\nInstall with: sudo apt install python-rpi.gpio")
-            self._gpio.setmode(self._gpio.BCM)
-            self._gpio.setwarnings(False)
-            self._gpio.setup(self.cs_pin, self._gpio.OUT)
-            self._gpio.setup(self.dc_pin, self._gpio.OUT, initial=self._gpio.LOW, pull_up_down=self._gpio.PUD_OFF)
-            self._gpio.setup(self.reset_pin, self._gpio.OUT, initial=self._gpio.HIGH, pull_up_down=self._gpio.PUD_OFF)
-            self._gpio.setup(self.busy_pin, self._gpio.IN, pull_up_down=self._gpio.PUD_OFF)
+                gpiochip = gpiodevice.find_chip_by_platform()
+                gpiodevice.friendly_errors = True
+                if gpiodevice.check_pins_available(gpiochip, {
+                        "Chip Select": self.cs_pin,
+                        "Data/Command": self.dc_pin,
+                        "Reset": self.reset_pin,
+                        "Busy": self.busy_pin
+                    }):
+                    self.cs_pin = gpiochip.line_offset_from_id(self.cs_pin)
+                    self.dc_pin = gpiochip.line_offset_from_id(self.dc_pin)
+                    self.reset_pin = gpiochip.line_offset_from_id(self.reset_pin)
+                    self.busy_pin = gpiochip.line_offset_from_id(self.busy_pin)
+
+                    self._gpio = gpiochip.request_lines(consumer="inky", config={
+                        self.cs_pin: gpiod.LineSettings(direction=Direction.OUTPUT, output_value=Value.ACTIVE),
+                        self.dc_pin: gpiod.LineSettings(direction=Direction.OUTPUT, output_value=Value.INACTIVE),
+                        self.reset_pin: gpiod.LineSettings(direction=Direction.OUTPUT, output_value=Value.ACTIVE),
+                        self.busy_pin: gpiod.LineSettings(direction=Direction.INPUT, edge_detection=Edge.RISING, debounce_period=timedelta(milliseconds=10))
+                    })
 
             if self._spi_bus is None:
                 import spidev
                 self._spi_bus = spidev.SpiDev()
 
             self._spi_bus.open(0, self.cs_channel)
-            self._spi_bus.no_cs = True
+            try:
+                self._spi_bus.no_cs = True
+            except OSError:
+                warnings.warn("SPI: Cannot disable chip-select!")
             self._spi_bus.max_speed_hz = 5000000
 
             self._gpio_setup = True
 
-        self._gpio.output(self.reset_pin, self._gpio.LOW)
+        self._gpio.set_value(self.reset_pin, Value.INACTIVE)
         time.sleep(0.1)
-        self._gpio.output(self.reset_pin, self._gpio.HIGH)
+        self._gpio.set_value(self.reset_pin, Value.ACTIVE)
         time.sleep(0.1)
 
-        self._gpio.output(self.reset_pin, self._gpio.LOW)
+        self._gpio.set_value(self.reset_pin, Value.INACTIVE)
         time.sleep(0.1)
-        self._gpio.output(self.reset_pin, self._gpio.HIGH)
+        self._gpio.set_value(self.reset_pin, Value.ACTIVE)
 
         self._busy_wait(1.0)
 
@@ -269,21 +281,18 @@ class Inky:
         # If the busy_pin is *high* (pulled up by host)
         # then assume we're not getting a signal from inky
         # and wait the timeout period to be safe.
-        if self._gpio.input(self.busy_pin):
+        if self._gpio.get_value(self.busy_pin) == Value.ACTIVE:
             warnings.warn("Busy Wait: Held high. Waiting for {:0.2f}s".format(timeout))
             time.sleep(timeout)
             return
 
-        # If the busy_pin is *low* (pulled down by inky)
-        # then wait for it to high.
-        t_start = time.time()
-        while not self._gpio.input(self.busy_pin):
-            time.sleep(0.01)
-            if time.time() - t_start >= timeout:
-                warnings.warn("Busy Wait: Timed out after {:0.2f}s".format(time.time() - t_start))
-                return
+        event = self._gpio.wait_edge_events(timedelta(seconds=timeout))
+        if not event:
+            warnings.warn(f"Busy Wait: Timed out after {timeout:0.2f}s")
+            return
 
-        # print("Busy_waited",  time.time()-t_start, "out of", timeout, "seconds")
+        for event in self._gpio.read_edge_events():
+            print(timeout, event)
 
     def _update(self, buf):
         """Update display.
@@ -366,8 +375,6 @@ class Inky:
         if not image.size == (self.width, self.height):
             raise ValueError("Image must be ({}x{}) pixels!".format(self.width, self.height))
         if not image.mode == "P":
-            if Image is None:
-                raise RuntimeError("PIL is required for converting images: sudo apt install python-pil python3-pil")
             palette = self._palette_blend(saturation)
             # Image size doesn't matter since it's just the palette we're using
             palette_image = Image.new("P", (1, 1))
@@ -385,8 +392,8 @@ class Inky:
         :param values: list of values to write
 
         """
-        self._gpio.output(self.cs_pin, 0)
-        self._gpio.output(self.dc_pin, dc)
+        self._gpio.set_value(self.cs_pin, Value.INACTIVE)
+        self._gpio.set_value(self.dc_pin, Value.ACTIVE if dc else Value.INACTIVE)
 
         if isinstance(values, str):
             values = [ord(c) for c in values]
@@ -394,7 +401,7 @@ class Inky:
         for byte_value in values:
             self._spi_bus.xfer([byte_value])
 
-        self._gpio.output(self.cs_pin, 1)
+        self._gpio.set_value(self.cs_pin, Value.ACTIVE)
 
     def _send_command(self, command, data=None):
         """Send command over SPI.
