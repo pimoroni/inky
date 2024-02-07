@@ -8,7 +8,6 @@ import gpiod
 import gpiodevice
 import numpy
 from gpiod.line import Bias, Direction, Edge, Value
-from gpiodevice import platform
 from PIL import Image
 
 from . import eeprom
@@ -20,14 +19,9 @@ WHITE = 0
 BLACK = 1
 RED = YELLOW = 2
 
-if platform.get_name().startswith("Raspberry Pi 5"):
-    RESET_PIN = "PIN13" # GPIO 27
-    BUSY_PIN = "PIN11" # GPIO 17
-    DC_PIN = "PIN15" # GPIO 22
-else:
-    RESET_PIN = "GPIO27"
-    BUSY_PIN = "GPIO17"
-    DC_PIN = "GPIO22"
+RESET_PIN = 27  # PIN13
+BUSY_PIN = 17   # PIN11
+DC_PIN = 22     # PIN15
 
 # In addition the following pins are used for SPI
 MOSI_PIN = 10
