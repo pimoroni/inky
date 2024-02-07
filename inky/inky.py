@@ -1,6 +1,7 @@
 """Inky e-Ink Display Driver."""
 import struct
 import time
+import warnings
 from datetime import timedelta
 
 import gpiod
@@ -8,6 +9,7 @@ import gpiodevice
 import numpy
 from gpiod.line import Bias, Direction, Edge, Value
 from gpiodevice import platform
+from PIL import Image
 
 from . import eeprom
 
@@ -252,6 +254,10 @@ class Inky:
                 self._spi_bus = spidev.SpiDev()
 
             self._spi_bus.open(0, self.cs_channel)
+            try:
+                self._spi_bus.no_cs = True
+            except OSError:
+                warnings.warn("SPI: Cannot disable chip-select!")
             self._spi_bus.max_speed_hz = 488000
 
             self._gpio_setup = True
@@ -262,7 +268,7 @@ class Inky:
         time.sleep(0.1)
 
         self._send_command(0x12)  # Soft Reset
-        self._busy_wait()
+        self._busy_wait(1.0)
 
     def _busy_wait(self, timeout=30.0):
         """Wait for busy/wait pin."""
@@ -377,16 +383,24 @@ class Inky:
 
     def set_image(self, image):
         """Copy an image to the buffer.
-
-        The dimensions of `image` should match the dimensions of the display being used.
-
-        :param image: Image to copy.
-        :type image: :class:`PIL.Image.Image` or :class:`numpy.ndarray` or list
         """
-        if self.rotation % 180 == 0:
-            self.buf = numpy.array(image, dtype=numpy.uint8).reshape((self.width, self.height))
-        else:
-            self.buf = numpy.array(image, dtype=numpy.uint8).reshape((self.height, self.width))
+        image = image.resize((self.width, self.height))
+
+        if not image.mode == "P":
+            palette_image = Image.new("P", (1, 1))
+            r, g, b = 0, 0, 0
+            if self.colour == "red":
+                r = 255
+            if self.colour == "yellow":
+                r = g = 255
+            palette_image.putpalette([255, 255, 255, 0, 0, 0, r, g, b] + [0, 0, 0] * 252)
+            image.load()
+            image = image.im.convert("P", True, palette_image.im)
+
+        canvas = Image.new("P", (self.rows, self.cols))
+        width, height = image.size
+        canvas.paste(image, (0, 0, width, height))
+        self.buf = numpy.array(canvas, dtype=numpy.uint8).reshape((self.cols, self.rows))
 
     def _spi_write(self, dc, values):
         """Write values over SPI.

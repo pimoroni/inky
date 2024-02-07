@@ -1,11 +1,12 @@
 """Inky e-Ink Display Driver."""
 import time
+import warnings
 from datetime import timedelta
 
 import gpiod
 import gpiodevice
 import numpy
-from gpiod.line import Direction, Edge, Value
+from gpiod.line import Bias, Direction, Edge, Value
 from gpiodevice import platform
 from PIL import Image
 
@@ -26,7 +27,7 @@ else:
 
 MOSI_PIN = 10
 SCLK_PIN = 11
-CS0_PIN = 0
+CS0_PIN = 8
 
 _SPI_CHUNK_SIZE = 4096
 _SPI_COMMAND = 0
@@ -104,6 +105,10 @@ class Inky:
         self.reset_pin = reset_pin
         self.busy_pin = busy_pin
         self.cs_pin = cs_pin
+        try:
+            self.cs_channel = [8, 7].index(cs_pin)
+        except ValueError:
+            self.cs_channel = 0
         self.h_flip = h_flip
         self.v_flip = v_flip
 
@@ -135,15 +140,18 @@ class Inky:
                 gpiochip = gpiodevice.find_chip_by_platform()
                 gpiodevice.friendly_errors = True
                 if gpiodevice.check_pins_available(gpiochip, {
+                        "Chip Select": self.cs_pin,
                         "Data/Command": self.dc_pin,
                         "Reset": self.reset_pin,
                         "Busy": self.busy_pin
                     }):
+                    self.cs_pin = gpiochip.line_offset_from_id(self.cs_pin)
                     self.dc_pin = gpiochip.line_offset_from_id(self.dc_pin)
                     self.reset_pin = gpiochip.line_offset_from_id(self.reset_pin)
                     self.busy_pin = gpiochip.line_offset_from_id(self.busy_pin)
 
                     self._gpio = gpiochip.request_lines(consumer="inky", config={
+                        self.cs_pin: gpiod.LineSettings(direction=Direction.OUTPUT, output_value=Value.ACTIVE, bias=Bias.DISABLED),
                         self.dc_pin: gpiod.LineSettings(direction=Direction.OUTPUT, output_value=Value.INACTIVE),
                         self.reset_pin: gpiod.LineSettings(direction=Direction.OUTPUT, output_value=Value.ACTIVE),
                         self.busy_pin: gpiod.LineSettings(direction=Direction.INPUT, edge_detection=Edge.FALLING, debounce_period=timedelta(milliseconds=10))
@@ -154,7 +162,11 @@ class Inky:
 
                 self._spi_bus = spidev.SpiDev()
 
-            self._spi_bus.open(0, self.cs_pin)
+            self._spi_bus.open(0, self.cs_channel)
+            try:
+                self._spi_bus.no_cs = True
+            except OSError:
+                warnings.warn("SPI: Cannot disable chip-select!")
             self._spi_bus.max_speed_hz = 488000
 
             self._gpio_setup = True
@@ -170,9 +182,12 @@ class Inky:
 
     def _busy_wait(self, timeout=5.0):
         """Wait for busy/wait pin."""
-        event = self._gpio.wait_edge_events(timedelta(seconds=timeout))
-        if not event:
-            raise RuntimeError("Timeout waiting for busy signal to clear.")
+        if self._gpio.get_value(self.busy_pin) == Value.ACTIVE:
+            event = self._gpio.wait_edge_events(timedelta(seconds=timeout))
+            if not event:
+                raise RuntimeError("Timeout waiting for busy signal to clear.")
+            for event in self._gpio.read_edge_events():
+                pass
 
     def _update(self, buf_a, buf_b, busy_wait=True):
         """Update display.
@@ -267,21 +282,23 @@ class Inky:
 
     def set_image(self, image):
         """Copy an image to the display."""
+        image = image.resize((self.width, self.height))
+
         if not image.mode == "P":
             palette_image = Image.new("P", (1, 1))
             r, g, b = 0, 0, 0
             if self.colour == "red":
                 r = 255
             if self.colour == "yellow":
-                g = 255
+                r = g = 255
             palette_image.putpalette([255, 255, 255, 0, 0, 0, r, g, b] + [0, 0, 0] * 252)
             image.load()
             image = image.im.convert("P", True, palette_image.im)
 
-        canvas = Image.new("P", (self.cols, self.rows))
+        canvas = Image.new("P", (self.rows, self.cols))
         width, height = image.size
-        canvas.paste(image, (self.offset_x, self.offset_y, width, height))
-        self.buf = numpy.array(canvas, dtype=numpy.uint8).reshape((self.rows, self.cols))
+        canvas.paste(image, (self.offset_x, self.offset_y, width + self.offset_x, height + self.offset_y))
+        self.buf = numpy.array(canvas, dtype=numpy.uint8).reshape((self.cols, self.rows))
 
     def _spi_write(self, dc, values):
         """Write values over SPI.
@@ -290,6 +307,7 @@ class Inky:
         :param values: list of values to write
 
         """
+        self._gpio.set_value(self.cs_pin, Value.INACTIVE)
         self._gpio.set_value(self.dc_pin, Value.ACTIVE if dc else Value.INACTIVE)
         try:
             self._spi_bus.xfer3(values)
@@ -297,6 +315,8 @@ class Inky:
             for x in range(((len(values) - 1) // _SPI_CHUNK_SIZE) + 1):
                 offset = x * _SPI_CHUNK_SIZE
                 self._spi_bus.xfer(values[offset : offset + _SPI_CHUNK_SIZE])
+
+        self._gpio.set_value(self.cs_pin, Value.ACTIVE)
 
     def _send_command(self, command, data=None):
         """Send command over SPI.

@@ -271,7 +271,7 @@ class Inky:
             if self.colour == "red":
                 r = 255
             if self.colour == "yellow":
-                g = 255
+                r = g = 255
             palette_image.putpalette([255, 255, 255, 0, 0, 0, r, g, b] + [0, 0, 0] * 252)
             image.load()
             image = image.im.convert("P", True, palette_image.im)
