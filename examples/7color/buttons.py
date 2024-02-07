@@ -1,45 +1,53 @@
 #!/usr/bin/env python3
 
-import signal
-import RPi.GPIO as GPIO
+import gpiod
+import gpiodevice
+from gpiod.line import Bias, Direction, Edge
 
 print("""buttons.py - Detect which button has been pressed
 
 This example should demonstrate how to:
- 1. set up RPi.GPIO to read buttons,
+ 1. set up gpiod to read buttons,
  2. determine which button has been pressed
 
 Press Ctrl+C to exit!
 
 """)
 
-# Gpio pins for each button (from top to bottom)
-BUTTONS = [5, 6, 16, 24]
+# GPIO pins for each button (from top to bottom)
+# These will vary depending on platform and the ones
+# below should be correct for Raspberry Pi 5.
+# Run "gpioinfo" to find out what yours might be
+BUTTONS = ["PIN29", "PIN31", "PIN36", "PIN18"]
 
 # These correspond to buttons A, B, C and D respectively
-LABELS = ['A', 'B', 'C', 'D']
+LABELS = ["A", "B", "C", "D"]
 
-# Set up RPi.GPIO with the "BCM" numbering scheme
-GPIO.setmode(GPIO.BCM)
+# Create settings for all the input pins, we want them to be inputs
+# with a pull-up and a falling edge detection.
+INPUT = gpiod.LineSettings(direction=Direction.INPUT, bias=Bias.PULL_UP, edge_detection=Edge.FALLING)
 
-# Buttons connect to ground when pressed, so we should set them up
-# with a "PULL UP", which weakly pulls the input signal to 3.3V.
-GPIO.setup(BUTTONS, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+# Find the gpiochip device we need, we'll use
+# gpiodevice for this, since it knows the right device
+# for its supported platforms.
+chip = gpiodevice.find_chip_by_platform()
 
+# Build our config for each pin/line we want to use
+OFFSETS = [chip.line_offset_from_id(id) for id in BUTTONS]
+line_config = dict.fromkeys(OFFSETS, INPUT)
+
+# Request the lines, *whew*
+request = chip.request_lines(consumer="inky7-buttons", config=line_config)
 
 # "handle_button" will be called every time a button is pressed
-# It receives one argument: the associated input pin.
-def handle_button(pin):
-    label = LABELS[BUTTONS.index(pin)]
-    print("Button press detected on pin: {} label: {}".format(pin, label))
+# It receives one argument: the associated gpiod event object.
+def handle_button(event):
+    index = OFFSETS.index(event.line_offset)
+    pin = BUTTONS[index]
+    label = LABELS[index]
+    print(f"Button press detected on pin: {pin} label: {label}")
 
 
-# Loop through out buttons and attach the "handle_button" function to each
-# We're watching the "FALLING" edge (transition from 3.3V to Ground) and
-# picking a generous bouncetime of 250ms to smooth out button presses.
-for pin in BUTTONS:
-    GPIO.add_event_detect(pin, GPIO.FALLING, handle_button, bouncetime=250)
-
-# Finally, since button handlers don't require a "while True" loop,
-# we pause the script to prevent it exiting immediately.
-signal.pause()
+while True:
+    for event in request.read_edge_events():
+        handle_button(event)

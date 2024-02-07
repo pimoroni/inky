@@ -1,32 +1,35 @@
 """Inky e-Ink Display Driver."""
 import time
+from datetime import timedelta
 
+import gpiod
+import gpiodevice
+import numpy
+from gpiod.line import Bias, Direction, Edge, Value
 from PIL import Image
-from . import eeprom, ssd1608
 
-try:
-    import numpy
-except ImportError:
-    raise ImportError('This library requires the numpy module\nInstall with: sudo apt install python-numpy')
+from . import eeprom, ssd1683
 
 WHITE = 0
 BLACK = 1
 RED = YELLOW = 2
 
-RESET_PIN = 27
-BUSY_PIN = 17
-DC_PIN = 22
+RESET_PIN = 27  # PIN13
+BUSY_PIN = 17   # PIN11
+DC_PIN = 22     # PIN15
 
 MOSI_PIN = 10
 SCLK_PIN = 11
-CS0_PIN = 0
+CS0_PIN = 8
+
+SUPPORTED_DISPLAYS = 17, 18, 19
 
 _SPI_CHUNK_SIZE = 4096
 _SPI_COMMAND = 0
 _SPI_DATA = 1
 
 _RESOLUTION = {
-    (250, 122): (136, 250, -90, 0, 6)
+    (400, 300): (400, 300, 0, 0, 0)
 }
 
 
@@ -38,7 +41,7 @@ class Inky:
     RED = 2
     YELLOW = 2
 
-    def __init__(self, resolution=(250, 122), colour='black', cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):  # noqa: E501
+    def __init__(self, resolution=(400, 300), colour="black", cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):  # noqa: E501
         """Initialise an Inky Display.
 
         :param resolution: (width, height) in pixels, default: (400, 300)
@@ -55,39 +58,25 @@ class Inky:
         self._i2c_bus = i2c_bus
 
         if resolution not in _RESOLUTION.keys():
-            raise ValueError('Resolution {}x{} not supported!'.format(*resolution))
+            raise ValueError("Resolution {}x{} not supported!".format(*resolution))
 
         self.resolution = resolution
         self.width, self.height = resolution
         self.cols, self.rows, self.rotation, self.offset_x, self.offset_y = _RESOLUTION[resolution]
 
-        if colour not in ('red', 'black', 'yellow'):
-            raise ValueError('Colour {} is not supported!'.format(colour))
+        if colour not in ("red", "black", "yellow"):
+            raise ValueError("Colour {} is not supported!".format(colour))
 
         self.colour = colour
         self.eeprom = eeprom.read_eeprom(i2c_bus=i2c_bus)
         self.lut = colour
 
-        # The EEPROM is used to disambiguate the variants of wHAT and pHAT
-        # 1   Red pHAT (High-Temp)
-        # 2   Yellow wHAT (1_E)
-        # 3   Black wHAT (1_E)
-        # 4   Black pHAT (Normal)
-        # 5   Yellow pHAT (DEP0213YNS75AFICP)
-        # 6   Red wHAT (Regular)
-        # 7   Red wHAT (High-Temp)
-        # 8   Red wHAT (DEPG0420RWS19AF0HP)
-        # 10  BW pHAT (ssd1608) (DEPG0213BNS800F13CP)
-        # 11  Red pHAT (ssd1608)
-        # 12  Yellow pHAT (ssd1608)
         if self.eeprom is not None:
-            # Only support new-style variants
-            if self.eeprom.display_variant not in (10, 11, 12):
-                raise RuntimeError('This driver is not compatible with your board.')
+            # Only support SSD1683 variants
+            if self.eeprom.display_variant not in SUPPORTED_DISPLAYS:
+                raise RuntimeError("This driver is not compatible with your board.")
             if self.eeprom.width != self.width or self.eeprom.height != self.height:
-                pass
-                # TODO flash correct heights to new EEPROMs
-                # raise ValueError('Supplied width/height do not match Inky: {}x{}'.format(self.eeprom.width, self.eeprom.height))
+                raise ValueError("Supplied width/height do not match Inky: {}x{}".format(self.eeprom.width, self.eeprom.height))
 
         self.buf = numpy.zeros((self.cols, self.rows), dtype=numpy.uint8)
 
@@ -97,6 +86,10 @@ class Inky:
         self.reset_pin = reset_pin
         self.busy_pin = busy_pin
         self.cs_pin = cs_pin
+        try:
+            self.cs_channel = [8, 7].index(cs_pin)
+        except ValueError:
+            self.cs_channel = 0
         self.h_flip = h_flip
         self.v_flip = v_flip
 
@@ -104,17 +97,17 @@ class Inky:
         self._gpio_setup = False
 
         self._luts = {
-            'black': [
+            "black": [
                 0x02, 0x02, 0x01, 0x11, 0x12, 0x12, 0x22, 0x22, 0x66, 0x69,
                 0x69, 0x59, 0x58, 0x99, 0x99, 0x88, 0x00, 0x00, 0x00, 0x00,
                 0xF8, 0xB4, 0x13, 0x51, 0x35, 0x51, 0x51, 0x19, 0x01, 0x00
             ],
-            'red': [
+            "red": [
                 0x02, 0x02, 0x01, 0x11, 0x12, 0x12, 0x22, 0x22, 0x66, 0x69,
                 0x69, 0x59, 0x58, 0x99, 0x99, 0x88, 0x00, 0x00, 0x00, 0x00,
                 0xF8, 0xB4, 0x13, 0x51, 0x35, 0x51, 0x51, 0x19, 0x01, 0x00
             ],
-            'yellow': [
+            "yellow": [
                 0x02, 0x02, 0x01, 0x11, 0x12, 0x12, 0x22, 0x22, 0x66, 0x69,
                 0x69, 0x59, 0x58, 0x99, 0x99, 0x88, 0x00, 0x00, 0x00, 0x00,
                 0xF8, 0xB4, 0x13, 0x51, 0x35, 0x51, 0x51, 0x19, 0x01, 0x00
@@ -125,42 +118,53 @@ class Inky:
         """Set up Inky GPIO and reset display."""
         if not self._gpio_setup:
             if self._gpio is None:
-                try:
-                    import RPi.GPIO as GPIO
-                    self._gpio = GPIO
-                except ImportError:
-                    raise ImportError('This library requires the RPi.GPIO module\nInstall with: sudo apt install python-rpi.gpio')
-            self._gpio.setmode(self._gpio.BCM)
-            self._gpio.setwarnings(False)
-            self._gpio.setup(self.dc_pin, self._gpio.OUT, initial=self._gpio.LOW, pull_up_down=self._gpio.PUD_OFF)
-            self._gpio.setup(self.reset_pin, self._gpio.OUT, initial=self._gpio.HIGH, pull_up_down=self._gpio.PUD_OFF)
-            self._gpio.setup(self.busy_pin, self._gpio.IN, pull_up_down=self._gpio.PUD_OFF)
+                gpiochip = gpiodevice.find_chip_by_platform()
+                gpiodevice.friendly_errors = True
+                if gpiodevice.check_pins_available(gpiochip, {
+                        "Chip Select": self.cs_pin,
+                        "Data/Command": self.dc_pin,
+                        "Reset": self.reset_pin,
+                        "Busy": self.busy_pin
+                    }):
+                    self.cs_pin = gpiochip.line_offset_from_id(self.cs_pin)
+                    self.dc_pin = gpiochip.line_offset_from_id(self.dc_pin)
+                    self.reset_pin = gpiochip.line_offset_from_id(self.reset_pin)
+                    self.busy_pin = gpiochip.line_offset_from_id(self.busy_pin)
+
+                    self._gpio = gpiochip.request_lines(consumer="inky", config={
+                        self.cs_pin: gpiod.LineSettings(direction=Direction.OUTPUT, output_value=Value.INACTIVE, bias=Bias.DISABLED),
+                        self.dc_pin: gpiod.LineSettings(direction=Direction.OUTPUT, output_value=Value.INACTIVE, bias=Bias.DISABLED),
+                        self.reset_pin: gpiod.LineSettings(direction=Direction.OUTPUT, output_value=Value.ACTIVE, bias=Bias.DISABLED),
+                        self.busy_pin: gpiod.LineSettings(direction=Direction.INPUT, edge_detection=Edge.FALLING, bias=Bias.DISABLED)
+                    })
 
             if self._spi_bus is None:
                 import spidev
+
                 self._spi_bus = spidev.SpiDev()
 
-            self._spi_bus.open(0, self.cs_pin)
-            self._spi_bus.max_speed_hz = 488000
+            self._spi_bus.open(0, self.cs_channel)
+            self._spi_bus.max_speed_hz = 10000000  # Should be good for 20MHz according to datasheet
 
             self._gpio_setup = True
 
-        self._gpio.output(self.reset_pin, self._gpio.LOW)
+        self._gpio.set_value(self.reset_pin, Value.INACTIVE)
         time.sleep(0.5)
-        self._gpio.output(self.reset_pin, self._gpio.HIGH)
+        self._gpio.set_value(self.reset_pin, Value.ACTIVE)
         time.sleep(0.5)
 
         self._send_command(0x12)  # Soft Reset
-        time.sleep(1.0)
+        time.sleep(1.0)  # Required, or we'll miss buf_a (black)
         self._busy_wait()
 
-    def _busy_wait(self, timeout=5.0):
+    def _busy_wait(self, timeout=30.0):
         """Wait for busy/wait pin."""
-        t_start = time.time()
-        while self._gpio.input(self.busy_pin):
-            time.sleep(0.01)
-            if time.time() - t_start >= timeout:
+        if self._gpio.get_value(self.busy_pin) == Value.ACTIVE:
+            event = self._gpio.wait_edge_events(timedelta(seconds=timeout))
+            if not event:
                 raise RuntimeError("Timeout waiting for busy signal to clear.")
+            for event in self._gpio.read_edge_events():
+                pass
 
     def _update(self, buf_a, buf_b, busy_wait=True):
         """Update display.
@@ -173,47 +177,47 @@ class Inky:
         """
         self.setup()
 
-        self._send_command(ssd1608.DRIVER_CONTROL, [self.rows - 1, (self.rows - 1) >> 8, 0x00])
+        self._send_command(ssd1683.DRIVER_CONTROL, [self.rows - 1, (self.rows - 1) >> 8, 0x00])
         # Set dummy line period
-        self._send_command(ssd1608.WRITE_DUMMY, [0x1B])
+        self._send_command(ssd1683.WRITE_DUMMY, [0x1B])
         # Set Line Width
-        self._send_command(ssd1608.WRITE_GATELINE, [0x0B])
-        # Data entry squence (scan direction leftward and downward)
-        self._send_command(ssd1608.DATA_MODE, [0x03])
+        self._send_command(ssd1683.WRITE_GATELINE, [0x0B])
+        # Data entry sequence (scan direction leftward and downward)
+        self._send_command(ssd1683.DATA_MODE, [0x03])
         # Set ram X start and end position
         xposBuf = [0x00, self.cols // 8 - 1]
-        self._send_command(ssd1608.SET_RAMXPOS, xposBuf)
+        self._send_command(ssd1683.SET_RAMXPOS, xposBuf)
         # Set ram Y start and end position
         yposBuf = [0x00, 0x00, (self.rows - 1) & 0xFF, (self.rows - 1) >> 8]
-        self._send_command(ssd1608.SET_RAMYPOS, yposBuf)
+        self._send_command(ssd1683.SET_RAMYPOS, yposBuf)
         # VCOM Voltage
-        self._send_command(ssd1608.WRITE_VCOM, [0x70])
+        self._send_command(ssd1683.WRITE_VCOM, [0x70])
         # Write LUT DATA
-        self._send_command(ssd1608.WRITE_LUT, self._luts[self.lut])
+        # self._send_command(ssd1683.WRITE_LUT, self._luts[self.lut])
 
         if self.border_colour == self.BLACK:
-            self._send_command(ssd1608.WRITE_BORDER, 0b00000000)
+            self._send_command(ssd1683.WRITE_BORDER, 0b00000000)
             # GS Transition + Waveform 00 + GSA 0 + GSB 0
-        elif self.border_colour == self.RED and self.colour == 'red':
-            self._send_command(ssd1608.WRITE_BORDER, 0b00000110)
+        elif self.border_colour == self.RED and self.colour == "red":
+            self._send_command(ssd1683.WRITE_BORDER, 0b00000110)
             # GS Transition + Waveform 01 + GSA 1 + GSB 0
-        elif self.border_colour == self.YELLOW and self.colour == 'yellow':
-            self._send_command(ssd1608.WRITE_BORDER, 0b00001111)
+        elif self.border_colour == self.YELLOW and self.colour == "yellow":
+            self._send_command(ssd1683.WRITE_BORDER, 0b00001111)
             # GS Transition + Waveform 11 + GSA 1 + GSB 1
         elif self.border_colour == self.WHITE:
-            self._send_command(ssd1608.WRITE_BORDER, 0b00000001)
+            self._send_command(ssd1683.WRITE_BORDER, 0b00000001)
             # GS Transition + Waveform 00 + GSA 0 + GSB 1
 
         # Set RAM address to 0, 0
-        self._send_command(ssd1608.SET_RAMXCOUNT, [0x00])
-        self._send_command(ssd1608.SET_RAMYCOUNT, [0x00, 0x00])
+        self._send_command(ssd1683.SET_RAMXCOUNT, [0x00])
+        self._send_command(ssd1683.SET_RAMYCOUNT, [0x00, 0x00])
 
-        for data in ((ssd1608.WRITE_RAM, buf_a), (ssd1608.WRITE_ALTRAM, buf_b)):
+        for data in ((ssd1683.WRITE_RAM, buf_a), (ssd1683.WRITE_ALTRAM, buf_b)):
             cmd, buf = data
             self._send_command(cmd, buf)
 
         self._busy_wait()
-        self._send_command(ssd1608.MASTER_ACTIVATE)
+        self._send_command(ssd1683.MASTER_ACTIVATE)
 
     def set_pixel(self, x, y, v):
         """Set a single pixel.
@@ -255,9 +259,21 @@ class Inky:
 
     def set_image(self, image):
         """Copy an image to the display."""
-        canvas = Image.new("P", (self.rows, self.cols))
-        canvas.paste(image, (self.offset_x, self.offset_y))
-        self.buf = numpy.array(canvas, dtype=numpy.uint8).reshape((self.cols, self.rows))
+        if not image.mode == "P":
+            palette_image = Image.new("P", (1, 1))
+            r, g, b = 0, 0, 0
+            if self.colour == "red":
+                r = 255
+            if self.colour == "yellow":
+                r = g = 255
+            palette_image.putpalette([255, 255, 255, 0, 0, 0, r, g, b] + [0, 0, 0] * 252)
+            image.load()
+            image = image.im.convert("P", True, palette_image.im)
+
+        canvas = Image.new("P", (self.cols, self.rows))
+        width, height = image.size
+        canvas.paste(image, (self.offset_x, self.offset_y, width, height))
+        self.buf = numpy.array(canvas, dtype=numpy.uint8).reshape((self.rows, self.cols))
 
     def _spi_write(self, dc, values):
         """Write values over SPI.
@@ -266,13 +282,17 @@ class Inky:
         :param values: list of values to write
 
         """
-        self._gpio.output(self.dc_pin, dc)
+        self._gpio.set_value(self.cs_pin, Value.INACTIVE)
+        self._gpio.set_value(self.dc_pin, Value.ACTIVE if dc else Value.INACTIVE)
+
         try:
             self._spi_bus.xfer3(values)
         except AttributeError:
             for x in range(((len(values) - 1) // _SPI_CHUNK_SIZE) + 1):
                 offset = x * _SPI_CHUNK_SIZE
                 self._spi_bus.xfer(values[offset:offset + _SPI_CHUNK_SIZE])
+
+        self._gpio.set_value(self.cs_pin, Value.ACTIVE)
 
     def _send_command(self, command, data=None):
         """Send command over SPI.

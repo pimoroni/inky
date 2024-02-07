@@ -1,12 +1,12 @@
 """Automatic Inky setup from i2c EEPROM."""
-from .phat import InkyPHAT, InkyPHAT_SSD1608  # noqa: F401
-from .what import InkyWHAT                    # noqa: F401
-from .inky_uc8159 import Inky as InkyUC8159   # noqa: F401
-from .inky_ssd1683 import Inky as InkyWHAT_SSD1683  # noqa: F401
-from .inky_ac073tc1a import Inky as InkyAC073TC1A  # noqa: F401
-from . import eeprom
 import argparse
 
+from . import eeprom
+from .inky_ac073tc1a import Inky as InkyAC073TC1A  # noqa: F401
+from .inky_ssd1683 import Inky as InkyWHAT_SSD1683  # noqa: F401
+from .inky_uc8159 import Inky as InkyUC8159  # noqa: F401
+from .phat import InkyPHAT, InkyPHAT_SSD1608  # noqa: F401
+from .what import InkyWHAT  # noqa: F401
 
 DISPLAY_TYPES = ["what", "phat", "phatssd1608", "impressions", "7colour", "whatssd1683", "impressions73"]
 DISPLAY_COLORS = ["red", "black", "yellow"]
@@ -39,9 +39,9 @@ def auto(i2c_bus=None, ask_user=False, verbose=False):
         if verbose:
             print("Failed to detect an Inky board. Trying --type/--colour arguments instead...\n")
         parser = argparse.ArgumentParser()
-        parser.add_argument('--simulate', '-s', action='store_true', default=False, help="Simulate Inky display")
-        parser.add_argument('--type', '-t', type=str, required=True, choices=DISPLAY_TYPES, help="Type of display")
-        parser.add_argument('--colour', '-c', type=str, required=False, choices=DISPLAY_COLORS, help="Display colour")
+        parser.add_argument("--simulate", "-s", action="store_true", default=False, help="Simulate Inky display")
+        parser.add_argument("--type", "-t", type=str, required=True, choices=DISPLAY_TYPES, help="Type of display")
+        parser.add_argument("--colour", "-c", type=str, required=False, choices=DISPLAY_COLORS, help="Display colour")
         args, _ = parser.parse_known_args()
         if args.simulate:
             cls = None

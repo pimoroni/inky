@@ -1,18 +1,19 @@
 """Inky e-Ink Display Driver."""
 import time
 import warnings
+from datetime import timedelta
 
-try:
-    from PIL import Image
-except ImportError:
-    Image = None
+import gpiod
+import gpiodevice
+from gpiod.line import Direction, Edge, Value
+from PIL import Image
 
 from . import eeprom
 
 try:
     import numpy
 except ImportError:
-    raise ImportError('This library requires the numpy module\nInstall with: sudo apt install python-numpy')
+    raise ImportError("This library requires the numpy module\nInstall with: sudo apt install python-numpy")
 
 BLACK = 0
 WHITE = 1
@@ -23,9 +24,9 @@ YELLOW = 5
 ORANGE = 6
 CLEAN = 7
 
-RESET_PIN = 27
-BUSY_PIN = 17
-DC_PIN = 22
+RESET_PIN = 27  # PIN13
+BUSY_PIN = 17   # PIN11
+DC_PIN = 22     # PIN15
 
 MOSI_PIN = 10
 SCLK_PIN = 11
@@ -115,7 +116,7 @@ class Inky:
         [255, 255, 255]   # Clear
     ]
 
-    def __init__(self, resolution=None, colour='multi', cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):  # noqa: E501
+    def __init__(self, resolution=None, colour="multi", cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):  # noqa: E501
         """Initialise an Inky Display.
 
         :param resolution: (width, height) in pixels, default: (600, 448)
@@ -141,15 +142,15 @@ class Inky:
                 resolution = _RESOLUTION_7_3_INCH
 
         if resolution not in _RESOLUTION.keys():
-            raise ValueError('Resolution {}x{} not supported!'.format(*resolution))
+            raise ValueError("Resolution {}x{} not supported!".format(*resolution))
 
         self.resolution = resolution
         self.width, self.height = resolution
         self.border_colour = WHITE
         self.cols, self.rows, self.rotation, self.offset_x, self.offset_y, self.resolution_setting = _RESOLUTION[resolution]
 
-        if colour not in ('multi'):
-            raise ValueError('Colour {} is not supported!'.format(colour))
+        if colour not in ("multi"):
+            raise ValueError("Colour {} is not supported!".format(colour))
 
         self.colour = colour
         self.lut = colour
@@ -172,56 +173,67 @@ class Inky:
 
         self._luts = None
 
-    def _palette_blend(self, saturation, dtype='uint8'):
+    def _palette_blend(self, saturation, dtype="uint8"):
         saturation = float(saturation)
         palette = []
         for i in range(7):
             rs, gs, bs = [c * saturation for c in self.SATURATED_PALETTE[i]]
             rd, gd, bd = [c * (1.0 - saturation) for c in self.DESATURATED_PALETTE[i]]
-            if dtype == 'uint8':
+            if dtype == "uint8":
                 palette += [int(rs + rd), int(gs + gd), int(bs + bd)]
-            if dtype == 'uint24':
+            if dtype == "uint24":
                 palette += [(int(rs + rd) << 16) | (int(gs + gd) << 8) | int(bs + bd)]
-        if dtype == 'uint8':
+        if dtype == "uint8":
             palette += [255, 255, 255]
-        if dtype == 'uint24':
-            palette += [0xffffff]
+        if dtype == "uint24":
+            palette += [0xFFFFFF]
         return palette
 
     def setup(self):
         """Set up Inky GPIO and reset display."""
         if not self._gpio_setup:
             if self._gpio is None:
-                try:
-                    import RPi.GPIO as GPIO
-                    self._gpio = GPIO
-                except ImportError:
-                    raise ImportError('This library requires the RPi.GPIO module\nInstall with: sudo apt install python-rpi.gpio')
-            self._gpio.setmode(self._gpio.BCM)
-            self._gpio.setwarnings(False)
-            self._gpio.setup(self.cs_pin, self._gpio.OUT)
-            self._gpio.setup(self.dc_pin, self._gpio.OUT, initial=self._gpio.LOW, pull_up_down=self._gpio.PUD_OFF)
-            self._gpio.setup(self.reset_pin, self._gpio.OUT, initial=self._gpio.HIGH, pull_up_down=self._gpio.PUD_OFF)
-            self._gpio.setup(self.busy_pin, self._gpio.IN, pull_up_down=self._gpio.PUD_OFF)
+                gpiochip = gpiodevice.find_chip_by_platform()
+                gpiodevice.friendly_errors = True
+                if gpiodevice.check_pins_available(gpiochip, {
+                        "Chip Select": self.cs_pin,
+                        "Data/Command": self.dc_pin,
+                        "Reset": self.reset_pin,
+                        "Busy": self.busy_pin
+                    }):
+                    self.cs_pin = gpiochip.line_offset_from_id(self.cs_pin)
+                    self.dc_pin = gpiochip.line_offset_from_id(self.dc_pin)
+                    self.reset_pin = gpiochip.line_offset_from_id(self.reset_pin)
+                    self.busy_pin = gpiochip.line_offset_from_id(self.busy_pin)
+
+                    self._gpio = gpiochip.request_lines(consumer="inky", config={
+                        self.cs_pin: gpiod.LineSettings(direction=Direction.OUTPUT, output_value=Value.ACTIVE),
+                        self.dc_pin: gpiod.LineSettings(direction=Direction.OUTPUT, output_value=Value.INACTIVE),
+                        self.reset_pin: gpiod.LineSettings(direction=Direction.OUTPUT, output_value=Value.ACTIVE),
+                        self.busy_pin: gpiod.LineSettings(direction=Direction.INPUT, edge_detection=Edge.RISING, debounce_period=timedelta(milliseconds=10))
+                    })
 
             if self._spi_bus is None:
                 import spidev
                 self._spi_bus = spidev.SpiDev()
 
             self._spi_bus.open(0, self.cs_channel)
-            self._spi_bus.no_cs = True
+            try:
+                self._spi_bus.no_cs = True
+            except OSError:
+                warnings.warn("SPI: Cannot disable chip-select!")
             self._spi_bus.max_speed_hz = 5000000
 
             self._gpio_setup = True
 
-        self._gpio.output(self.reset_pin, self._gpio.LOW)
+        self._gpio.set_value(self.reset_pin, Value.INACTIVE)
         time.sleep(0.1)
-        self._gpio.output(self.reset_pin, self._gpio.HIGH)
+        self._gpio.set_value(self.reset_pin, Value.ACTIVE)
         time.sleep(0.1)
 
-        self._gpio.output(self.reset_pin, self._gpio.LOW)
+        self._gpio.set_value(self.reset_pin, Value.INACTIVE)
         time.sleep(0.1)
-        self._gpio.output(self.reset_pin, self._gpio.HIGH)
+        self._gpio.set_value(self.reset_pin, Value.ACTIVE)
 
         self._busy_wait(1.0)
 
@@ -269,21 +281,18 @@ class Inky:
         # If the busy_pin is *high* (pulled up by host)
         # then assume we're not getting a signal from inky
         # and wait the timeout period to be safe.
-        if self._gpio.input(self.busy_pin):
+        if self._gpio.get_value(self.busy_pin) == Value.ACTIVE:
             warnings.warn("Busy Wait: Held high. Waiting for {:0.2f}s".format(timeout))
             time.sleep(timeout)
             return
 
-        # If the busy_pin is *low* (pulled down by inky)
-        # then wait for it to high.
-        t_start = time.time()
-        while not self._gpio.input(self.busy_pin):
-            time.sleep(0.01)
-            if time.time() - t_start >= timeout:
-                warnings.warn("Busy Wait: Timed out after {:0.2f}s".format(time.time() - t_start))
-                return
+        event = self._gpio.wait_edge_events(timedelta(seconds=timeout))
+        if not event:
+            warnings.warn(f"Busy Wait: Timed out after {timeout:0.2f}s")
+            return
 
-        # print("Busy_waited",  time.time()-t_start, "out of", timeout, "seconds")
+        for event in self._gpio.read_edge_events():
+            print(timeout, event)
 
     def _update(self, buf):
         """Update display.
@@ -300,11 +309,11 @@ class Inky:
         # TODO there has to be a better way to force the white colour to be used instead of clear...
 
         for i in range(len(buf)):
-            if buf[i] & 0xf == 7:
-                buf[i] = (buf[i] & 0xf0) + 1
+            if buf[i] & 0xF == 7:
+                buf[i] = (buf[i] & 0xF0) + 1
                 # print buf[i]
-            if buf[i] & 0xf0 == 0x70:
-                buf[i] = (buf[i] & 0xf) + 0x10
+            if buf[i] & 0xF0 == 0x70:
+                buf[i] = (buf[i] & 0xF) + 0x10
                 # print buf[i]
 
         self._send_command(AC073TC1_DTM, buf)
@@ -349,7 +358,7 @@ class Inky:
 
         buf = ((buf[::2] << 4) & 0xF0) | (buf[1::2] & 0x0F)
 
-        self._update(buf.astype('uint8').tolist())
+        self._update(buf.astype("uint8").tolist())
 
     def set_border(self, colour):
         """Set the border colour."""
@@ -366,8 +375,6 @@ class Inky:
         if not image.size == (self.width, self.height):
             raise ValueError("Image must be ({}x{}) pixels!".format(self.width, self.height))
         if not image.mode == "P":
-            if Image is None:
-                raise RuntimeError("PIL is required for converting images: sudo apt install python-pil python3-pil")
             palette = self._palette_blend(saturation)
             # Image size doesn't matter since it's just the palette we're using
             palette_image = Image.new("P", (1, 1))
@@ -385,16 +392,16 @@ class Inky:
         :param values: list of values to write
 
         """
-        self._gpio.output(self.cs_pin, 0)
-        self._gpio.output(self.dc_pin, dc)
+        self._gpio.set_value(self.cs_pin, Value.INACTIVE)
+        self._gpio.set_value(self.dc_pin, Value.ACTIVE if dc else Value.INACTIVE)
 
-        if type(values) is str:
+        if isinstance(values, str):
             values = [ord(c) for c in values]
 
         for byte_value in values:
             self._spi_bus.xfer([byte_value])
 
-        self._gpio.output(self.cs_pin, 1)
+        self._gpio.set_value(self.cs_pin, Value.ACTIVE)
 
     def _send_command(self, command, data=None):
         """Send command over SPI.

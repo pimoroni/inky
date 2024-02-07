@@ -5,8 +5,9 @@ import calendar
 import datetime
 import os
 
-from inky.auto import auto
 from PIL import Image, ImageDraw
+
+from inky.auto import auto
 
 print("""Inky pHAT: Calendar
 
@@ -159,7 +160,7 @@ for x in range(cols):
     crop_x = 2 + (16 * x)
 
     # Crop the relevant day name from our text image
-    crop_region = ((crop_x, 0, crop_x + 16, 9))
+    crop_region = (crop_x, 0, crop_x + 16, 9)
     day_mask = text_mask.crop(crop_region)
     img.paste(inky_display.WHITE, (o_x + 4, cal_y + 2), day_mask)
 

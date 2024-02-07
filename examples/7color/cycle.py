@@ -5,7 +5,7 @@ from inky.auto import auto
 
 inky = auto(ask_user=True, verbose=True)
 
-colors = ['Black', 'White', 'Green', 'Blue', 'Red', 'Yellow', 'Orange']
+colors = ["Black", "White", "Green", "Blue", "Red", "Yellow", "Orange"]
 
 for color in range(7):
     print("Color: {}".format(colors[color]))

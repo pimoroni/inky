@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
 import os
-from PIL import Image
-from inky.auto import auto
 
+from PIL import Image
+
+from inky.auto import auto
 
 print("""Inky pHAT/wHAT: Logo
 
@@ -29,24 +30,24 @@ except NotImplementedError:
 
 if inky_display.resolution in ((212, 104), (250, 122)):
     if inky_display.resolution == (250, 122):
-        if inky_display.colour == 'black':
+        if inky_display.colour == "black":
             img = Image.open(os.path.join(PATH, "phat/resources/InkypHAT-250x122-bw.png"))
         else:
             img = Image.open(os.path.join(PATH, "phat/resources/InkypHAT-250x122.png"))
 
     else:
-        if inky_display.colour == 'black':
+        if inky_display.colour == "black":
             img = Image.open(os.path.join(PATH, "phat/resources/InkypHAT-212x104-bw.png"))
         else:
             img = Image.open(os.path.join(PATH, "phat/resources/InkypHAT-212x104.png"))
 
-elif inky_display.resolution in ((400, 300), ):
-    if inky_display.colour == 'black':
+elif inky_display.resolution in ((400, 300),):
+    if inky_display.colour == "black":
         img = Image.open(os.path.join(PATH, "what/resources/InkywHAT-400x300-bw.png"))
     else:
         img = Image.open(os.path.join(PATH, "what/resources/InkywHAT-400x300.png"))
 
-elif inky_display.resolution in ((600, 448), ):
+elif inky_display.resolution in ((600, 448),):
     img = Image.open(os.path.join(PATH, "what/resources/InkywHAT-400x300.png"))
     img = img.resize(inky_display.resolution)
 

@@ -2,14 +2,11 @@
 
 import argparse
 
-from PIL import Image, ImageFont, ImageDraw
 from font_hanken_grotesk import HankenGroteskBold, HankenGroteskMedium
 from font_intuitive import Intuitive
-from inky.auto import auto
+from PIL import Image, ImageDraw, ImageFont
 
-def getsize(font, text):
-    _, _, right, bottom = font.getbbox(text)
-    return (right, bottom)
+from inky.auto import auto
 
 print("""Inky pHAT/wHAT: Hello... my name is:
 
@@ -17,13 +14,17 @@ Use Inky pHAT/wHAT as a personalised name badge!
 
 """)
 
+def getsize(font, text):
+    _, _, right, bottom = font.getbbox(text)
+    return (right, bottom)
+
 try:
     inky_display = auto(ask_user=True, verbose=True)
 except TypeError:
     raise TypeError("You need to update the Inky library to >= v1.1.0")
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--name', '-n', type=str, required=True, help="Your name")
+parser.add_argument("--name", "-n", type=str, required=True, help="Your name")
 args, _ = parser.parse_known_args()
 
 # inky_display.set_rotation(180)

@@ -1,0 +1,39 @@
+name: QA
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    name: linting & spelling
+    runs-on: ubuntu-latest
+    env:
+      TERM: xterm-256color
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python '3,11'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: |
+          make dev-deps
+
+      - name: Run Quality Assurance
+        run: |
+          make qa
+
+      - name: Run Code Checks
+        run: |
+          make check
+
+      - name: Run Bash Code Checks
+        run: |
+          make shellcheck
