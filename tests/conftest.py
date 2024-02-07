@@ -21,10 +21,10 @@ def cleanup():
 
 @pytest.fixture(scope='function', autouse=False)
 def nopath():
-    path = sys.path
+    old_path = sys.path
     sys.path = [path for path in sys.path if not path.startswith("/usr/lib") and not path.startswith("/opt/hostedtoolcache")]
     yield
-    sys.path = path
+    sys.path = old_path
 
 
 @pytest.fixture(scope='function', autouse=False)
@@ -33,10 +33,12 @@ def GPIO():
     gpiod = mock.MagicMock()
     gpiodevice = mock.MagicMock()
     sys.modules['gpiod'] = gpiod
+    sys.modules['gpiod.line'] = gpiod
     sys.modules['gpiodevice'] = gpiodevice
     sys.modules['gpiodevice.platform'] = mock.MagicMock()
     yield gpiod, gpiodevice
     del sys.modules['gpiod']
+    del sys.modules['gpiod.line']
     del sys.modules['gpiodevice']
     del sys.modules['gpiodevice.platform']
 

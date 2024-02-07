@@ -1,7 +1,7 @@
 """EEPROM tests for Inky."""
 
 
-def test_eeprom_7color_5_7_inch(spidev, smbus2_eeprom, PIL):
+def test_eeprom_7color_5_7_inch(GPIO, spidev, smbus2_eeprom, PIL):
     """Test EEPROM for 7color 5.7" Inky."""
     from inky.eeprom import EPDType
     from inky.inky_uc8159 import Inky
@@ -15,7 +15,7 @@ def test_eeprom_7color_5_7_inch(spidev, smbus2_eeprom, PIL):
     assert inky.resolution == (600, 448)
 
 
-def test_eeprom_7color_4_inch(spidev, smbus2_eeprom, PIL):
+def test_eeprom_7color_4_inch(GPIO, spidev, smbus2_eeprom, PIL):
     """Test EEPROM for 7color 4" Inky."""
     from inky.eeprom import EPDType
     from inky.inky_uc8159 import Inky

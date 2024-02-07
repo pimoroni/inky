@@ -30,7 +30,7 @@ DISPLAY_VARIANT = [
 @pytest.mark.parametrize('verbose', [True, False])
 @pytest.mark.parametrize('inky_colour', ['black', 'red', 'yellow', None])
 @pytest.mark.parametrize('inky_type', ['phat', 'what', 'phatssd1608', 'impressions', '7colour', 'whatssd1683'])
-def test_auto_fallback(spidev, smbus2, PIL, inky_type, inky_colour, verbose):
+def test_auto_fallback(GPIO, spidev, smbus2, PIL, inky_type, inky_colour, verbose):
     """Test auto init of 'phat', 'black'."""
     from inky import Inky7Colour, InkyPHAT, InkyPHAT_SSD1608, InkyWHAT, InkyWHAT_SSD1683, auto
 
@@ -61,7 +61,7 @@ def test_auto_fallback(spidev, smbus2, PIL, inky_type, inky_colour, verbose):
 
 
 @pytest.mark.parametrize('inky_display', enumerate(DISPLAY_VARIANT))
-def test_auto(spidev, smbus2_eeprom, PIL, inky_display):
+def test_auto(GPIO, spidev, smbus2_eeprom, PIL, inky_display):
     """Test auto init of 'phat', 'black'."""
     from inky import Inky7Colour, InkyPHAT, InkyPHAT_SSD1608, InkyWHAT, InkyWHAT_SSD1683, auto, eeprom
 
