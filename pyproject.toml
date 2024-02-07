@@ -36,6 +36,7 @@ classifiers = [
 ]
 dependencies = [
     "numpy",
+    "pillow",
     "smbus2",
     "spidev",
     "gpiodevice>=0.0.3"
