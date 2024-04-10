@@ -391,10 +391,7 @@ class Inky:
             image.load()
             image = image.im.convert("P", True, palette_image.im)
 
-        canvas = Image.new("P", (self.rows, self.cols))
-        width, height = image.size
-        canvas.paste(image, (0, 0, width, height))
-        self.buf = numpy.array(canvas, dtype=numpy.uint8).reshape((self.cols, self.rows))
+        self.buf = numpy.array(image, dtype=numpy.uint8).reshape((self.cols, self.rows))
 
     def _spi_write(self, dc, values):
         """Write values over SPI.
