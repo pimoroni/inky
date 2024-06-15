@@ -17,8 +17,15 @@ Press Ctrl+C to exit!
 # GPIO pins for each button (from top to bottom)
 # These will vary depending on platform and the ones
 # below should be correct for Raspberry Pi 5.
-# Run "gpioinfo" to find out what yours might be
-BUTTONS = ["PIN29", "PIN31", "PIN36", "PIN18"]
+# Run "gpioinfo" to find out what yours might be.
+#
+# Raspberry Pi 5 Header pins used by Inky Impression:
+#    PIN29, PIN31, PIN36, PIN18.
+# These header pins correspond to BCM GPIO numbers:
+#    GPIO05, GPIO06, GPIO16, GPIO24.
+# These GPIO numbers are what is used below and not the
+# header pin numbers.
+BUTTONS = [5, 6, 16, 24]
 
 # These correspond to buttons A, B, C and D respectively
 LABELS = ["A", "B", "C", "D"]
