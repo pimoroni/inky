@@ -50,9 +50,9 @@ request = chip.request_lines(consumer="inky7-buttons", config=line_config)
 # It receives one argument: the associated gpiod event object.
 def handle_button(event):
     index = OFFSETS.index(event.line_offset)
-    pin = BUTTONS[index]
+    gpio_number = BUTTONS[index]
     label = LABELS[index]
-    print(f"Button press detected on pin: {pin} label: {label}")
+    print(f"Button press detected on GPIO #{gpio_number} label: {label}")
 
 
 while True:
