@@ -1,7 +1,7 @@
 # Inky
 
-[![Build Status](https://travis-ci.com/pimoroni/inky.svg?branch=master)](https://travis-ci.com/pimoroni/inky)
-[![Coverage Status](https://coveralls.io/repos/github/pimoroni/inky/badge.svg?branch=master)](https://coveralls.io/github/pimoroni/inky?branch=master)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/pimoroni/inky/test.yml?branch=main)](https://github.com/pimoroni/inky/actions/workflows/test.yml)
+[![Coverage Status](https://coveralls.io/repos/github/pimoroni/inky/badge.svg?branch=main)](https://coveralls.io/github/pimoroni/inky?branch=main)
 [![PyPi Package](https://img.shields.io/pypi/v/inky.svg)](https://pypi.python.org/pypi/inky)
 [![Python Versions](https://img.shields.io/pypi/pyversions/inky.svg)](https://pypi.python.org/pypi/inky)
 
@@ -22,23 +22,55 @@ Python library for [Inky pHAT](https://shop.pimoroni.com/products/inky-phat), [I
 
 # Installation
 
-First, make sure you have I2C and SPI enabled in `sudo raspi-config`.
+# Installing
 
-The Python pip package is named inky, on the Raspberry Pi install with:
+We'd recommend using this library with Raspberry Pi OS Bookworm or later. It requires Python ≥3.7.
+
+## Full install (recommended):
+
+We've created an easy installation script that will install all pre-requisites and get you up and running with minimal efforts. To run it, fire up Terminal which you'll find in Menu -> Accessories -> Terminal
+on your Raspberry Pi desktop, as illustrated below:
+
+![Finding the terminal](http://get.pimoroni.com/resources/github-repo-terminal.png)
+
+In the new terminal window type the commands exactly as it appears below (check for typos) and follow the on-screen instructions:
+
+```bash
+git clone https://github.com/pimoroni/inky
+cd inky
+./install.sh
+```
+
+**Note** Libraries will be installed in the "pimoroni" virtual environment, you will need to activate it to run examples:
 
 ```
-pip3 install inky[rpi,example-depends]
+source ~/.virtualenvs/pimoroni/bin/activate
 ```
 
-This will install Inky along with dependencies for the Raspberry Pi, plus fonts used by the examples.
+## Development:
 
-If you want to simulate Inky on your desktop, use:
+If you want to contribute, or like living on the edge of your seat by having the latest code, you can install the development version like so:
 
+```bash
+git clone https://github.com/pimoroni/inky
+cd inky
+./install.sh --unstable
 ```
-pip3 install inky
-```
 
-You may need to use `sudo pip3` or `sudo pip` depending on your environment and Python version.
+## Install stable library from PyPi and configure manually
+
+* Set up a virtual environment: `python3 -m venv --system-site-packages $HOME/.virtualenvs/pimoroni`
+* Switch to the virtual environment: `source ~/.virtualenvs/pimoroni/bin/activate`
+* Install the library: `pip install inky`
+
+In some cases you may need to us `sudo` or install pip with: `sudo apt install python3-pip`.
+
+This will not make any configuration changes, so you may also need to enable:
+
+* i2c: `sudo raspi-config nonint do_i2c 0`
+* spi: `sudo raspi-config nonint do_spi 0`
+
+You can optionally run `sudo raspi-config` or the graphical Raspberry Pi Configuration UI to enable interfaces.
 
 # Usage
 
