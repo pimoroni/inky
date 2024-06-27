@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    name: Python ${{ matrix.python }}
+    name: Install (Python ${{ matrix.python }})
     runs-on: ubuntu-latest
     env:
       TERM: xterm-256color
@@ -35,6 +35,6 @@ jobs:
           chmod +x raspi-config
           echo `pwd` >> $GITHUB_PATH
 
-      - name: Run Tests
+      - name: Run install.sh
         run: |
           ./install.sh --unstable --force

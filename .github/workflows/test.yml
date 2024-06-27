@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    name: Python ${{ matrix.python }}
+    name: Test (Python ${{ matrix.python }})
     runs-on: ubuntu-latest
     env:
       TERM: xterm-256color
@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python }}
         uses: actions/setup-python@v5
