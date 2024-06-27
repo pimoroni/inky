@@ -1,10 +1,10 @@
 [build-system]
-requires = ["hatchling", "hatch-fancy-pypi-readme"]
+requires = ["hatchling", "hatch-fancy-pypi-readme", "hatch-requirements-txt"]
 build-backend = "hatchling.build"
 
 [project]
 name = "inky"
-dynamic = ["version", "readme"]
+dynamic = ["version", "readme", "optional-dependencies"]
 description = "Inky pHAT Driver"
 license = {file = "LICENSE"}
 requires-python = ">= 3.7"
@@ -42,19 +42,8 @@ dependencies = [
     "gpiodevice>=0.0.3"
 ]
 
-[project.optional-dependencies]
-example-depends = [
-    "pillow",
-    "requests",
-    "geocoder",
-    "beautifulsoup4",
-    "font-fredoka-one",
-    "font-source-serif-pro",
-    "font-hanken-grotesk",
-    "font-intuitive"
-]
-rpi-gpio-output = ['RPi.GPIO']
-rpi = ['RPi.GPIO']
+[tool.hatch.metadata.hooks.requirements_txt.optional-dependencies]
+example-depends = ["requirements-examples.txt"]
 
 [project.urls]
 GitHub = "https://www.github.com/pimoroni/inky"
@@ -68,7 +57,8 @@ include = [
     "inky",
     "README.md",
     "CHANGELOG.md",
-    "LICENSE"
+    "LICENSE",
+    "requirements-examples.txt"
 ]
 
 [tool.hatch.build.targets.sdist]

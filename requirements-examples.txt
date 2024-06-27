@@ -1,0 +1,12 @@
+pillow
+requests
+beautifulsoup4
+fonts
+font-source-sans-pro
+font-source-serif-pro
+font-fredoka-one
+font-hanken-grotesk
+font-intuitive
+geocoder
+seaborn
+wikiquotes
