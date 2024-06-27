@@ -22,6 +22,9 @@ endif
 	@echo "deploy:       build and upload to PyPi"
 	@echo "tag:          tag the repository with the current version\n"
 
+version:
+	@hatch version
+
 install:
 	./install.sh --unstable
 
@@ -47,7 +50,7 @@ pytest:
 nopost:
 	@bash check.sh --nopost
 
-tag:
+tag: version
 	git tag -a "v${LIBRARY_VERSION}" -m "Version ${LIBRARY_VERSION}"
 
 build: check

@@ -58,11 +58,6 @@ find_config() {
 		if [ ! -f "$CONFIG_DIR/$CONFIG_FILE" ]; then
 			fatal "Could not find $CONFIG_FILE!"
 		fi
-	else
-		if [ -f "/boot/$CONFIG_FILE" ] && [ ! -L "/boot/$CONFIG_FILE" ]; then
-			warning "Oops! It looks like /boot/$CONFIG_FILE is not a link to $CONFIG_DIR/$CONFIG_FILE"
-			warning "You might want to fix this!"
-		fi
 	fi
 	inform "Using $CONFIG_FILE in $CONFIG_DIR"
 }
@@ -156,7 +151,8 @@ function apt_pkg_install {
 			sudo apt update
 			APT_HAS_UPDATED=true
 		fi
-		sudo apt install -y "$PACKAGES"
+		# shellcheck disable=SC2086
+		sudo apt install -y $PACKAGES
 		check_for_error
 		if [ -f "$UNINSTALLER" ]; then
 			echo "apt uninstall -y $PACKAGES" >> "$UNINSTALLER"
