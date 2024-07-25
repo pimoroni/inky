@@ -192,9 +192,11 @@ class Inky:
     def _palette_blend(self, saturation, dtype='uint8'):
         saturation = float(saturation)
         palette = []
+        saturated_palette = getattr(self, "SATURATED_PALETTE", SATURATED_PALETTE)
+        desaturated_palette = getattr(self, "DESATURATED_PALETTE", DESATURATED_PALETTE)
         for i in range(7):
-            rs, gs, bs = [c * saturation for c in self.SATURATED_PALETTE[i]]
-            rd, gd, bd = [c * (1.0 - saturation) for c in self.DESATURATED_PALETTE[i]]
+            rs, gs, bs = [c * saturation for c in saturated_palette[i]]
+            rd, gd, bd = [c * (1.0 - saturation) for c in desaturated_palette[i]]
             if dtype == 'uint8':
                 palette += [int(rs + rd), int(gs + gd), int(bs + bd)]
             if dtype == 'uint24':

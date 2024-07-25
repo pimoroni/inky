@@ -23,6 +23,28 @@ YELLOW = 5
 ORANGE = 6
 CLEAN = 7
 
+DESATURATED_PALETTE = [
+    [0, 0, 0],        # Black
+    [255, 255, 255],  # White
+    [0, 255, 0],      # Green
+    [0, 0, 255],      # Blue
+    [255, 0, 0],      # Red
+    [255, 255, 0],    # Yellow
+    [255, 140, 0],    # Orange
+    [255, 255, 255]   # Clear
+]
+
+SATURATED_PALETTE = [
+    [0, 0, 0],        # Black
+    [217, 242, 255],  # White
+    [3, 124, 76],     # Green
+    [27, 46, 198],    # Blue
+    [245, 80, 34],    # Red
+    [255, 255, 68],   # Yellow
+    [239, 121, 44],   # Orange
+    [255, 255, 255]   # Clear
+]
+
 RESET_PIN = 27
 BUSY_PIN = 17
 DC_PIN = 22
@@ -175,9 +197,11 @@ class Inky:
     def _palette_blend(self, saturation, dtype='uint8'):
         saturation = float(saturation)
         palette = []
+        saturated_palette = getattr(self, "SATURATED_PALETTE", SATURATED_PALETTE)
+        desaturated_palette = getattr(self, "DESATURATED_PALETTE", DESATURATED_PALETTE)
         for i in range(7):
-            rs, gs, bs = [c * saturation for c in self.SATURATED_PALETTE[i]]
-            rd, gd, bd = [c * (1.0 - saturation) for c in self.DESATURATED_PALETTE[i]]
+            rs, gs, bs = [c * saturation for c in saturated_palette[i]]
+            rd, gd, bd = [c * (1.0 - saturation) for c in desaturated_palette[i]]
             if dtype == 'uint8':
                 palette += [int(rs + rd), int(gs + gd), int(bs + bd)]
             if dtype == 'uint24':
