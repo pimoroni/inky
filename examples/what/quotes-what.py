@@ -4,11 +4,11 @@
 import random
 import sys
 
-from inky.auto import auto
-
-from PIL import Image, ImageFont, ImageDraw
-from font_source_serif_pro import SourceSerifProSemibold
 from font_source_sans_pro import SourceSansProSemibold
+from font_source_serif_pro import SourceSerifProSemibold
+from PIL import Image, ImageDraw, ImageFont
+
+from inky.auto import auto
 
 print("""Inky wHAT: Quotes
 
@@ -96,7 +96,7 @@ people = [
     "Niels Bohr",
     "Nikola Tesla",
     "Rosalind Franklin",
-    "Stephen Hawking"
+    "Stephen Hawking",
 ]
 
 # The amount of padding around the quote. Note that

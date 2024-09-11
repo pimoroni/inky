@@ -1,18 +1,17 @@
 """PIL/Tkinter based simulator for InkyWHAT and InkyWHAT."""
 import numpy
 
-
-from . import inky
-from . import inky_uc8159
+from . import inky, inky_uc8159
 
 
 class InkyMock(inky.Inky):
     """Base simulator class for Inky."""
 
-    def __init__(self, colour, h_flip=False, v_flip=False):
+    def __init__(self, colour, h_flip=False, v_flip=False, resolution=None):
         """Initialise an Inky pHAT Display.
 
         :param colour: one of red, black or yellow, default: black
+        :param resolution: (width, height) in pixels
 
         """
         global tkinter, ImageTk, Image
@@ -20,17 +19,18 @@ class InkyMock(inky.Inky):
         try:
             import tkinter
         except ImportError:
-            raise ImportError('Simulation requires tkinter')
+            raise ImportError("Simulation requires tkinter")
 
         try:
-            from PIL import ImageTk, Image
+            from PIL import Image, ImageTk
         except ImportError:
-            raise ImportError('Simulation requires PIL ImageTk and Image')
+            raise ImportError("Simulation requires PIL ImageTk and Image")
 
-        resolution = (self.WIDTH, self.HEIGHT)
+        if resolution is None:
+            resolution = (self.WIDTH, self.HEIGHT)
 
         if resolution not in inky._RESOLUTION.keys():
-            raise ValueError('Resolution {}x{} not supported!'.format(*resolution))
+            raise ValueError("Resolution {}x{} not supported!".format(*resolution))
 
         self.resolution = resolution
         self.width, self.height = resolution
@@ -38,8 +38,8 @@ class InkyMock(inky.Inky):
 
         self.buf = numpy.zeros((self.height, self.width), dtype=numpy.uint8)
 
-        if colour not in ('red', 'black', 'yellow', 'multi'):
-            raise ValueError('Colour {} is not supported!'.format(colour))
+        if colour not in ("red", "black", "yellow", "multi"):
+            raise ValueError("Colour {} is not supported!".format(colour))
 
         self.colour = colour
 
@@ -68,20 +68,20 @@ class InkyMock(inky.Inky):
         # yellow color value: screen capture from
         # https://www.thoughtsmakethings.com/Pimoroni-Inky-pHAT
 
-        self.c_palette = {'black': bw_inky_palette,
-                          'red': red_inky_palette,
-                          'yellow': ylw_inky_palette,
-                          'multi': impression_palette}
+        self.c_palette = {"black": bw_inky_palette,
+                          "red": red_inky_palette,
+                          "yellow": ylw_inky_palette,
+                          "multi": impression_palette}
 
         self._tk_done = False
         self.tk_root = tkinter.Tk()
-        self.tk_root.title('Inky Preview')
-        self.tk_root.geometry('{}x{}'.format(self.WIDTH, self.HEIGHT))
-        self.tk_root.aspect(self.WIDTH, self.HEIGHT, self.WIDTH, self.HEIGHT)
-        self.tk_root.protocol('WM_DELETE_WINDOW', self._close_window)
+        self.tk_root.title("Inky Preview")
+        self.tk_root.geometry("{}x{}".format(self.width, self.height))
+        self.tk_root.aspect(self.width, self.height, self.width, self.height)
+        self.tk_root.protocol("WM_DELETE_WINDOW", self._close_window)
         self.cv = None
-        self.cvh = self.HEIGHT
-        self.cvw = self.WIDTH
+        self.cvh = self.height
+        self.cvw = self.width
 
     def wait_for_window_close(self):
         """Wait until the Tkinter window has closed."""
@@ -103,7 +103,7 @@ class InkyMock(inky.Inky):
         self.cv.config(width=self.cvw, height=self.cvh)
         image = self.disp_img_copy.resize([self.cvw, self.cvh])
         self.photo = ImageTk.PhotoImage(image)
-        self.cv.itemconfig(self.cvhandle, image=self.photo, anchor='nw')
+        self.cv.itemconfig(self.cvhandle, image=self.photo, anchor="nw")
         self.tk_root.update()
 
     def _send_command(self, command, data=None):
@@ -113,17 +113,17 @@ class InkyMock(inky.Inky):
         pass
 
     def _display(self, region):
-        im = Image.fromarray(region, 'P')
+        im = Image.fromarray(region, "P")
         im.putpalette(self.c_palette[self.colour])
 
         self.disp_img_copy = im.copy()  # can be changed due to window resizing, so copy
         image = self.disp_img_copy.resize([self.cvw, self.cvh])
         self.photo = ImageTk.PhotoImage(image)
         if self.cv is None:
-            self.cv = tkinter.Canvas(self.tk_root, width=self.WIDTH, height=self.HEIGHT)
-        self.cv.pack(side='top', fill='both', expand='yes')
-        self.cvhandle = self.cv.create_image(0, 0, image=self.photo, anchor='nw')
-        self.cv.bind('<Configure>', self.resize)
+            self.cv = tkinter.Canvas(self.tk_root, width=self.width, height=self.height)
+        self.cv.pack(side="top", fill="both", expand="yes")
+        self.cvhandle = self.cv.create_image(0, 0, image=self.photo, anchor="nw")
+        self.cv.bind("<Configure>", self.resize)
         self.tk_root.update()
 
     def show(self, busy_wait=True):
@@ -132,7 +132,7 @@ class InkyMock(inky.Inky):
         :param busy_wait: Ignored. Updates are simulated and instant.
 
         """
-        print('>> Simulating {} {}x{}...'.format(self.colour, self.WIDTH, self.HEIGHT))
+        print(">> Simulating {} {}x{}...".format(self.colour, self.width, self.height))
 
         region = self.buf
 
@@ -236,16 +236,20 @@ class InkyMockImpression(InkyMock):
         [177, 106, 73],
         [255, 255, 255]]
 
-    def __init__(self):
-        """Initialize a new mock Inky Impression."""
-        InkyMock.__init__(self, 'multi')
+    def __init__(self, resolution=None):
+        """Initialize a new mock Inky Impression.
+
+        :param resolution: (width, height) in pixels, default: (600, 448)
+
+        """
+        InkyMock.__init__(self, "multi", resolution=resolution)
 
     def _simulate(self, region):
         self._display(region)
 
     def set_pixel(self, x, y, v):
         """Set a single pixel on the display."""
-        self.buf[y][x] = v & 0xf
+        self.buf[y][x] = v & 0xF
 
     def set_image(self, image, saturation=0.5):
         """Copy an image to the display.

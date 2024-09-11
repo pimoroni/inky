@@ -2,14 +2,15 @@
 # -*- coding: utf-8 -*-
 
 import glob
+import json
 import os
 import time
-import json
 from sys import exit
 
 from font_fredoka_one import FredokaOne
-from inky.auto import auto
 from PIL import Image, ImageDraw, ImageFont
+
+from inky.auto import auto
 
 """
 To run this example on Python 2.x you should:

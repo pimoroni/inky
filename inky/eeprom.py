@@ -5,47 +5,46 @@
 import datetime
 import struct
 
-
 EEP_ADDRESS = 0x50
 EEP_WP = 12
 
 
 DISPLAY_VARIANT = [
     None,
-    'Red pHAT (High-Temp)',
-    'Yellow wHAT',
-    'Black wHAT',
-    'Black pHAT',
-    'Yellow pHAT',
-    'Red wHAT',
-    'Red wHAT (High-Temp)',
-    'Red wHAT',
+    "Red pHAT (High-Temp)",
+    "Yellow wHAT",
+    "Black wHAT",
+    "Black pHAT",
+    "Yellow pHAT",
+    "Red wHAT",
+    "Red wHAT (High-Temp)",
+    "Red wHAT",
     None,
-    'Black pHAT (SSD1608)',
-    'Red pHAT (SSD1608)',
-    'Yellow pHAT (SSD1608)',
+    "Black pHAT (SSD1608)",
+    "Red pHAT (SSD1608)",
+    "Yellow pHAT (SSD1608)",
     None,
-    '7-Colour (UC8159)',
-    '7-Colour 640x400 (UC8159)',
-    '7-Colour 640x400 (UC8159)',
-    'Black wHAT (SSD1683)',
-    'Red wHAT (SSD1683)',
-    'Yellow wHAT (SSD1683)',
-    '7-Colour 800x480 (AC073TC1A)'
+    "7-Colour (UC8159)",
+    "7-Colour 640x400 (UC8159)",
+    "7-Colour 640x400 (UC8159)",
+    "Black wHAT (SSD1683)",
+    "Red wHAT (SSD1683)",
+    "Yellow wHAT (SSD1683)",
+    "7-Colour 800x480 (AC073TC1A)",
 ]
 
 
 class EPDType:
     """Class to represent EPD EEPROM structure."""
 
-    valid_colors = [None, 'black', 'red', 'yellow', None, '7colour']
+    valid_colors = [None, "black", "red", "yellow", None, "7colour"]
 
     def __init__(self, width, height, color, pcb_variant, display_variant, write_time=None):
         """Initialise new EEPROM data structure."""
         self.width = width
         self.height = height
         self.color = color
-        if type(color) == str:
+        if isinstance(color, str):
             self.set_color(color)
         self.pcb_variant = pcb_variant
         self.display_variant = display_variant
@@ -68,7 +67,7 @@ Time: {}""".format(self.width,
     def from_bytes(class_object, data):
         """Initialise new EEPROM data structure from a bytes-like object or list."""
         data = bytearray(data)
-        data = struct.unpack('<HHBBB22p', data)
+        data = struct.unpack("<HHBBB22p", data)
         return class_object(*data)
 
     def update_eeprom_write_time(self):
@@ -77,7 +76,7 @@ Time: {}""".format(self.width,
 
     def encode(self):
         """Return a bytearray representing the EEPROM data structure."""
-        return struct.pack('<HHBBB22p',
+        return struct.pack("<HHBBB22p",
                            self.width,
                            self.height,
                            self.color,
@@ -88,7 +87,7 @@ Time: {}""".format(self.width,
     def to_list(self):
         """Return a list of bytes representing the EEPROM data structure."""
         result = self.encode()
-        if type(result) is bytes:
+        if isinstance(result, bytes):
             return result
         return [ord(c) for c in self.encode()]
 
@@ -97,7 +96,7 @@ Time: {}""".format(self.width,
         try:
             self.color = self.valid_colors.index(color)
         except IndexError:
-            raise ValueError('Invalid colour: {}'.format(color))
+            raise ValueError("Invalid colour: {}".format(color))
 
     def get_color(self):
         """Get the stored colour value."""
@@ -115,16 +114,16 @@ Time: {}""".format(self.width,
 
 
 # Normal Yellow wHAT
-yellow_what_1_E = EPDType(400, 300, color='yellow', pcb_variant=12, display_variant=2)
+yellow_what_1_E = EPDType(400, 300, color="yellow", pcb_variant=12, display_variant=2)
 
 # Normal Black wHAT
-black_what_1_E = EPDType(400, 300, color='black', pcb_variant=12, display_variant=3)
+black_what_1_E = EPDType(400, 300, color="black", pcb_variant=12, display_variant=3)
 
 # Normal Black pHAT
-black_phat_1_E = EPDType(212, 104, color='black', pcb_variant=12, display_variant=4)
+black_phat_1_E = EPDType(212, 104, color="black", pcb_variant=12, display_variant=4)
 
 # Hightemp Red pHAT
-red_small_1_E = EPDType(212, 104, color='red', pcb_variant=12, display_variant=1)
+red_small_1_E = EPDType(212, 104, color="red", pcb_variant=12, display_variant=1)
 
 
 def read_eeprom(i2c_bus=None):
@@ -134,7 +133,7 @@ def read_eeprom(i2c_bus=None):
             try:
                 from smbus2 import SMBus
             except ImportError:
-                raise ImportError('This library requires the smbus2 module\nInstall with: sudo pip install smbus2')
+                raise ImportError("This library requires the smbus2 module\nInstall with: sudo pip install smbus2")
             i2c_bus = SMBus(1)
         i2c_bus.write_i2c_block_data(EEP_ADDRESS, 0x00, [0x00])
         return EPDType.from_bytes(i2c_bus.read_i2c_block_data(EEP_ADDRESS, 0, 29))
@@ -148,6 +147,6 @@ def main(args):
     return 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import sys
     sys.exit(main(sys.argv))

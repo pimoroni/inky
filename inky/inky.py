@@ -1,32 +1,32 @@
 """Inky e-Ink Display Driver."""
-import time
 import struct
+import time
+import warnings
+from datetime import timedelta
+
+import gpiod
+import gpiodevice
+import numpy
+from gpiod.line import Bias, Direction, Edge, Value
+from PIL import Image
 
 from . import eeprom
 
-try:
-    import numpy
-except ImportError:
-    raise ImportError('This library requires the numpy module\nInstall with: sudo apt install python-numpy')
+__version__ = "1.5.0"
 
 # Display colour codes
 WHITE = 0
 BLACK = 1
 RED = YELLOW = 2
 
-# GPIO pins required by BCM number
-RESET_PIN = 27
-BUSY_PIN = 17
-DC_PIN = 22
+RESET_PIN = 27  # PIN13
+BUSY_PIN = 17   # PIN11
+DC_PIN = 22     # PIN15
 
 # In addition the following pins are used for SPI
-# CS_PIN = 8
-# MOSI_PIN = 10
-# SCLK_PIN = 11
-# SCLK_PIN = 11
-
-# SPI channel for device 0
-CS0 = 0
+MOSI_PIN = 10
+SCLK_PIN = 11
+CS0_PIN = 8
 
 _SPI_CHUNK_SIZE = 4096
 _SPI_COMMAND = 0
@@ -52,13 +52,13 @@ class Inky:
     RED = 2
     YELLOW = 2
 
-    def __init__(self, resolution=(400, 300), colour='black', cs_channel=CS0, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False,
+    def __init__(self, resolution=(400, 300), colour="black", cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False,
                  spi_bus=None, i2c_bus=None, gpio=None):
         """Initialise an Inky Display.
 
         :param resolution: Display resolution (width, height) in pixels, default: (400, 300).
         :type resolution: tuple(int, int)
-        :param str colour: One of 'red', 'black' or 'yellow', default: 'black'.
+        :param str colour: One of "red", "black" or "yellow", default: "black".
         :param int cs_channel: Chip-select channel for SPI communication, default: `0`.
         :param int dc_pin: Data/command pin for SPI communication, default: `22`.
         :param int reset_pin: Device reset pin, default: `27`.
@@ -69,21 +69,20 @@ class Inky:
         :type spi_bus: :class:`spidev.SpiDev`
         :param i2c_bus: SMB object. If `None` then :class:`smbus2.SMBus(1)` is used.
         :type i2c_bus: :class:`smbus2.SMBus`
-        :param gpio: GPIO module. If `None` then `RPi.GPIO` is imported. Default: `None`.
-        :type gpio: :class:`RPi.GPIO`
+        :param gpio: deprecated
         """
         self._spi_bus = spi_bus
         self._i2c_bus = i2c_bus
 
         if resolution not in _RESOLUTION.keys():
-            raise ValueError('Resolution {}x{} not supported!'.format(*resolution))
+            raise ValueError("Resolution {}x{} not supported!".format(*resolution))
 
         self.resolution = resolution
         self.width, self.height = resolution
         self.cols, self.rows, self.rotation = _RESOLUTION[resolution]
 
-        if colour not in ('red', 'black', 'yellow'):
-            raise ValueError('Colour {} is not supported!'.format(colour))
+        if colour not in ("red", "black", "yellow"):
+            raise ValueError("Colour {} is not supported!".format(colour))
 
         self.colour = colour
         self.eeprom = eeprom.read_eeprom(i2c_bus=i2c_bus)
@@ -91,9 +90,9 @@ class Inky:
 
         if self.eeprom is not None:
             if self.eeprom.width != self.width or self.eeprom.height != self.height:
-                raise ValueError('Supplied width/height do not match Inky: {}x{}'.format(self.eeprom.width, self.eeprom.height))
-            if self.eeprom.display_variant in (1, 6) and self.eeprom.get_color() == 'red':
-                self.lut = 'red_ht'
+                raise ValueError("Supplied width/height do not match Inky: {}x{}".format(self.eeprom.width, self.eeprom.height))
+            if self.eeprom.display_variant in (1, 6) and self.eeprom.get_color() == "red":
+                self.lut = "red_ht"
 
         self.buf = numpy.zeros((self.height, self.width), dtype=numpy.uint8)
         self.border_colour = 0
@@ -101,7 +100,11 @@ class Inky:
         self.dc_pin = dc_pin
         self.reset_pin = reset_pin
         self.busy_pin = busy_pin
-        self.cs_channel = cs_channel
+        self.cs_pin = cs_pin
+        try:
+            self.cs_channel = [8, 7].index(cs_pin)
+        except ValueError:
+            self.cs_channel = 0
         self.h_flip = h_flip
         self.v_flip = v_flip
 
@@ -158,7 +161,7 @@ class Inky:
 
         """
         self._luts = {
-            'black': [
+            "black": [
                 0b01001000, 0b10100000, 0b00010000, 0b00010000, 0b00010011, 0b00000000, 0b00000000,
                 0b01001000, 0b10100000, 0b10000000, 0b00000000, 0b00000011, 0b00000000, 0b00000000,
                 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
@@ -172,7 +175,7 @@ class Inky:
                 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00,
             ],
-            'red': [
+            "red": [
                 0b01001000, 0b10100000, 0b00010000, 0b00010000, 0b00010011, 0b00000000, 0b00000000,
                 0b01001000, 0b10100000, 0b10000000, 0b00000000, 0b00000011, 0b00000000, 0b00000000,
                 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
@@ -186,7 +189,7 @@ class Inky:
                 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00
             ],
-            'red_ht': [
+            "red_ht": [
                 0b01001000, 0b10100000, 0b00010000, 0b00010000, 0b00010011, 0b00010000, 0b00010000,
                 0b01001000, 0b10100000, 0b10000000, 0b00000000, 0b00000011, 0b10000000, 0b10000000,
                 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
@@ -200,7 +203,7 @@ class Inky:
                 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00
             ],
-            'yellow': [
+            "yellow": [
                 0b11111010, 0b10010100, 0b10001100, 0b11000000, 0b11010000, 0b00000000, 0b00000000,
                 0b11111010, 0b10010100, 0b00101100, 0b10000000, 0b11100000, 0b00000000, 0b00000000,
                 0b11111010, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
@@ -220,38 +223,55 @@ class Inky:
         """Set up Inky GPIO and reset display."""
         if not self._gpio_setup:
             if self._gpio is None:
-                try:
-                    import RPi.GPIO as GPIO
-                    self._gpio = GPIO
-                except ImportError:
-                    raise ImportError('This library requires the RPi.GPIO module\nInstall with: sudo apt install python-rpi.gpio')
-            self._gpio.setmode(self._gpio.BCM)
-            self._gpio.setwarnings(False)
-            self._gpio.setup(self.dc_pin, self._gpio.OUT, initial=self._gpio.LOW, pull_up_down=self._gpio.PUD_OFF)
-            self._gpio.setup(self.reset_pin, self._gpio.OUT, initial=self._gpio.HIGH, pull_up_down=self._gpio.PUD_OFF)
-            self._gpio.setup(self.busy_pin, self._gpio.IN, pull_up_down=self._gpio.PUD_OFF)
+                gpiochip = gpiodevice.find_chip_by_platform()
+
+                if gpiodevice.check_pins_available(gpiochip, {
+                        "Chip Select": self.cs_pin,
+                        "Data/Command": self.dc_pin,
+                        "Reset": self.reset_pin,
+                        "Busy": self.busy_pin
+                    }):
+                    self.cs_pin = gpiochip.line_offset_from_id(self.cs_pin)
+                    self.dc_pin = gpiochip.line_offset_from_id(self.dc_pin)
+                    self.reset_pin = gpiochip.line_offset_from_id(self.reset_pin)
+                    self.busy_pin = gpiochip.line_offset_from_id(self.busy_pin)
+
+                    self._gpio = gpiochip.request_lines(consumer="inky", config={
+                        self.cs_pin: gpiod.LineSettings(direction=Direction.OUTPUT, output_value=Value.ACTIVE, bias=Bias.DISABLED),
+                        self.dc_pin: gpiod.LineSettings(direction=Direction.OUTPUT, output_value=Value.INACTIVE, bias=Bias.DISABLED),
+                        self.reset_pin: gpiod.LineSettings(direction=Direction.OUTPUT, output_value=Value.ACTIVE, bias=Bias.DISABLED),
+                        self.busy_pin: gpiod.LineSettings(direction=Direction.INPUT, edge_detection=Edge.FALLING, bias=Bias.DISABLED)
+                    })
 
             if self._spi_bus is None:
                 import spidev
                 self._spi_bus = spidev.SpiDev()
 
             self._spi_bus.open(0, self.cs_channel)
+            try:
+                self._spi_bus.no_cs = True
+            except OSError:
+                warnings.warn("SPI: Cannot disable chip-select!")
             self._spi_bus.max_speed_hz = 488000
 
             self._gpio_setup = True
 
-        self._gpio.output(self.reset_pin, self._gpio.LOW)
+        self._gpio.set_value(self.reset_pin, Value.INACTIVE)
         time.sleep(0.1)
-        self._gpio.output(self.reset_pin, self._gpio.HIGH)
+        self._gpio.set_value(self.reset_pin, Value.ACTIVE)
         time.sleep(0.1)
 
         self._send_command(0x12)  # Soft Reset
-        self._busy_wait()
+        self._busy_wait(1.0)
 
-    def _busy_wait(self):
+    def _busy_wait(self, timeout=30.0):
         """Wait for busy/wait pin."""
-        while self._gpio.input(self.busy_pin) != self._gpio.LOW:
-            time.sleep(0.01)
+        if self._gpio.get_value(self.busy_pin) == Value.ACTIVE:
+            event = self._gpio.wait_edge_events(timedelta(seconds=timeout))
+            if not event:
+                raise RuntimeError("Timeout waiting for busy signal to clear.")
+            for event in self._gpio.read_edge_events():
+                pass
 
     def _update(self, buf_a, buf_b, busy_wait=True):
         """Update display.
@@ -262,38 +282,38 @@ class Inky:
         """
         self.setup()
 
-        packed_height = list(struct.pack('<H', self.rows))
+        packed_height = list(struct.pack("<H", self.rows))
 
         if isinstance(packed_height[0], str):
             packed_height = map(ord, packed_height)
 
         self._send_command(0x74, 0x54)  # Set Analog Block Control
-        self._send_command(0x7e, 0x3b)  # Set Digital Block Control
+        self._send_command(0x7E, 0x3B)  # Set Digital Block Control
 
         self._send_command(0x01, packed_height + [0x00])  # Gate setting
 
         self._send_command(0x03, 0x17)  # Gate Driving Voltage
         self._send_command(0x04, [0x41, 0xAC, 0x32])  # Source Driving Voltage
 
-        self._send_command(0x3a, 0x07)  # Dummy line period
-        self._send_command(0x3b, 0x04)  # Gate line width
+        self._send_command(0x3A, 0x07)  # Dummy line period
+        self._send_command(0x3B, 0x04)  # Gate line width
         self._send_command(0x11, 0x03)  # Data entry mode setting 0x03 = X/Y increment
 
-        self._send_command(0x2c, 0x3c)  # VCOM Register, 0x3c = -1.5v?
+        self._send_command(0x2C, 0x3C)  # VCOM Register, 0x3c = -1.5v?
 
-        self._send_command(0x3c, 0b00000000)
+        self._send_command(0x3C, 0b00000000)
         if self.border_colour == self.BLACK:
-            self._send_command(0x3c, 0b00000000)  # GS Transition Define A + VSS + LUT0
-        elif self.border_colour == self.RED and self.colour == 'red':
-            self._send_command(0x3c, 0b01110011)  # Fix Level Define A + VSH2 + LUT3
-        elif self.border_colour == self.YELLOW and self.colour == 'yellow':
-            self._send_command(0x3c, 0b00110011)  # GS Transition Define A + VSH2 + LUT3
+            self._send_command(0x3C, 0b00000000)  # GS Transition Define A + VSS + LUT0
+        elif self.border_colour == self.RED and self.colour == "red":
+            self._send_command(0x3C, 0b01110011)  # Fix Level Define A + VSH2 + LUT3
+        elif self.border_colour == self.YELLOW and self.colour == "yellow":
+            self._send_command(0x3C, 0b00110011)  # GS Transition Define A + VSH2 + LUT3
         elif self.border_colour == self.WHITE:
-            self._send_command(0x3c, 0b00110001)  # GS Transition Define A + VSH2 + LUT1
+            self._send_command(0x3C, 0b00110001)  # GS Transition Define A + VSH2 + LUT1
 
-        if self.colour == 'yellow':
+        if self.colour == "yellow":
             self._send_command(0x04, [0x07, 0xAC, 0x32])  # Set voltage of VSH and VSL
-        if self.colour == 'red' and self.resolution == (400, 300):
+        if self.colour == "red" and self.resolution == (400, 300):
             self._send_command(0x04, [0x30, 0xAC, 0x22])
 
         self._send_command(0x32, self._luts[self.lut])  # Set LUTs
@@ -304,8 +324,8 @@ class Inky:
         # 0x24 == RAM B/W, 0x26 == RAM Red/Yellow/etc
         for data in ((0x24, buf_a), (0x26, buf_b)):
             cmd, buf = data
-            self._send_command(0x4e, 0x00)  # Set RAM X Pointer Start
-            self._send_command(0x4f, [0x00, 0x00])  # Set RAM Y Pointer Start
+            self._send_command(0x4E, 0x00)  # Set RAM X Pointer Start
+            self._send_command(0x4F, [0x00, 0x00])  # Set RAM Y Pointer Start
             self._send_command(cmd, buf)
 
         self._send_command(0x22, 0xC7)  # Display Update Sequence
@@ -357,16 +377,21 @@ class Inky:
 
     def set_image(self, image):
         """Copy an image to the buffer.
-
-        The dimensions of `image` should match the dimensions of the display being used.
-
-        :param image: Image to copy.
-        :type image: :class:`PIL.Image.Image` or :class:`numpy.ndarray` or list
         """
-        if self.rotation % 180 == 0:
-            self.buf = numpy.array(image, dtype=numpy.uint8).reshape((self.width, self.height))
-        else:
-            self.buf = numpy.array(image, dtype=numpy.uint8).reshape((self.height, self.width))
+        image = image.resize((self.width, self.height))
+
+        if not image.mode == "P":
+            palette_image = Image.new("P", (1, 1))
+            r, g, b = 0, 0, 0
+            if self.colour == "red":
+                r = 255
+            if self.colour == "yellow":
+                r = g = 255
+            palette_image.putpalette([255, 255, 255, 0, 0, 0, r, g, b] + [0, 0, 0] * 252)
+            image.load()
+            image = image.im.convert("P", True, palette_image.im)
+
+        self.buf = numpy.array(image, dtype=numpy.uint8).reshape((self.cols, self.rows))
 
     def _spi_write(self, dc, values):
         """Write values over SPI.
@@ -374,13 +399,16 @@ class Inky:
         :param dc: whether to write as data or command
         :param values: list of values to write
         """
-        self._gpio.output(self.dc_pin, dc)
+        self._gpio.set_value(self.cs_pin, Value.INACTIVE)
+        self._gpio.set_value(self.dc_pin, Value.ACTIVE if dc else Value.INACTIVE)
         try:
             self._spi_bus.xfer3(values)
         except AttributeError:
             for x in range(((len(values) - 1) // _SPI_CHUNK_SIZE) + 1):
                 offset = x * _SPI_CHUNK_SIZE
-                self._spi_bus.xfer(values[offset:offset + _SPI_CHUNK_SIZE])
+                self._spi_bus.xfer(values[offset : offset + _SPI_CHUNK_SIZE])
+
+        self._gpio.set_value(self.cs_pin, Value.ACTIVE)
 
     def _send_command(self, command, data=None):
         """Send command over SPI.

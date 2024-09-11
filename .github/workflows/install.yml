@@ -1,0 +1,40 @@
+name: Install Test
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    name: Install (Python ${{ matrix.python }})
+    runs-on: ubuntu-latest
+    env:
+      TERM: xterm-256color
+    strategy:
+      matrix:
+        python: ['3.9', '3.10', '3.11']
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Stub files & Patch install.sh
+        run: |
+          mkdir -p boot/firmware
+          touch boot/firmware/config.txt
+          sed -i "s|/boot/firmware|`pwd`/boot/firmware|g" install.sh
+          sed -i "s|sudo raspi-config|raspi-config|g" pyproject.toml
+          touch raspi-config
+          chmod +x raspi-config
+          echo `pwd` >> $GITHUB_PATH
+
+      - name: Run install.sh
+        run: |
+          ./install.sh --unstable --force

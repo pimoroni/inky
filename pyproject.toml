@@ -1,0 +1,132 @@
+[build-system]
+requires = ["hatchling", "hatch-fancy-pypi-readme", "hatch-requirements-txt"]
+build-backend = "hatchling.build"
+
+[project]
+name = "inky"
+dynamic = ["version", "readme", "optional-dependencies"]
+description = "Inky pHAT Driver"
+license = {file = "LICENSE"}
+requires-python = ">= 3.7"
+authors = [
+    { name = "Philip Howard", email = "phil@pimoroni.com" },
+]
+maintainers = [
+    { name = "Philip Howard", email = "phil@pimoroni.com" },
+]
+keywords = [
+    "Raspberry Pi",
+    "e-paper",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: System :: Hardware",
+]
+dependencies = [
+    "numpy",
+    "pillow",
+    "smbus2",
+    "spidev",
+    "gpiodevice>=0.0.3"
+]
+
+[tool.hatch.metadata.hooks.requirements_txt.optional-dependencies]
+example-depends = ["requirements-examples.txt"]
+
+[project.urls]
+GitHub = "https://www.github.com/pimoroni/inky"
+Homepage = "https://www.pimoroni.com"
+
+[tool.hatch.version]
+path = "inky/__init__.py"
+
+[tool.hatch.build]
+include = [
+    "inky",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "requirements-examples.txt"
+]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "*"
+]
+exclude = [
+    ".*",
+    "dist"
+]
+
+[tool.hatch.metadata.hooks.fancy-pypi-readme]
+content-type = "text/markdown"
+fragments = [
+  { path = "README.md" },
+  { text = "\n" },
+  { path = "CHANGELOG.md" }
+]
+
+[tool.ruff]
+exclude = [
+    '.tox',
+    '.egg',
+    '.git',
+    '__pycache__',
+    'build',
+    'dist'
+]
+line-length = 200
+
+[tool.codespell]
+skip = """
+./.tox,\
+./.egg,\
+./.git,\
+./__pycache__,\
+./build,\
+./dist.\
+"""
+
+[tool.isort]
+line_length = 200
+
+[tool.black]
+line-length = 200
+
+[tool.check-manifest]
+ignore = [
+    '.stickler.yml',
+    'boilerplate.md',
+    'check.sh',
+    'install.sh',
+    'uninstall.sh',
+    'Makefile',
+    'tox.ini',
+    'tests/*',
+    'examples/*',
+    '.coveragerc',
+    'requirements-dev.txt'
+]
+
+[tool.pimoroni]
+apt_packages = []
+configtxt = [
+    "dtoverlay=i2c1",
+    "dtoverlay=i2c1-pi5",
+    "dtoverlay=spi0-0cs"
+]
+commands = [
+    "sudo raspi-config nonint do_spi 0"
+]
