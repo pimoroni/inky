@@ -1,3 +1,10 @@
+2.0.0
+-----
+
+* Rewrite to gpiod/gpiodevice.
+* Repackage to hatch/pyproject.toml.
+* Breaking: Fixes to chip-select behaviour across all boards
+
 1.5.0
 -----
 
