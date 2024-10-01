@@ -22,8 +22,6 @@ Python library for [Inky pHAT](https://shop.pimoroni.com/products/inky-phat), [I
 
 # Installation
 
-# Installing
-
 We'd recommend using this library with Raspberry Pi OS Bookworm or later. It requires Python ≥3.7.
 
 ## Full install (recommended):
@@ -63,14 +61,21 @@ cd inky
 * Switch to the virtual environment: `source ~/.virtualenvs/pimoroni/bin/activate`
 * Install the library: `pip install inky`
 
-In some cases you may need to us `sudo` or install pip with: `sudo apt install python3-pip`.
-
 This will not make any configuration changes, so you may also need to enable:
 
 * i2c: `sudo raspi-config nonint do_i2c 0`
 * spi: `sudo raspi-config nonint do_spi 0`
 
 You can optionally run `sudo raspi-config` or the graphical Raspberry Pi Configuration UI to enable interfaces.
+
+Additionally you may need to disable SPI's chip-select to avoid the error:
+
+```
+Woah there, some pins we need are in use!
+  ⚠️   Chip Select: (line 8, GPIO8) currently claimed by spi0 CS0
+```
+
+This requires the addition of `dtoverlay=spi0-0cs` to `/boot/firmware/config.txt`.
 
 # Usage
 
