@@ -4,7 +4,8 @@ import gpiod
 import gpiodevice
 from gpiod.line import Bias, Direction, Edge
 
-print("""buttons.py - Detect which button has been pressed
+print(
+    """buttons.py - Detect which button has been pressed
 
 This example should demonstrate how to:
  1. set up gpiod to read buttons,
@@ -12,13 +13,21 @@ This example should demonstrate how to:
 
 Press Ctrl+C to exit!
 
-""")
+"""
+)
 
 # GPIO pins for each button (from top to bottom)
 # These will vary depending on platform and the ones
 # below should be correct for Raspberry Pi 5.
-# Run "gpioinfo" to find out what yours might be
-BUTTONS = ["PIN29", "PIN31", "PIN36", "PIN18"]
+# Run "gpioinfo" to find out what yours might be.
+#
+# Raspberry Pi 5 Header pins used by Inky Impression:
+#    PIN29, PIN31, PIN36, PIN18.
+# These header pins correspond to BCM GPIO numbers:
+#    GPIO05, GPIO06, GPIO16, GPIO24.
+# These GPIO numbers are what is used below and not the
+# header pin numbers.
+BUTTONS = [5, 6, 16, 24]
 
 # These correspond to buttons A, B, C and D respectively
 LABELS = ["A", "B", "C", "D"]
@@ -39,13 +48,14 @@ line_config = dict.fromkeys(OFFSETS, INPUT)
 # Request the lines, *whew*
 request = chip.request_lines(consumer="inky7-buttons", config=line_config)
 
+
 # "handle_button" will be called every time a button is pressed
 # It receives one argument: the associated gpiod event object.
 def handle_button(event):
     index = OFFSETS.index(event.line_offset)
-    pin = BUTTONS[index]
+    gpio_number = BUTTONS[index]
     label = LABELS[index]
-    print(f"Button press detected on pin: {pin} label: {label}")
+    print(f"Button press detected on GPIO #{gpio_number} label: {label}")
 
 
 while True:
