@@ -166,6 +166,12 @@ function pip_pkg_install {
 	check_for_error
 }
 
+function pip_requirements_install {
+	# A null Keyring prevents pip stalling in the background
+	PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring $PYTHON -m pip install -r "$@"
+	check_for_error
+}
+
 while [[ $# -gt 0 ]]; do
 	K="$1"
 	case $K in
