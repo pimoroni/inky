@@ -335,6 +335,15 @@ fi
 
 printf "\n"
 
+if [ -f "requirements-examples.txt" ]; then
+	if confirm "Would you like to install example dependencies?"; then
+		inform "Installing dependencies from requirements-examples.txt..."
+		pip_requirements_install requirements-examples.txt
+	fi
+fi
+
+printf "\n"
+
 # Use pdoc to generate basic documentation from the installed module
 
 if confirm "Would you like to generate documentation?"; then
