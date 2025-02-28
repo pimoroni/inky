@@ -7,24 +7,24 @@
 
 Python library for [Inky pHAT](https://shop.pimoroni.com/products/inky-phat), [Inky wHAT](https://shop.pimoroni.com/products/inky-what) and [Inky Impression](https://shop.pimoroni.com/?q=inky+impression) e-paper displays for Raspberry Pi.
 
-## Inky pHAT
+### Inky pHAT
 
 [Inky pHAT](https://shop.pimoroni.com/products/inky-phat) is a 250x122 pixel e-paper display, available in red/black/white, yellow/black/white and black/white. It's great for nametags and displaying very low frequency information such as a daily calendar or weather overview.
 
 
-## Inky wHAT
+### Inky wHAT
 
 [Inky wHAT](https://shop.pimoroni.com/products/inky-what) is a 400x300 pixel e-paper display available in red/black/white, yellow/black/white and black/white. It's got tons of resolution for detailed daily to-do lists, multi-day weather forecasts, bus timetables and more.
 
-## Inky Impression
+### Inky Impression
 
 [Inky Impression](https://shop.pimoroni.com/?q=inky+impression) is our line of glorious 7 colour eInk displays, available in [4"](https://shop.pimoroni.com/products/inky-impression-4) (640 x 400 pixel) [5.7"](https://shop.pimoroni.com/products/inky-impression-5-7) (600 x 448 pixel) and [7.3"](https://shop.pimoroni.com/products/inky-impression-7-3) (800 x 480 pixel) flavours. They're packed with strong colours and perfect for displaying striking graphics or lots of data.
 
-# Installation
+## Installation
 
 We'd recommend using this library with Raspberry Pi OS Bookworm or later. It requires Python ≥3.7.
 
-## Full install (recommended):
+### Full install (recommended):
 
 We've created an easy installation script that will install all pre-requisites and get you up and running with minimal efforts. To run it, fire up Terminal which you'll find in Menu -> Accessories -> Terminal
 on your Raspberry Pi desktop, as illustrated below:
@@ -45,7 +45,7 @@ cd inky
 source ~/.virtualenvs/pimoroni/bin/activate
 ```
 
-## Development:
+### Development:
 
 If you want to contribute, or like living on the edge of your seat by having the latest code, you can install the development version like so:
 
@@ -55,7 +55,7 @@ cd inky
 ./install.sh --unstable
 ```
 
-## Install stable library from PyPi and configure manually
+### Install stable library from PyPi and configure manually
 
 * Set up a virtual environment: `python3 -m venv --system-site-packages $HOME/.virtualenvs/pimoroni`
 * Switch to the virtual environment: `source ~/.virtualenvs/pimoroni/bin/activate`
@@ -77,11 +77,11 @@ Woah there, some pins we need are in use!
 
 This requires the addition of `dtoverlay=spi0-0cs` to `/boot/firmware/config.txt`.
 
-# Usage
+## Usage
 
 The library should be run with Python 3.
 
-## Auto Setup
+### Auto Setup
 
 Inky can try to automatically identify your board (from the information stored on its EEPROM) and set up accordingly. This is the easiest way to work with recent Inky displays.
 
@@ -97,7 +97,7 @@ display.colour
 display.resolution
 ```
 
-## Manual Setup
+### Manual Setup
 
 If you have an older Inky without an EEPROM, you can specify the type manually. The Inky library contains modules for both the pHAT and wHAT, load the Inky pHAT one as follows:
 
@@ -120,7 +120,7 @@ display = InkyWHAT('red')
 
 Once you've initialised Inky, there are only three methods you need to be concerned with:
 
-## Set Image
+### Set Image
 
 Set a PIL image, numpy array or list to Inky's internal buffer. The image dimensions should match the dimensions of the pHAT or wHAT you're using.
 
@@ -130,7 +130,7 @@ display.set_image(image)
 
 You should use `PIL` to create an image. `PIL` provides an `ImageDraw` module which allow you to draw text, lines and shapes over your image. See: https://pillow.readthedocs.io/en/stable/reference/ImageDraw.html
 
-## Set Border
+### Set Border
 
 Set the border colour of you pHAT or wHAT.
 
@@ -140,7 +140,7 @@ display.set_border(colour)
 
 `colour` should be one of `inky.RED`, `inky.YELLOW`, `inky.WHITE` or `inky.BLACK` with available colours depending on your display type.
 
-## Update The Display
+### Update The Display
 
 Once you've prepared and set your image, and chosen a border colour, you can update your e-ink display with:
 
@@ -148,7 +148,39 @@ Once you've prepared and set your image, and chosen a border colour, you can upd
 display.show()
 ```
 
-
-# Migrating
+## Migrating
 
 If you're migrating code from the old `inkyphat` library you'll find that much of the drawing and image manipulation functions have been removed from Inky. These functions were always supplied by PIL, and the recommended approach is to use PIL to create and prepare your image before setting it to Inky with `set_image()`.
+
+## Troubleshooting
+
+### `ModuleNotFoundError: No module named 'inky'`
+
+Assuming you've run `./install.sh` already, make sure you have your virtual environment active. If you're using the one set up by our installer, that looks like this:
+
+```
+source ~/.virtualenvs/pimoroni/bin/activate
+```
+
+### `ModuleNotFoundError: No module named 'font_hanken_grotesk'`
+
+You're missing some dependencies that the example code needs to run. A list of dependencies can be found [here](https://github.com/pimoroni/inky/blob/main/requirements-examples.txt), and you can install them like this (make sure you have your virtual environment active):
+
+```
+pip install font-hanken-grotesk
+```
+
+### `RuntimeError: No EEPROM detected! You must manually initialise your Inky board.`
+
+Check that I2C and SPI are enabled. You can do this using `sudo raspi-config` - they're under 'Interfacing Options'. You may need to reboot your Pi after you've enabled them (`sudo reboot`).
+
+### `Chip Select: (line 8, GPIO8) currently claimed by spi0 CS0`
+
+Check you have the following line present in your /boot/firmware/config.txt:
+
+```
+dtoverlay=spi0-0cs
+```
+
+You can edit the config file using `sudo nano boot/firmware/config.txt`, and it's Ctrl-X, then 'Y' and Enter to save your changes. You'll need to reboot your Pi after you've made this change (`sudo reboot`)
+
