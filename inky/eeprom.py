@@ -31,7 +31,7 @@ DISPLAY_VARIANT = [
     "Red wHAT (SSD1683)",
     "Yellow wHAT (SSD1683)",
     "7-Colour 800x480 (AC073TC1A)",
-    "Spectra 6 13.3 1200 x 1600 (EL133UF1)",
+    "Spectra 6 13.3 1600 x 1200 (EL133UF1)",
     "Spectra 6 7.3 800 x 480 (E673)"
 ]
 
