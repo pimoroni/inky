@@ -313,7 +313,7 @@ class Inky:
         if self.rotation:
             region = numpy.rot90(region, self.rotation // 90)
 
-        region = numpy.rot90(region, 1)
+        region = numpy.rot90(region, -1)
         buf_a = region[:, :600].flatten()
         buf_b = region[:, 600:].flatten()
 
