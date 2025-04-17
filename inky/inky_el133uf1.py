@@ -83,7 +83,7 @@ EL133UF1_EN_BUF = 0xB6
 EL133UF1_TFT_VCOM_POWER = 0xB1
 EL133UF1_BUCK_BOOST_VDDN = 0xB0
 
-_RESOLUTION_13_3_INCH = (1600, 1200)    # Inky Impression 13"
+_RESOLUTION_13_3_INCH = (1600, 1200)    # Inky Impression 13 (Spectra 6)"
 
 _RESOLUTION = {
     _RESOLUTION_13_3_INCH: (_RESOLUTION_13_3_INCH[0], _RESOLUTION_13_3_INCH[1], 0, 0, 0, 0b01)
@@ -123,7 +123,7 @@ class Inky:
 
     def __init__(self, resolution=None, colour="multi", cs_pin_0=CS0_PIN, cs_pin_1=CS1_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):  # noqa: E501
         """Initialise an Inky Display.
-        :param resolution: (width, height) in pixels, default: (600, 448)
+        :param resolution: (width, height) in pixels, default: (1600, 1200)
         :param colour: one of red, black or yellow, default: black
         :param cs_pin: chip-select pin for SPI communication
         :param dc_pin: data/command pin for SPI communication
@@ -137,7 +137,6 @@ class Inky:
         self.eeprom = eeprom.read_eeprom(i2c_bus=i2c_bus)
 
         # Check for supported display variant and select the correct resolution
-        # Eg: 600x480 and 640x400l
         if resolution is None:
             if self.eeprom is not None and self.eeprom.display_variant == 21:
                 resolution = [_RESOLUTION_13_3_INCH, None, _RESOLUTION_13_3_INCH][self.eeprom.display_variant]
@@ -328,7 +327,7 @@ class Inky:
 
     def set_image(self, image, saturation=0.5):
         """Copy an image to the display.
-        :param image: PIL image to copy, must be 600x448
+        :param image: PIL image to copy, must be 1600x1200
         :param saturation: Saturation for quantization palette - higher value results in a more saturated image
         """
         if not image.size == (self.width, self.height):
@@ -338,7 +337,7 @@ class Inky:
             palette = self._palette_blend(saturation)
             # Image size doesn't matter since it's just the palette we're using
             palette_image = Image.new("P", (1, 1))
-            # Set our 7 colour palette (+ clear) and zero out the other 247 colours
+            # Set our 7 colour palette (+ clear) and zero out the remaining colours
             palette_image.putpalette(palette + [0, 0, 0] * 250)
             # Force source image data to be loaded for `.im` to work
             image.load()

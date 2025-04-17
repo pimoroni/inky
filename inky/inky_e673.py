@@ -65,7 +65,7 @@ EL673_PWS = 0xE3
 
 _SPI_CHUNK_SIZE = 4096
 
-_RESOLUTION_7_3_INCH = (800, 480)  # Inky Impression 7.3"
+_RESOLUTION_7_3_INCH = (800, 480)  # Inky Impression 7.3 (Spectra 6)"
 
 _RESOLUTION = {
     _RESOLUTION_7_3_INCH: (_RESOLUTION_7_3_INCH[0], _RESOLUTION_7_3_INCH[1], 0, 0, 0, 0b01),
@@ -106,7 +106,7 @@ class Inky:
     def __init__(self, resolution=None, colour="multi", cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):  # noqa: E501
         """Initialise an Inky Display.
 
-        :param resolution: (width, height) in pixels, default: (600, 448)
+        :param resolution: (width, height) in pixels, default: (800, 480)
         :param colour: one of red, black or yellow, default: black
         :param cs_pin: chip-select pin for SPI communication
         :param dc_pin: data/command pin for SPI communication
@@ -121,7 +121,6 @@ class Inky:
         self.eeprom = eeprom.read_eeprom(i2c_bus=i2c_bus)
 
         # Check for supported display variant and select the correct resolution
-        # Eg: 600x480 and 640x400
         if resolution is None:
             resolution = _RESOLUTION_7_3_INCH
 
@@ -304,7 +303,7 @@ class Inky:
     def set_image(self, image, saturation=0.5):
         """Copy an image to the display.
 
-        :param image: PIL image to copy, must be 600x448
+        :param image: PIL image to copy, must be 800x480
         :param saturation: Saturation for quantization palette - higher value results in a more saturated image
 
         """
@@ -314,7 +313,7 @@ class Inky:
             palette = self._palette_blend(saturation)
             # Image size doesn't matter since it's just the palette we're using
             palette_image = Image.new("P", (1, 1))
-            # Set our 7 colour palette (+ clear) and zero out the other 247 colours
+            # Set our 6 colour palette and zero out the remaining colours
             palette_image.putpalette(palette + [0, 0, 0] * 248)
             # Force source image data to be loaded for `.im` to work
             image.load()
