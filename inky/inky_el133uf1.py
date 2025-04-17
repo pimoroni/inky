@@ -4,9 +4,8 @@ import warnings
 
 import gpiod
 import gpiodevice
-from gpiod.line import Bias, Direction, Value
-
 import numpy
+from gpiod.line import Bias, Direction, Value
 from PIL import Image
 
 from . import eeprom

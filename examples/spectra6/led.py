@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
+import time
+
 import gpiod
 import gpiodevice
 from gpiod.line import Bias, Direction, Value
-import time
 
 print(
     """\nled.py - Blink the LED!
