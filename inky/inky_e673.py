@@ -14,8 +14,8 @@ BLACK = 0
 WHITE = 1
 YELLOW = 2
 RED = 3
-BLUE = 4
-GREEN = 5
+BLUE = 5
+GREEN = 6
 
 DESATURATED_PALETTE = [
     [0, 0, 0],
@@ -79,8 +79,8 @@ class Inky:
     WHITE = 1
     YELLOW = 2
     RED = 3
-    BLUE = 4
-    GREEN = 5
+    BLUE = 5
+    GREEN = 6
 
     WIDTH = 0
     HEIGHT = 0
