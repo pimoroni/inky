@@ -4,6 +4,8 @@ from . import inky  # noqa: F401
 from .auto import auto  # noqa: F401
 from .inky import BLACK, RED, WHITE, YELLOW  # noqa: F401
 from .inky_ac073tc1a import Inky as Inky_Impressions_7  # noqa: F401
+from .inky_e673 import Inky as InkyE673  # noqa: F401
+from .inky_el133uf1 import Inky as InkyEL133UF1  # noqa: F401
 from .inky_ssd1683 import Inky as InkyWHAT_SSD1683  # noqa: F401
 from .inky_uc8159 import Inky as Inky7Colour  # noqa: F401
 from .mock import InkyMockPHAT, InkyMockWHAT  # noqa: F401
