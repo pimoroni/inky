@@ -166,6 +166,12 @@ function pip_pkg_install {
 	check_for_error
 }
 
+function pip_requirements_install {
+	# A null Keyring prevents pip stalling in the background
+	PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring $PYTHON -m pip install -r "$@"
+	check_for_error
+}
+
 while [[ $# -gt 0 ]]; do
 	K="$1"
 	case $K in
@@ -330,6 +336,15 @@ if [ -d "examples" ]; then
 		cp -r examples/ "$RESOURCES_DIR"
 		echo "rm -r $RESOURCES_DIR" >> "$UNINSTALLER"
 		success "Done!"
+	fi
+fi
+
+printf "\n"
+
+if [ -f "requirements-examples.txt" ]; then
+	if confirm "Would you like to install example dependencies?"; then
+		inform "Installing dependencies from requirements-examples.txt..."
+		pip_requirements_install requirements-examples.txt
 	fi
 fi
 
