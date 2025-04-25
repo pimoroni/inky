@@ -1,3 +1,8 @@
+2.1.0
+-----
+
+* New: Support for Spectra 13.3" and 7.3" boards.
+
 2.0.0
 -----
 
