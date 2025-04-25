@@ -222,10 +222,6 @@ class Inky:
                 self._spi_bus = spidev.SpiDev()
 
             self._spi_bus.open(0, self.cs_channel)
-            try:
-                self._spi_bus.no_cs = True
-            except OSError:
-                warnings.warn("SPI: Cannot disable chip-select!")
             self._spi_bus.max_speed_hz = 10000000
 
             self._gpio_setup = True
@@ -235,7 +231,7 @@ class Inky:
         self._gpio.set_value(self.reset_pin, Value.ACTIVE)
         time.sleep(0.03)
 
-        self._busy_wait(10.0)
+        self._busy_wait(0.3)
 
         self._send_command(EL133UF1_ANTM, CS0_SEL, [0xC0, 0x1C, 0x1C, 0xCC, 0xCC, 0xCC, 0x15, 0x15, 0x55])
 
@@ -259,6 +255,13 @@ class Inky:
 
     def _busy_wait(self, timeout=40.0):
         """Wait for busy/wait pin."""
+        # If the busy_pin is *high* (pulled up by host)
+        # then assume we're not getting a signal from inky
+        # and wait the timeout period to be safe.
+        if self._gpio.get_value(self.busy_pin) == Value.ACTIVE:
+            time.sleep(timeout)
+            return
+
         t_start = time.time()
         while self._gpio.get_value(self.busy_pin) == Value.ACTIVE:
             time.sleep(0.1)
@@ -271,13 +274,9 @@ class Inky:
         Dispatches display update to correct driver.
         """
         self.setup()
-        time.sleep(0.1)
 
         self._send_command(EL133UF1_DTM, CS0_SEL, buf_a)
-        time.sleep(0.1)
-
         self._send_command(EL133UF1_DTM, CS1_SEL, buf_b)
-        time.sleep(0.1)
 
         self._send_command(EL133UF1_PON, CS_BOTH_SEL)
         self._busy_wait(0.2)

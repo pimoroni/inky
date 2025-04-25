@@ -197,10 +197,6 @@ class Inky:
                 self._spi_bus = spidev.SpiDev()
 
             self._spi_bus.open(0, self.cs_channel)
-            try:
-                self._spi_bus.no_cs = True
-            except OSError:
-                warnings.warn("SPI: Cannot disable chip-select!")
             self._spi_bus.max_speed_hz = 1000000
 
             self._gpio_setup = True
@@ -210,7 +206,7 @@ class Inky:
         self._gpio.set_value(self.reset_pin, Value.ACTIVE)
         time.sleep(0.03)
 
-        self._busy_wait(5.0)
+        self._busy_wait(0.3)
 
         self._send_command(0xAA, [0x49, 0x55, 0x20, 0x08, 0x09, 0x18])
         self._send_command(EL673_PWR, [0x3F])
@@ -230,8 +226,15 @@ class Inky:
 
     def _busy_wait(self, timeout=40.0):
         """Wait for busy/wait pin."""
+        # If the busy_pin is *high* (pulled up by host)
+        # then assume we're not getting a signal from inky
+        # and wait the timeout period to be safe.
+        if self._gpio.get_value(self.busy_pin) == Value.ACTIVE:
+            time.sleep(timeout)
+            return
+
         t_start = time.time()
-        while self._gpio.get_value(self.busy_pin) == Value.ACTIVE:
+        while not self._gpio.get_value(self.busy_pin) == Value.ACTIVE:
             time.sleep(0.1)
             if time.time() - t_start > timeout:
                 warnings.warn(f"Busy Wait: Timed out after {timeout:0.2f}s")
@@ -244,23 +247,19 @@ class Inky:
 
         """
         self.setup()
-        time.sleep(0.1)
 
         self._send_command(EL673_DTM1, buf)
-        time.sleep(0.1)
-
         self._send_command(EL673_PON)
-        self._busy_wait(0.1)
+        self._busy_wait(0.3)
 
         # second setting of the BTST2 register
         self._send_command(EL673_BTST2, [0x6F, 0x1F, 0x17, 0x49])
-        time.sleep(0.03)
 
         self._send_command(EL673_DRF, [0x00])
         self._busy_wait(32.0)
 
         self._send_command(EL673_POF, [0x00])
-        self._busy_wait(0.2)
+        self._busy_wait(0.3)
 
     def set_pixel(self, x, y, v):
         """Set a single pixel.
