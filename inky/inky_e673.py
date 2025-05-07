@@ -17,6 +17,15 @@ RED = 3
 BLUE = 5
 GREEN = 6
 
+RGB_TO_COLOR = {
+ '[0, 0, 0]': 0,
+ '[255, 255, 255]': 1,
+ '[255, 255, 0]': 2,
+ '[255, 0, 0]': 3,
+ '[0, 255, 0]': 6,
+ '[0, 0, 255]': 5,
+}
+
 DESATURATED_PALETTE = [
     [0, 0, 0],
     [255, 255, 255],
@@ -317,8 +326,13 @@ class Inky:
             # Force source image data to be loaded for `.im` to work
             image.load()
             image = image.im.convert("P", True, palette_image.im)
+            remap = numpy.array([0, 1, 2, 3, 5, 6])
+        else:
+            # already in palette-mode, but need to fix internal colormap
+            palette = image.getpalette()
+            palette = [str(palette[i:i+3]) for i in range(0,3*6,3)]
+            remap = numpy.array([RGB_TO_COLOR[rgb] for rgb in palette])
 
-        remap = numpy.array([0, 1, 2, 3, 5, 6])
         self.buf = remap[numpy.array(image, dtype=numpy.uint8).reshape((self.rows, self.cols))]
 
     def _spi_write(self, dc, values):
