@@ -79,8 +79,8 @@ class Inky:
     WHITE = 1
     YELLOW = 2
     RED = 3
-    BLUE = 5
-    GREEN = 6
+    BLUE = 4
+    GREEN = 5
 
     WIDTH = 0
     HEIGHT = 0
