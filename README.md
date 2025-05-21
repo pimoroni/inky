@@ -18,7 +18,7 @@ Python library for [Inky pHAT](https://shop.pimoroni.com/products/inky-phat), [I
 
 ### Inky Impression
 
-[Inky Impression](https://shop.pimoroni.com/?q=inky+impression) is our line of glorious 7 colour eInk displays, available in [4"](https://shop.pimoroni.com/products/inky-impression-4) (640 x 400 pixel) [5.7"](https://shop.pimoroni.com/products/inky-impression-5-7) (600 x 448 pixel) and [7.3"](https://shop.pimoroni.com/products/inky-impression-7-3) (800 x 480 pixel) flavours. They're packed with strong colours and perfect for displaying striking graphics or lots of data.
+[Inky Impression](https://shop.pimoroni.com/search?q=inky%20impression) is our line of glorious colour eInk displays, available in various sizes from the petite 4.0" up to the mighty 13.3". They're packed with strong colours and perfect for displaying striking graphics or lots of data.
 
 ## Installation
 
