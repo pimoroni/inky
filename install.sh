@@ -274,6 +274,11 @@ inform "Installing for $PYTHON_VER...\n"
 # Install apt packages from pyproject.toml / tool.pimoroni.apt_packages
 apt_pkg_install "${APT_PACKAGES[@]}"
 
+# Install some package fixups from requirements.txt, these avoid the library
+# install pulling the un-pinned, latest versions of numpy and pillow, which
+# do not have binary wheels available on piwheels.org.
+pip_requirements_install requirements.txt
+
 printf "\n"
 
 if $UNSTABLE; then
