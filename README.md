@@ -1,4 +1,4 @@
-# Inky
+# Inky<!-- omit in toc -->
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/pimoroni/inky/test.yml?branch=main)](https://github.com/pimoroni/inky/actions/workflows/test.yml)
 [![Coverage Status](https://coveralls.io/repos/github/pimoroni/inky/badge.svg?branch=main)](https://coveralls.io/github/pimoroni/inky?branch=main)
@@ -7,16 +7,26 @@
 
 Python library for [Inky pHAT](https://shop.pimoroni.com/products/inky-phat), [Inky wHAT](https://shop.pimoroni.com/products/inky-what) and [Inky Impression](https://shop.pimoroni.com/?q=inky+impression) e-paper displays for Raspberry Pi.
 
-### Inky pHAT
+- [Get Inky](#get-inky)
+- [Installation](#installation)
+  - [Full install (recommended)](#full-install-recommended)
+  - [Development](#development)
+  - [Install stable library from PyPi and configure manually](#install-stable-library-from-pypi-and-configure-manually)
+- [Usage](#usage)
+  - [Auto Setup](#auto-setup)
+  - [Manual Setup](#manual-setup)
+  - [Set Image](#set-image)
+  - [Set Border](#set-border)
+  - [Update The Display](#update-the-display)
+- [Migrating](#migrating)
+- [Troubleshooting](#troubleshooting)
+- [Other Resources](#other-resources)
+
+## Get Inky
 
 [Inky pHAT](https://shop.pimoroni.com/products/inky-phat) is a 250x122 pixel e-paper display, available in red/black/white, yellow/black/white and black/white. It's great for nametags and displaying very low frequency information such as a daily calendar or weather overview.
 
-
-### Inky wHAT
-
 [Inky wHAT](https://shop.pimoroni.com/products/inky-what) is a 400x300 pixel e-paper display available in red/black/white, yellow/black/white and black/white. It's got tons of resolution for detailed daily to-do lists, multi-day weather forecasts, bus timetables and more.
-
-### Inky Impression
 
 [Inky Impression](https://shop.pimoroni.com/search?q=inky%20impression) is our line of glorious colour eInk displays, available in various sizes from the petite 4.0" up to the mighty 13.3". They're packed with strong colours and perfect for displaying striking graphics or lots of data.
 
@@ -24,7 +34,7 @@ Python library for [Inky pHAT](https://shop.pimoroni.com/products/inky-phat), [I
 
 We'd recommend using this library with Raspberry Pi OS Bookworm or later. It requires Python ≥3.7.
 
-### Full install (recommended):
+### Full install (recommended)
 
 We've created an easy installation script that will install all pre-requisites and get you up and running with minimal efforts. To run it, fire up Terminal which you'll find in Menu -> Accessories -> Terminal
 on your Raspberry Pi desktop, as illustrated below:
@@ -45,7 +55,7 @@ cd inky
 source ~/.virtualenvs/pimoroni/bin/activate
 ```
 
-### Development:
+### Development
 
 If you want to contribute, or like living on the edge of your seat by having the latest code, you can install the development version like so:
 
@@ -154,7 +164,7 @@ If you're migrating code from the old `inkyphat` library you'll find that much o
 
 ## Troubleshooting
 
-### `ModuleNotFoundError: No module named 'inky'`
+### `ModuleNotFoundError: No module named 'inky'`<!-- omit in toc -->
 
 Assuming you've run `./install.sh` already, make sure you have your virtual environment active. If you're using the one set up by our installer, that looks like this:
 
@@ -162,7 +172,7 @@ Assuming you've run `./install.sh` already, make sure you have your virtual envi
 source ~/.virtualenvs/pimoroni/bin/activate
 ```
 
-### `ModuleNotFoundError: No module named 'font_hanken_grotesk'`
+### `ModuleNotFoundError: No module named 'font_hanken_grotesk'`<!-- omit in toc -->
 
 You're missing some dependencies that the example code needs to run. A list of dependencies can be found [here](https://github.com/pimoroni/inky/blob/main/requirements-examples.txt), and you can install them like this (make sure you have your virtual environment active):
 
@@ -170,11 +180,11 @@ You're missing some dependencies that the example code needs to run. A list of d
 pip install font-hanken-grotesk
 ```
 
-### `RuntimeError: No EEPROM detected! You must manually initialise your Inky board.`
+### `RuntimeError: No EEPROM detected! You must manually initialise your Inky board.`<!-- omit in toc -->
 
 Check that I2C and SPI are enabled. You can do this using `sudo raspi-config` - they're under 'Interfacing Options'. You may need to reboot your Pi after you've enabled them (`sudo reboot`).
 
-### `Chip Select: (line 8, GPIO8) currently claimed by spi0 CS0`
+### `Chip Select: (line 8, GPIO8) currently claimed by spi0 CS0`<!-- omit in toc -->
 
 Check you have the following line present in your /boot/firmware/config.txt:
 
@@ -184,3 +194,10 @@ dtoverlay=spi0-0cs
 
 You can edit the config file using `sudo nano boot/firmware/config.txt`, and it's Ctrl-X, then 'Y' and Enter to save your changes. You'll need to reboot your Pi after you've made this change (`sudo reboot`)
 
+## Other Resources
+
+Links to community projects and other resources that you might find helpful can be found below. Note that these code examples have not been written/tested by us and we're not able to offer support with them.
+
+- InkyPi (customisable eInk display) - [Youtube](https://www.youtube.com/watch?v=L5PvQj1vfC4) / [Github](https://github.com/fatihak/InkyPi)
+- [Using Pimoroni Inky displays with CircuitPython](https://github.com/bablokb/circuitpython-inky)
+- [Inky Draw](https://github.com/jonothanhunt/inky-draw) (a fun drawing project for Inky pHAT using Flask and React)
