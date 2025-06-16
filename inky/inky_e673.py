@@ -317,6 +317,7 @@ class Inky:
         if image.mode == "P":
             # Create a pure colour palette from DESATURATED_PALETTE
             palette = numpy.array(DESATURATED_PALETTE, dtype=numpy.uint8).flatten().tobytes()
+            palette_image.putpalette(palette)
 
             # Assume that palette mode images with an unset palette use the
             # default colour order and "DESATURATED_PALETTE" pure colours
@@ -327,7 +328,6 @@ class Inky:
             # all the correct colours, but not exactly in the right order.
             if len(image.palette.colors) == 6:
                 dither = Image.Dither.NONE
-                palette_image.putpalette(palette)
         else:
             # All other image should be quantized and dithered
             palette = self._palette_blend(saturation)
