@@ -308,15 +308,19 @@ class Inky:
         """
         if not image.size == (self.width, self.height):
             raise ValueError(f"Image must be ({self.width}x{self.height}) pixels!")
-        if not image.mode == "P":
-            palette = self._palette_blend(saturation)
-            # Image size doesn't matter since it's just the palette we're using
-            palette_image = Image.new("P", (1, 1))
-            # Set our 6 colour palette and zero out the remaining colours
-            palette_image.putpalette(palette + [0, 0, 0] * 248)
-            # Force source image data to be loaded for `.im` to work
-            image.load()
-            image = image.im.convert("P", True, palette_image.im)
+
+        palette = self._palette_blend(saturation)
+        # Image size doesn't matter since it's just the palette we're using
+        palette_image = Image.new("P", (1, 1))
+        # Set our 6 colour palette
+        palette_image.putpalette(palette)
+
+        # Assume that palette mode images with an unset palette use the
+        # default colour order and "DESATURATED_PALETTE" pure colours
+        if image.mode == "P" and not image.palette.colors:
+            image.putpalette(numpy.array(DESATURATED_PALETTE, dtype=numpy.uint8).flatten().tobytes())
+
+        image = image.convert("RGB").quantize(6, palette=palette_image)
 
         remap = numpy.array([0, 1, 2, 3, 5, 6])
         self.buf = remap[numpy.array(image, dtype=numpy.uint8).reshape((self.rows, self.cols))]
