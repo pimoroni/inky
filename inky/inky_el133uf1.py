@@ -326,25 +326,41 @@ class Inky:
 
     def set_image(self, image, saturation=0.5):
         """Copy an image to the display.
-        :param image: PIL image to copy, must be 1600x1200
+
+        :param image: PIL image to copy, must be 800x480
         :param saturation: Saturation for quantization palette - higher value results in a more saturated image
+
         """
         if not image.size == (self.width, self.height):
             raise ValueError(f"Image must be ({self.width}x{self.height}) pixels!")
 
-        palette = self._palette_blend(saturation)
+        dither = Image.Dither.FLOYDSTEINBERG
+
         # Image size doesn't matter since it's just the palette we're using
         palette_image = Image.new("P", (1, 1))
-        # Set our 6 colour palette
-        palette_image.putpalette(palette)
 
-        # Assume that palette mode images with an unset palette use the
-        # default colour order and "DESATURATED_PALETTE" pure colours
-        if image.mode == "P" and not image.palette.colors:
-            image.putpalette(numpy.array(DESATURATED_PALETTE, dtype=numpy.uint8).flatten().tobytes())
+        if image.mode == "P":
+            # Create a pure colour palette from DESATURATED_PALETTE
+            palette = numpy.array(DESATURATED_PALETTE, dtype=numpy.uint8).flatten().tobytes()
 
-        image = image.convert("RGB").quantize(6, palette=palette_image)
+            # Assume that palette mode images with an unset palette use the
+            # default colour order and "DESATURATED_PALETTE" pure colours
+            if not image.palette.colors:
+                image.putpalette(palette)
 
+            # Assume that palette mode images with exactly six colours use
+            # all the correct colours, but not exactly in the right order.
+            if len(image.palette.colors) == 6:
+                dither = Image.Dither.NONE
+                palette_image.putpalette(palette)
+        else:
+            # All other image should be quantized and dithered
+            palette = self._palette_blend(saturation)
+            palette_image.putpalette(palette)
+
+        image = image.convert("RGB").quantize(6, palette=palette_image, dither=dither)
+
+        # Remap our sequential palette colours to display native (missing colour 4)
         remap = numpy.array([0, 1, 2, 3, 5, 6])
         self.buf = remap[numpy.array(image, dtype=numpy.uint8).reshape((self.rows, self.cols))]
 
