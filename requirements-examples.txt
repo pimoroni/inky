@@ -8,5 +8,6 @@ font-fredoka-one
 font-hanken-grotesk
 font-intuitive
 geocoder
+pandas==2.2.3  # avoid 2.3.0 with no piwheels wheel
 seaborn
 wikiquotes
