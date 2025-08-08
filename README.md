@@ -200,5 +200,6 @@ Links to community projects and other resources that you might find helpful can 
 
 - InkyPi (customisable eInk display) - [Youtube](https://www.youtube.com/watch?v=L5PvQj1vfC4) / [Github](https://github.com/fatihak/InkyPi)
 - [Using Pimoroni Inky displays with CircuitPython](https://github.com/bablokb/circuitpython-inky)
-- [Inky Draw](https://github.com/jonothanhunt/inky-draw) (a fun drawing project for Inky pHAT using Flask and React)
+- [Inky Draw](https://github.com/jonothanhunt/inky-draw) - a fun drawing project for Inky pHAT using Flask and React
 - [I built an E-Ink Calendar with a Raspberry Pi](https://www.youtube.com/watch?v=58QWxoFvtJY)
+- [Spectra-Qualified Uncomplicated Inky Rendering Tools](https://github.com/fitoori/squirt) - one-shot Python scripts to display web content
