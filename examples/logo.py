@@ -32,6 +32,8 @@ if inky_display.resolution in ((212, 104), (250, 122)):
     if inky_display.resolution == (250, 122):
         if inky_display.colour == "black":
             img = Image.open(os.path.join(PATH, "phat/resources/InkypHAT-250x122-bw.png"))
+        elif inky_display.colour == "red/yellow":
+            img = Image.open(os.path.join(PATH, "phat/resources/InkypHAT-250x122-4colour.png"))
         else:
             img = Image.open(os.path.join(PATH, "phat/resources/InkypHAT-250x122.png"))
 
