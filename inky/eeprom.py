@@ -33,7 +33,8 @@ DISPLAY_VARIANT = [
     "7-Colour 800x480 (AC073TC1A)",
     "Spectra 6 13.3 1600 x 1200 (EL133UF1)",
     "Spectra 6 7.3 800 x 480 (E673)",
-    "Red/Yellow pHAT (JD79661)"
+    "Red/Yellow pHAT (JD79661)",
+    "Red/Yellow wHAT (JD79668)"
 ]
 
 
