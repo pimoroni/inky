@@ -1,3 +1,10 @@
+2.2.0
+-----
+
+* New: Support for 4-colour (Black/White/Red/Yellow) Inky and Inky wHAT boards.
+* BugFix: Fixed Spectra6 colour constants (swapped green and blue)
+* Enhancement: Improve Spectra6 handling of palette mode images.
+
 2.1.0
 -----
 
