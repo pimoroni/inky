@@ -5,10 +5,10 @@ from . import eeprom
 from .inky_ac073tc1a import Inky as InkyAC073TC1A  # noqa: F401
 from .inky_e673 import Inky as InkyE673  # noqa: F401
 from .inky_el133uf1 import Inky as InkyEL133UF1  # noqa: F401
-from .inky_ssd1683 import Inky as InkyWHAT_SSD1683  # noqa: F401
-from .inky_uc8159 import Inky as InkyUC8159  # noqa: F401
 from .inky_jd79661 import Inky as InkyJD79661  # noqa: F401
 from .inky_jd79668 import Inky as InkyJD79668  # noqa: F401
+from .inky_ssd1683 import Inky as InkyWHAT_SSD1683  # noqa: F401
+from .inky_uc8159 import Inky as InkyUC8159  # noqa: F401
 from .phat import InkyPHAT, InkyPHAT_SSD1608  # noqa: F401
 from .what import InkyWHAT  # noqa: F401
 
