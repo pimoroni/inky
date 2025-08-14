@@ -32,14 +32,16 @@ DISPLAY_VARIANT = [
     "Yellow wHAT (SSD1683)",
     "7-Colour 800x480 (AC073TC1A)",
     "Spectra 6 13.3 1600 x 1200 (EL133UF1)",
-    "Spectra 6 7.3 800 x 480 (E673)"
+    "Spectra 6 7.3 800 x 480 (E673)",
+    "Red/Yellow pHAT (JD79661)",
+    "Red/Yellow wHAT (JD79668)"
 ]
 
 
 class EPDType:
     """Class to represent EPD EEPROM structure."""
 
-    valid_colors = [None, "black", "red", "yellow", None, "7colour", "spectra6"]
+    valid_colors = [None, "black", "red", "yellow", None, "7colour", "spectra6", "red/yellow"]
 
     def __init__(self, width, height, color, pcb_variant, display_variant, write_time=None):
         """Initialise new EEPROM data structure."""

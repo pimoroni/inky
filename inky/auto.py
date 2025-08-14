@@ -5,13 +5,15 @@ from . import eeprom
 from .inky_ac073tc1a import Inky as InkyAC073TC1A  # noqa: F401
 from .inky_e673 import Inky as InkyE673  # noqa: F401
 from .inky_el133uf1 import Inky as InkyEL133UF1  # noqa: F401
+from .inky_jd79661 import Inky as InkyJD79661  # noqa: F401
+from .inky_jd79668 import Inky as InkyJD79668  # noqa: F401
 from .inky_ssd1683 import Inky as InkyWHAT_SSD1683  # noqa: F401
 from .inky_uc8159 import Inky as InkyUC8159  # noqa: F401
 from .phat import InkyPHAT, InkyPHAT_SSD1608  # noqa: F401
 from .what import InkyWHAT  # noqa: F401
 
-DISPLAY_TYPES = ["what", "phat", "phatssd1608", "impressions", "7colour", "whatssd1683", "impressions73", "spectra13", "spectra73"]
-DISPLAY_COLORS = ["red", "black", "yellow"]
+DISPLAY_TYPES = ["what", "phat", "phatssd1608", "impressions", "7colour", "whatssd1683", "impressions73", "spectra13", "spectra73", "phatjd79661", "whatjd79668"]
+DISPLAY_COLORS = ["red", "black", "yellow", "red/yellow"]
 
 
 def auto(i2c_bus=None, ask_user=False, verbose=False):
@@ -40,6 +42,10 @@ def auto(i2c_bus=None, ask_user=False, verbose=False):
             return InkyEL133UF1(resolution=(1600, 1200))
         if _eeprom.display_variant == 22:
             return InkyE673(resolution=(800, 480))
+        if _eeprom.display_variant == 23:
+            return InkyJD79661(resolution=(250, 122))
+        if _eeprom.display_variant == 24:
+            return InkyJD79668(resolution=(400, 300))
 
     if ask_user:
         if verbose:
@@ -88,6 +94,10 @@ def auto(i2c_bus=None, ask_user=False, verbose=False):
                 return InkyEL133UF1()
             if args.type == "spectra73":
                 return InkyE673()
+            if args.type == "phatjd79661":
+                return InkyJD79661()
+            if args.type == "whatjd79668":
+                return InkyJD79668()
 
     if _eeprom is None:
         raise RuntimeError("No EEPROM detected! You must manually initialise your Inky board.")
