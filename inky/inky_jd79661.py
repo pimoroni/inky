@@ -286,7 +286,7 @@ class Inky:
     def set_image(self, image, saturation=0.5):
         """Copy an image to the display.
 
-        :param image: PIL image to copy, must be 800x480
+        :param image: PIL image to copy, must be 250x122
         :param saturation: Saturation for quantization palette - higher value results in a more saturated image
 
         """
@@ -308,16 +308,16 @@ class Inky:
             if not image.palette.colors:
                 image.putpalette(palette)
 
-            # Assume that palette mode images with exactly six colours use
+            # Assume that palette mode images with exactly four colours use
             # all the correct colours, but not exactly in the right order.
-            if len(image.palette.colors) == 6:
+            if len(image.palette.colors) == 4:
                 dither = Image.Dither.NONE
         else:
             # All other image should be quantized and dithered
             palette = self._palette_blend(saturation)
             palette_image.putpalette(palette)
 
-        image = image.convert("RGB").quantize(6, palette=palette_image, dither=dither)
+        image = image.convert("RGB").quantize(4, palette=palette_image, dither=dither)
 
         self.buf = numpy.array(image, dtype=numpy.uint8).reshape((self.rows, self.cols))
 
