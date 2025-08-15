@@ -1,3 +1,8 @@
+2.2.1
+-----
+
+* BugFix: Correct palette count for new boards, so 4-colour prepared images are not dithered.
+
 2.2.0
 -----
 
