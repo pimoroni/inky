@@ -53,10 +53,13 @@ y1 = h_new
 
 img = img.crop((x0, y0, x1, y1))
 
-# Convert the image to use a white / black / red colour palette
+# Convert the image to use a white / black / red/yellow colour palette
 
 pal_img = Image.new("P", (1, 1))
-pal_img.putpalette((255, 255, 255, 0, 0, 0, 255, 0, 0) + (0, 0, 0) * 252)
+if inky_display.colour == "red/yellow":
+    pal_img.putpalette((0, 0, 0, 255, 255, 255, 255, 255, 0, 255, 0, 0) + (0, 0, 0) * 251)
+else:
+    pal_img.putpalette((255, 255, 255, 0, 0, 0, 255, 0, 0) + (0, 0, 0) * 252)
 
 img = img.convert("RGB").quantize(palette=pal_img)
 
