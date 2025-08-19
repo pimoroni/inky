@@ -53,6 +53,10 @@ if inky_display.resolution not in ((212, 104), (250, 122)):
 
 inky_display.set_border(inky_display.BLACK)
 
+flip = inky_display.eeprom.display_variant == 23
+BLACK = inky_display.BLACK if not flip else inky_display.WHITE
+WHITE = inky_display.WHITE if not flip else inky_display.BLACK
+
 # Details to customise your weather display
 
 CITY = "Sheffield"
@@ -83,7 +87,7 @@ def get_weather(address):
         return weather
 
 
-def create_mask(source, mask=(inky_display.WHITE, inky_display.BLACK, inky_display.RED)):
+def create_mask(source, mask=(WHITE, BLACK, inky_display.RED)):
     """Create a transparency mask.
 
     Takes a paletized source image and converts it into a mask
@@ -165,13 +169,13 @@ draw.line((169, 58, 169, 58), 2)  # Red seaweed pixel :D
 # Write text with weather values to the canvas
 datetime = time.strftime("%d/%m %H:%M")
 
-draw.text((41, 12), datetime, inky_display.WHITE, font=font)
+draw.text((41, 12), datetime, WHITE, font=font)
 
-draw.text((72, 34), "T", inky_display.WHITE, font=font)
-draw.text((92, 34), "{}°C".format(temperature), inky_display.WHITE if temperature < WARNING_TEMP else inky_display.RED, font=font)
+draw.text((72, 34), "T", WHITE, font=font)
+draw.text((92, 34), "{}°C".format(temperature), WHITE if temperature < WARNING_TEMP else inky_display.RED, font=font)
 
-draw.text((72, 58), "W", inky_display.WHITE, font=font)
-draw.text((92, 58), "{}kmh".format(windspeed), inky_display.WHITE, font=font)
+draw.text((72, 58), "W", WHITE, font=font)
+draw.text((92, 58), "{}kmh".format(windspeed), WHITE, font=font)
 
 # Draw the current weather icon over the backdrop
 if weather_icon is not None:
