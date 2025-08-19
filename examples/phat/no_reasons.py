@@ -6,10 +6,11 @@ Requires the Manrope font (pip install font_manrope)
 This example is written for the new four colour Inky pHAT/wHAT display so uses both yellow and red, but it should be easy to modify if you have an older Inky with fewer colours.
 """
 
-from inky.auto import auto
-from PIL import Image, ImageFont, ImageDraw
-from font_manrope import ManropeExtraBold, ManropeSemiBold
 import requests
+from font_manrope import ManropeExtraBold, ManropeSemiBold
+from PIL import Image, ImageDraw, ImageFont
+
+from inky.auto import auto
 
 
 def wrap_text(text, font, max_width, draw):
