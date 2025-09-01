@@ -203,3 +203,4 @@ Links to community projects and other resources that you might find helpful can 
 - [Inky Draw](https://github.com/jonothanhunt/inky-draw) - a fun drawing project for Inky pHAT using Flask and React
 - [I built an E-Ink Calendar with a Raspberry Pi](https://www.youtube.com/watch?v=58QWxoFvtJY)
 - [Spectra-Qualified Uncomplicated Inky Rendering Tools](https://github.com/fitoori/squirt) - one-shot Python scripts to display web content
+- [phpSimpleInkyImageServer](https://github.com/Indiana8000/phpSimpleInkyImageServer) - a simple python + php script to supply Inky with images
