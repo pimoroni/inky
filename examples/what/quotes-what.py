@@ -32,9 +32,11 @@ inky_display = auto(ask_user=True, verbose=True)
 inky_display.set_border(inky_display.WHITE)
 # inky_display.set_rotation(180)
 
+
 def getsize(font, text):
     _, _, right, bottom = font.getbbox(text)
     return (right, bottom)
+
 
 # This function will take a quote as a string, a width to fit
 # it into, and a font (one that's been loaded) and then reflow
@@ -65,7 +67,7 @@ HEIGHT = inky_display.height
 
 # Create a new canvas to draw on
 
-img = Image.new("P", (WIDTH, HEIGHT))
+img = Image.new("P", (WIDTH, HEIGHT), inky_display.WHITE)
 draw = ImageDraw.Draw(img)
 
 # Load the fonts
