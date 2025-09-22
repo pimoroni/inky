@@ -1,3 +1,5 @@
+Install virtual env: source /home/rick/.venvs/photoframe/bin/activate
+
 # Inky<!-- omit in toc -->
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/pimoroni/inky/test.yml?branch=main)](https://github.com/pimoroni/inky/actions/workflows/test.yml)
