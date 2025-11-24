@@ -3,8 +3,8 @@ import argparse
 
 from . import eeprom
 from .inky_ac073tc1a import Inky as InkyAC073TC1A  # noqa: F401
-from .inky_e673 import Inky as InkyE673  # noqa: F401
 from .inky_e640 import Inky as InkyE640  # noqa: F401
+from .inky_e673 import Inky as InkyE673  # noqa: F401
 from .inky_el133uf1 import Inky as InkyEL133UF1  # noqa: F401
 from .inky_jd79661 import Inky as InkyJD79661  # noqa: F401
 from .inky_jd79668 import Inky as InkyJD79668  # noqa: F401
