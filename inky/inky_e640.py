@@ -43,32 +43,32 @@ MOSI_PIN = 10
 SCLK_PIN = 11
 CS0_PIN = 8
 
-EL673_PSR = 0x00
-EL673_PWR = 0x01
-EL673_POF = 0x02
-EL673_POFS = 0x03
-EL673_PON = 0x04
-EL673_BTST1 = 0x05
-EL673_BTST2 = 0x06
-EL673_DSLP = 0x07
-EL673_BTST3 = 0x08
-EL673_DTM1 = 0x10
-EL673_DSP = 0x11
-EL673_DRF = 0x12
-EL673_PLL = 0x30
-EL673_CDI = 0x50
-EL673_TCON = 0x60
-EL673_TRES = 0x61
-EL673_REV = 0x70
-EL673_VDCS = 0x82
-EL673_PWS = 0xE3
+EL640_PSR = 0x00
+EL640_PWR = 0x01
+EL640_POF = 0x02
+EL640_POFS = 0x03
+EL640_PON = 0x04
+EL640_BTST1 = 0x05
+EL640_BTST2 = 0x06
+EL640_DSLP = 0x07
+EL640_BTST3 = 0x08
+EL640_DTM1 = 0x10
+EL640_DSP = 0x11
+EL640_DRF = 0x12
+EL640_PLL = 0x30
+EL640_CDI = 0x50
+EL640_TCON = 0x60
+EL640_TRES = 0x61
+EL640_REV = 0x70
+EL640_VDCS = 0x82
+EL640_PWS = 0xE3
 
 _SPI_CHUNK_SIZE = 4096
 
-_RESOLUTION_7_3_INCH = (800, 480)  # Inky Impression 7.3 (Spectra 6)"
+_RESOLUTION_4_0_INCH = (400, 600)  # Inky Impression 7.3 (Spectra 6)"
 
 _RESOLUTION = {
-    _RESOLUTION_7_3_INCH: (_RESOLUTION_7_3_INCH[0], _RESOLUTION_7_3_INCH[1], 0, 0, 0, 0b01),
+    _RESOLUTION_4_0_INCH: (_RESOLUTION_4_0_INCH[0], _RESOLUTION_4_0_INCH[1], 0, 0, 0, 0b01),
 }
 
 
@@ -106,7 +106,7 @@ class Inky:
     def __init__(self, resolution=None, colour="multi", cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):  # noqa: E501
         """Initialise an Inky Display.
 
-        :param resolution: (width, height) in pixels, default: (800, 480)
+        :param resolution: (width, height) in pixels, default: (400, 600)
         :param colour: one of red, black or yellow, default: black
         :param cs_pin: chip-select pin for SPI communication
         :param dc_pin: data/command pin for SPI communication
@@ -122,7 +122,7 @@ class Inky:
 
         # Check for supported display variant and select the correct resolution
         if resolution is None:
-            resolution = _RESOLUTION_7_3_INCH
+            resolution = _RESOLUTION_4_0_INCH
 
         if resolution not in _RESOLUTION.keys():
             raise ValueError(f"Resolution {resolution[0]}x{resolution[1]} not supported!")
@@ -209,20 +209,20 @@ class Inky:
         self._busy_wait(0.3)
 
         self._send_command(0xAA, [0x49, 0x55, 0x20, 0x08, 0x09, 0x18])
-        self._send_command(EL673_PWR, [0x3F])
-        self._send_command(EL673_PSR, [0x5F, 0x69])
+        self._send_command(EL640_PWR, [0x3F])
+        self._send_command(EL640_PSR, [0x5F, 0x69])
 
-        self._send_command(EL673_BTST1, [0x40, 0x1F, 0x1F, 0x2C])
-        self._send_command(EL673_BTST3, [0x6F, 0x1F, 0x1F, 0x22])
-        self._send_command(EL673_BTST2, [0x6F, 0x1F, 0x17, 0x17])
+        self._send_command(EL640_BTST1, [0x40, 0x1F, 0x1F, 0x2C])
+        self._send_command(EL640_BTST3, [0x6F, 0x1F, 0x1F, 0x22])
+        self._send_command(EL640_BTST2, [0x6F, 0x1F, 0x17, 0x17])
 
-        self._send_command(EL673_POFS, [0x00, 0x54, 0x00, 0x44])
-        self._send_command(EL673_TCON, [0x02, 0x00])
-        self._send_command(EL673_PLL, [0x08])
-        self._send_command(EL673_CDI, [0x3F])
-        self._send_command(EL673_TRES, [0x03, 0x20, 0x01, 0xE0])
-        self._send_command(EL673_PWS, [0x2F])
-        self._send_command(EL673_VDCS, [0x01])
+        self._send_command(EL640_POFS, [0x00, 0x54, 0x00, 0x44])
+        self._send_command(EL640_TCON, [0x02, 0x00])
+        self._send_command(EL640_PLL, [0x08])
+        self._send_command(EL640_CDI, [0x3F])
+        self._send_command(EL640_TRES, [0x01, 0x90, 0x02, 0x58])
+        self._send_command(EL640_PWS, [0x2F])
+        self._send_command(EL640_VDCS, [0x01])
 
     def _busy_wait(self, timeout=40.0):
         """Wait for busy/wait pin."""
@@ -248,17 +248,17 @@ class Inky:
         """
         self.setup()
 
-        self._send_command(EL673_DTM1, buf)
-        self._send_command(EL673_PON)
+        self._send_command(EL640_DTM1, buf)
+        self._send_command(EL640_PON)
         self._busy_wait(0.3)
 
         # second setting of the BTST2 register
-        self._send_command(EL673_BTST2, [0x6F, 0x1F, 0x17, 0x49])
+        self._send_command(EL640_BTST2, [0x6F, 0x1F, 0x17, 0x47])
 
-        self._send_command(EL673_DRF, [0x00])
-        self._busy_wait(32.0)
+        self._send_command(EL640_DRF, [0x00])
+        self._busy_wait(40.0)
 
-        self._send_command(EL673_POF, [0x00])
+        self._send_command(EL640_POF, [0x00])
         self._busy_wait(0.3)
 
     def set_pixel(self, x, y, v):
