@@ -48,7 +48,7 @@ def auto(i2c_bus=None, ask_user=False, verbose=False):
         if _eeprom.display_variant == 24:
             return InkyJD79668(resolution=(400, 300))
         if _eeprom.display_variant == 25:
-            return InkyE640(resolution=(400, 600))
+            return InkyE640(resolution=(600, 400))
 
     if ask_user:
         if verbose:
