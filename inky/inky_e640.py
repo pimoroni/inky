@@ -65,7 +65,7 @@ EL640_PWS = 0xE3
 
 _SPI_CHUNK_SIZE = 4096
 
-_RESOLUTION_4_0_INCH = (600, 400)  # Inky Impression 7.3 (Spectra 6)"
+_RESOLUTION_4_0_INCH = (600, 400)  # Inky Impression 4.0 (Spectra 6)"
 
 _RESOLUTION = {
     _RESOLUTION_4_0_INCH: (_RESOLUTION_4_0_INCH[0], _RESOLUTION_4_0_INCH[1], 0, 0, 0, 0b01),
