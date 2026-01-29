@@ -1,3 +1,8 @@
+2.3.0
+-----
+
+* New: Support for Spectra 4.0" boards.
+
 2.2.1
 -----
 
