@@ -208,22 +208,30 @@ class Inky:
             if self._gpio is None:
                 gpiochip = gpiodevice.find_chip_by_platform()
                 gpiodevice.friendly_errors = True
-                if gpiodevice.check_pins_available(gpiochip, {
-                        "Chip Select": self.cs_pin,
-                        "Data/Command": self.dc_pin,
-                        "Reset": self.reset_pin,
-                        "Busy": self.busy_pin
-                    }):
+
+                chip_select_info = gpiochip.get_line_info(gpiochip.line_offset_from_id(self.cs_pin))
+                required_pins = {
+                    "Data/Command": self.dc_pin,
+                    "Reset": self.reset_pin,
+                    "Busy": self.busy_pin
+                }
+                required_lines = {
+                    self.dc_pin: gpiod.LineSettings(direction=Direction.OUTPUT, output_value=Value.INACTIVE, bias=Bias.DISABLED),
+                    self.reset_pin: gpiod.LineSettings(direction=Direction.OUTPUT, output_value=Value.ACTIVE, bias=Bias.DISABLED),
+                    self.busy_pin: gpiod.LineSettings(direction=Direction.INPUT, edge_detection=Edge.RISING, debounce_period=timedelta(milliseconds=10), bias=Bias.DISABLED)
+                }
+                self.manual_cs_toggle = False
+                if chip_select_info.consumer != "cs" and chip_select_info.consumer != "spi0 CS0":
+                    self.manual_cs_toggle = True
+                    required_pins["Chip Select"] = self.cs_pin,
+                    required_lines[self.cs_pin] = gpiod.LineSettings(direction=Direction.OUTPUT, output_value=Value.ACTIVE, bias=Bias.DISABLED)
+
+                if gpiodevice.check_pins_available(gpiochip, required_pins):
                     self.cs_pin = gpiochip.line_offset_from_id(self.cs_pin)
                     self.dc_pin = gpiochip.line_offset_from_id(self.dc_pin)
                     self.reset_pin = gpiochip.line_offset_from_id(self.reset_pin)
                     self.busy_pin = gpiochip.line_offset_from_id(self.busy_pin)
-                    self._gpio = gpiochip.request_lines(consumer="inky", config={
-                        self.cs_pin: gpiod.LineSettings(direction=Direction.OUTPUT, output_value=Value.ACTIVE, bias=Bias.DISABLED),
-                        self.dc_pin: gpiod.LineSettings(direction=Direction.OUTPUT, output_value=Value.INACTIVE, bias=Bias.DISABLED),
-                        self.reset_pin: gpiod.LineSettings(direction=Direction.OUTPUT, output_value=Value.ACTIVE, bias=Bias.DISABLED),
-                        self.busy_pin: gpiod.LineSettings(direction=Direction.INPUT, edge_detection=Edge.RISING, debounce_period=timedelta(milliseconds=10), bias=Bias.DISABLED)
-                    })
+                    self._gpio = gpiochip.request_lines(consumer="inky", config=required_lines)
 
             if self._spi_bus is None:
                 import spidev
@@ -424,7 +432,8 @@ class Inky:
         :param values: list of values to write
 
         """
-        self._gpio.set_value(self.cs_pin, Value.INACTIVE)
+        if self.manual_cs_toggle:
+            self._gpio.set_value(self.cs_pin, Value.INACTIVE)
         self._gpio.set_value(self.dc_pin, Value.ACTIVE if dc else Value.INACTIVE)
 
         if isinstance(values, str):
@@ -437,7 +446,8 @@ class Inky:
                 offset = x * _SPI_CHUNK_SIZE
                 self._spi_bus.xfer(values[offset : offset + _SPI_CHUNK_SIZE])
 
-        self._gpio.set_value(self.cs_pin, Value.ACTIVE)
+        if self.manual_cs_toggle:
+            self._gpio.set_value(self.cs_pin, Value.ACTIVE)
 
     def _send_command(self, command, data=None):
         """Send command over SPI.
