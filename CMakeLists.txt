@@ -6,6 +6,7 @@ option(INKY_BUILD_EXAMPLES "Build example programs" ON)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 add_library(inky
@@ -41,4 +42,3 @@ if(INKY_BUILD_EXAMPLES)
     add_executable(inky_e673_example examples/e673_show.cpp)
     target_link_libraries(inky_e673_example PRIVATE inky)
 endif()
-

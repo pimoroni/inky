@@ -6,6 +6,7 @@
 #include <limits>
 #include <stdexcept>
 #include <thread>
+#include <span>
 
 namespace inky {
 namespace {
