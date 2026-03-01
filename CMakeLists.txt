@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 project(inky_cpp VERSION 0.1.0 LANGUAGES CXX)
 
 option(INKY_ENABLE_LINUX_GPIOD "Enable the libgpiod + spidev hardware backend" ON)
+option(INKY_REQUIRE_LINUX_GPIOD "Fail configure if INKY_ENABLE_LINUX_GPIOD is ON and libgpiod is unavailable" OFF)
 option(INKY_BUILD_EXAMPLES "Build example programs" ON)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -26,15 +27,22 @@ target_compile_features(inky PUBLIC cxx_std_20)
 if(INKY_ENABLE_LINUX_GPIOD)
     find_package(PkgConfig)
     if(PkgConfig_FOUND)
-        pkg_check_modules(GPIOD libgpiod>=1.6)
+        pkg_check_modules(GPIOD IMPORTED_TARGET libgpiod>=1.6)
     endif()
 
     if(GPIOD_FOUND)
         target_compile_definitions(inky PUBLIC INKY_ENABLE_LINUX_GPIOD)
-        target_include_directories(inky PRIVATE ${GPIOD_INCLUDE_DIRS})
-        target_link_libraries(inky PRIVATE ${GPIOD_LIBRARIES})
+        target_link_libraries(inky PRIVATE PkgConfig::GPIOD)
+        message(STATUS "Linux gpiod backend enabled")
     else()
-        message(WARNING "libgpiod not found; Linux hardware backend disabled")
+        if(INKY_REQUIRE_LINUX_GPIOD)
+            message(FATAL_ERROR
+                "INKY_REQUIRE_LINUX_GPIOD is ON, but libgpiod>=1.6 was not found.\n"
+                "Check that your target sysroot contains libgpiod development files and libgpiod.pc."
+            )
+        else()
+            message(WARNING "libgpiod not found; Linux hardware backend disabled")
+        endif()
     endif()
 endif()
 
