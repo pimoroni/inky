@@ -1,0 +1,63 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "CMake: Configure",
+			"type": "shell",
+			"command": "cmake",
+			"args": [
+				"-S",
+				"${workspaceFolder}",
+				"-B",
+				"${workspaceFolder}/build",
+				"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+				"-DCMAKE_BUILD_TYPE=Debug"
+			],
+			"group": "build",
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			}
+		},
+		{
+			"label": "CMake: Build",
+			"type": "shell",
+			"command": "cmake",
+			"args": [
+				"--build",
+				"${workspaceFolder}/build",
+				"--config",
+				"Debug",
+				"--",
+				"-j"
+			],
+			"dependsOn": "CMake: Configure",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			}
+		},
+		{
+			"label": "CMake: Clean",
+			"type": "shell",
+			"command": "cmake",
+			"args": [
+				"--build",
+				"${workspaceFolder}/build",
+				"--target",
+				"clean",
+				"--config",
+				"Debug"
+			],
+			"group": "build",
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			}
+		}
+	]
+}

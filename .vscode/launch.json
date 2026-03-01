@@ -1,0 +1,26 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Debug: inky_e673_example",
+			"type": "cppdbg",
+			"request": "launch",
+			"program": "${workspaceFolder}/build/inky_e673_example",
+			"args": [],
+			"stopAtEntry": false,
+			"cwd": "${workspaceFolder}",
+			"environment": [],
+			"externalConsole": false,
+			"MIMode": "gdb",
+			"miDebuggerPath": "/usr/bin/gdb",
+			"preLaunchTask": "CMake: Build",
+			"setupCommands": [
+				{
+					"description": "Enable pretty-printing for gdb",
+					"text": "-enable-pretty-printing",
+					"ignoreFailures": true
+				}
+			]
+		}
+	]
+}

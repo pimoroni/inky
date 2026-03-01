@@ -1,0 +1,62 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 16,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "native-debug",
+      "displayName": "Native Debug",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "name": "rpi-aarch64-release",
+      "displayName": "Raspberry Pi OS 64-bit Release",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build-rpi-aarch64",
+      "toolchainFile": "${sourceDir}/cmake/toolchains/rpi-aarch64.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CMAKE_SYSROOT": "${sourceDir}/.sysroot",
+        "INKY_ENABLE_LINUX_GPIOD": "ON",
+        "INKY_REQUIRE_LINUX_GPIOD": "ON"
+      }
+    },
+    {
+      "name": "rpi-armhf-release",
+      "displayName": "Raspberry Pi OS 32-bit Release",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build-rpi-armhf",
+      "toolchainFile": "${sourceDir}/cmake/toolchains/rpi-armhf.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CMAKE_SYSROOT": "${sourceDir}/.sysroot",
+        "INKY_ENABLE_LINUX_GPIOD": "ON",
+        "INKY_REQUIRE_LINUX_GPIOD": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "native-debug",
+      "configurePreset": "native-debug"
+    },
+    {
+      "name": "rpi-aarch64-release",
+      "configurePreset": "rpi-aarch64-release"
+    },
+    {
+      "name": "rpi-armhf-release",
+      "configurePreset": "rpi-armhf-release"
+    }
+  ]
+}
