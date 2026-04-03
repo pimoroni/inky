@@ -43,6 +43,9 @@ Keep copied Python files under:
 
 - `reference/python/driver/`
 - `reference/python/examples/`
+- `reference/python/tests/`
+- `reference/python/packaging/`
+- `reference/python/scripts/`
 - `reference/python/notes/`
 
 Do not place new Python reference files in root-level C++ source folders.

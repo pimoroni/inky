@@ -23,6 +23,9 @@ The original repository README has been preserved at:
 
 - `driver/` selected upstream modules needed for porting
 - `examples/` selected examples used for parity checks
+- `tests/` archived Python tests kept only for behavioral reference
+- `packaging/` Python packaging and QA metadata from the original project
+- `scripts/` original Python install/build helper scripts kept as historical reference
 - `notes/` optional mapping notes from Python symbols to C++ symbols
 
 Only copy the minimal subset needed for active porting work.
@@ -31,6 +34,9 @@ Only copy the minimal subset needed for active porting work.
 
 - `reference/python/driver/`
 - `reference/python/examples/`
+- `reference/python/tests/`
+- `reference/python/packaging/`
+- `reference/python/scripts/`
 - `reference/python/notes/`
 
 ## Current Snapshot Contents
@@ -51,3 +57,20 @@ Examples moved for behavior checks:
 - `reference/python/examples/spectra6/buttons.py`
 - `reference/python/examples/spectra6/led.py`
 - `reference/python/examples/spectra6/comics/comic.py`
+
+Python packaging metadata preserved as reference:
+
+- `reference/python/pyproject.toml`
+- `reference/python/packaging/.coveragerc`
+- `reference/python/packaging/MANIFEST.in`
+- `reference/python/packaging/requirements.txt`
+- `reference/python/packaging/requirements-dev.txt`
+- `reference/python/packaging/requirements-examples.txt`
+- `reference/python/packaging/tox.ini`
+
+Archived Python helper scripts:
+
+- `reference/python/scripts/Makefile`
+- `reference/python/scripts/check.sh`
+- `reference/python/scripts/install.sh`
+- `reference/python/scripts/uninstall.sh`

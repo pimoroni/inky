@@ -7,36 +7,27 @@ on:
       - main
 
 jobs:
-  test:
-    name: Test (Python ${{ matrix.python }})
+  example-smoke-test:
+    name: Example smoke test
     runs-on: ubuntu-latest
-    env:
-      TERM: xterm-256color
-    strategy:
-      matrix:
-        python: ['3.9', '3.10', '3.11']
 
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python }}
-
-      - name: Install Dependencies
+      - name: Install dependencies
         run: |
-          make dev-deps
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build g++ pkg-config
 
-      - name: Run Tests
+      - name: Configure
         run: |
-          make pytest
+          cmake -S . -B build -G Ninja -DINKY_ENABLE_LINUX_GPIOD=OFF
 
-      - name: Coverage
-        if: ${{ matrix.python == '3.9' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build
         run: |
-          python -m pip install coveralls
+          cmake --build build
 
+      - name: Run example
+        run: |
+          ./build/inky_e673_example

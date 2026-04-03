@@ -7,34 +7,27 @@ on:
       - main
 
 jobs:
-  test:
-    name: Install (Python ${{ matrix.python }})
+  install:
+    name: CMake install
     runs-on: ubuntu-latest
-    env:
-      TERM: xterm-256color
-    strategy:
-      matrix:
-        python: ['3.9', '3.10', '3.11']
 
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python }}
-
-      - name: Stub files & Patch install.sh
+      - name: Install dependencies
         run: |
-          mkdir -p boot/firmware
-          touch boot/firmware/config.txt
-          sed -i "s|/boot/firmware|`pwd`/boot/firmware|g" install.sh
-          sed -i "s|sudo raspi-config|raspi-config|g" pyproject.toml
-          touch raspi-config
-          chmod +x raspi-config
-          echo `pwd` >> $GITHUB_PATH
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build g++ pkg-config
 
-      - name: Run install.sh
+      - name: Configure
         run: |
-          ./install.sh --unstable --force
+          cmake -S . -B build -G Ninja -DINKY_ENABLE_LINUX_GPIOD=OFF
+
+      - name: Build
+        run: |
+          cmake --build build
+
+      - name: Install
+        run: |
+          cmake --install build --prefix "$PWD/stage"

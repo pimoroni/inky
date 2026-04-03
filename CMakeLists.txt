@@ -50,3 +50,22 @@ if(INKY_BUILD_EXAMPLES)
     add_executable(inky_e673_example examples/e673_show.cpp)
     target_link_libraries(inky_e673_example PRIVATE inky)
 endif()
+
+include(GNUInstallDirs)
+
+install(TARGETS inky
+    EXPORT inkyTargets
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+install(DIRECTORY include/
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+if(INKY_BUILD_EXAMPLES)
+    install(TARGETS inky_e673_example
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    )
+endif()

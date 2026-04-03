@@ -7,33 +7,25 @@ on:
       - main
 
 jobs:
-  test:
-    name: Linting & Spelling
+  warning-clean-build:
+    name: Warning-clean build
     runs-on: ubuntu-latest
-    env:
-      TERM: xterm-256color
 
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python '3,11'
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install Dependencies
+      - name: Install dependencies
         run: |
-          make dev-deps
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build g++ pkg-config
 
-      - name: Run Quality Assurance
+      - name: Configure
+        env:
+          CXXFLAGS: -Wall -Wextra -Wpedantic -Werror
         run: |
-          make qa
+          cmake -S . -B build -G Ninja -DINKY_ENABLE_LINUX_GPIOD=OFF
 
-      - name: Run Code Checks
+      - name: Build
         run: |
-          make check
-
-      - name: Run Bash Code Checks
-        run: |
-          make shellcheck
+          cmake --build build

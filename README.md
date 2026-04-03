@@ -20,6 +20,7 @@ The C++ port keeps hardware access abstracted so the code can run against:
 - in-memory/mock backends for development and tests
 
 Python materials are kept in `reference/python/` only as temporary reference for porting.
+The root `examples/` tree is reserved for C++ examples only.
 
 ## Requirements
 
@@ -130,6 +131,13 @@ Example target built by default:
 - Progress tracker: `docs/porting-status.md`
 - Python reference snapshot: `reference/python/README.md`
 - Original upstream-style README (preserved): `reference/python/README_ORIGINAL.md`
+
+## Repository Layout
+
+- `include/` public C++ headers
+- `src/` C++ driver and hardware implementation
+- `examples/` C++ examples only
+- `reference/python/` archived Python package, examples, tests, and packaging helpers used only for porting reference
 
 ## Troubleshooting
 

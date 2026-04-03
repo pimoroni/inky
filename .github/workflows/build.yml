@@ -7,36 +7,28 @@ on:
       - main
 
 jobs:
-  test:
-    name: Build (Python ${{ matrix.python }})
+  build:
+    name: Build (${{ matrix.compiler }})
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: ['3.9', '3.10', '3.11']
-
-    env:
-      RELEASE_FILE: ${{ github.event.repository.name }}-${{ github.event.release.tag_name || github.sha }}-py${{ matrix.python }}
-      TERM: xterm-256color
+        compiler: [g++, clang++]
 
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python }}
-
-      - name: Install Dependencies
+      - name: Install dependencies
         run: |
-          make dev-deps
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build g++ clang pkg-config
 
-      - name: Build Packages
+      - name: Configure
+        env:
+          CXX: ${{ matrix.compiler }}
         run: |
-          make build
+          cmake -S . -B build -G Ninja -DINKY_ENABLE_LINUX_GPIOD=OFF
 
-      - name: Upload Packages
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.RELEASE_FILE }}
-          path: dist/
+      - name: Build
+        run: |
+          cmake --build build
