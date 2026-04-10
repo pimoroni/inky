@@ -206,3 +206,4 @@ Links to community projects and other resources that you might find helpful can 
 - [phpSimpleInkyImageServer](https://github.com/Indiana8000/phpSimpleInkyImageServer) - a simple python + php script to supply Inky with images
 - [Inky Star Map](https://github.com/Marcel-Jan/inkystarmap) - displays a map of the night sky generated with [starplot](https://starplot.dev/)
 - [Inky Photo Frame](https://github.com/mehdi7129/inky-photo-frame)
+- [Wall-E - an interactive picture frame powered by Google Gemini](https://github.com/lahirumaramba/wall-e)
