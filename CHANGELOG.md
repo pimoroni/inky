@@ -1,3 +1,8 @@
+2.4.0
+-----
+
+* New: Support for the new AC Waveform Spectra 6 displays.
+
 2.3.0
 -----
 
