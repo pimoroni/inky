@@ -51,6 +51,7 @@ CS_BOTH_SEL = CS0_SEL | CS1_SEL
 EL133UF1_PSR = 0x00
 EL133UF1_PWR = 0x01
 EL133UF1_POF = 0x02
+EL133UF1_POFS = 0x03
 EL133UF1_PON = 0x04
 EL133UF1_BTST_N = 0x05
 EL133UF1_BTST_P = 0x06
@@ -74,6 +75,9 @@ EL133UF1_VDCS = 0x82
 EL133UF1_PTLW = 0x83
 EL133UF1_ANTM = 0x74
 EL133UF1_AGID = 0x86
+EL133UF1_CMDA4 = 0xA4
+EL133UF1_DCDC = 0xA5
+EL133UF1_CCSET = 0xE0
 EL133UF1_PWS = 0xE3
 EL133UF1_TSSET = 0xE5
 EL133UF1_CMD66 = 0xF0
@@ -233,23 +237,29 @@ class Inky:
 
         self._busy_wait(0.3)
 
-        self._send_command(EL133UF1_ANTM, CS0_SEL, [0xC0, 0x1C, 0x1C, 0xCC, 0xCC, 0xCC, 0x15, 0x15, 0x55])
+        self._send_command(EL133UF1_ANTM, CS0_SEL, [0x00, 0x0C, 0x0C, 0xD9, 0xDD, 0xDD, 0x15, 0x15, 0x55])
 
         self._send_command(EL133UF1_CMD66, CS_BOTH_SEL, [0x49, 0x55, 0x13, 0x5D, 0x05, 0x10])
-        self._send_command(EL133UF1_PSR, CS_BOTH_SEL, [0xDF, 0x69])
+        self._send_command(EL133UF1_PSR, CS_BOTH_SEL, [0xDF, 0x6B])
+        self._send_command(EL133UF1_DCDC, CS0_SEL, [0x44, 0x54, 0x00])
         self._send_command(EL133UF1_PLL, CS_BOTH_SEL, [0x08])
-        self._send_command(EL133UF1_CDI, CS_BOTH_SEL, [0xF7])
+        self._send_command(EL133UF1_CDI, CS_BOTH_SEL, [0x37])
         self._send_command(EL133UF1_TCON, CS_BOTH_SEL, [0x03, 0x03])
+
+        self._send_command(EL133UF1_POFS, CS0_SEL, [0x00, 0xC0, 0x03, 0xA8])
+        self._send_command(EL133UF1_POFS, CS1_SEL, [0x00, 0xC0, 0x03, 0x9A])
+
         self._send_command(EL133UF1_AGID, CS_BOTH_SEL, [0x10])
         self._send_command(EL133UF1_PWS, CS_BOTH_SEL, [0x22])
         self._send_command(EL133UF1_CCSET, CS_BOTH_SEL, [0x01])
         self._send_command(EL133UF1_TRES, CS_BOTH_SEL, [0x04, 0xB0, 0x03, 0x20])
 
+        self._send_command(EL133UF1_CMDA4, CS0_SEL, [0x03, 0x00, 0x01, 0x03, 0x00, 0x03, 0x00, 0x00, 0x00])
         self._send_command(EL133UF1_PWR, CS0_SEL, [0x0F, 0x00, 0x28, 0x2C, 0x28, 0x38])
         self._send_command(EL133UF1_EN_BUF, CS0_SEL, [0x07])
-        self._send_command(EL133UF1_BTST_P, CS0_SEL, [0xD8, 0x18])
+        self._send_command(EL133UF1_BTST_P, CS0_SEL, [0xE0, 0x20])
         self._send_command(EL133UF1_BOOST_VDDP_EN, CS0_SEL, [0x01])
-        self._send_command(EL133UF1_BTST_N, CS0_SEL, [0xD8, 0x18])
+        self._send_command(EL133UF1_BTST_N, CS0_SEL, [0xE0, 0x20])
         self._send_command(EL133UF1_BUCK_BOOST_VDDN, CS0_SEL, [0x01])
         self._send_command(EL133UF1_TFT_VCOM_POWER, CS0_SEL, [0x02])
 

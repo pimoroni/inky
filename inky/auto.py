@@ -39,9 +39,9 @@ def auto(i2c_bus=None, ask_user=False, verbose=False):
             return InkyWHAT_SSD1683((400, 300), _eeprom.get_color())
         if _eeprom.display_variant == 20:
             return InkyAC073TC1A(resolution=(800, 480))
-        if _eeprom.display_variant == 21:
+        if _eeprom.display_variant in (21, 27):
             return InkyEL133UF1(resolution=(1600, 1200))
-        if _eeprom.display_variant == 22:
+        if _eeprom.display_variant in (22, 26):
             return InkyE673(resolution=(800, 480))
         if _eeprom.display_variant == 23:
             return InkyJD79661(resolution=(250, 122))

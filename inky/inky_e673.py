@@ -261,6 +261,9 @@ class Inky:
         self._send_command(EL673_POF, [0x00])
         self._busy_wait(0.3)
 
+        self._send_command(EL673_PSR, [0x4F, 0x6E])
+        self._busy_wait(0.3)
+
     def set_pixel(self, x, y, v):
         """Set a single pixel.
 

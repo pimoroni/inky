@@ -35,7 +35,9 @@ DISPLAY_VARIANT = [
     "Spectra 6 7.3 800 x 480 (E673)",
     "Red/Yellow pHAT (JD79661)",
     "Red/Yellow wHAT (JD79668)",
-    "Spectra 6 4.0 600 x 400 (E640)"
+    "Spectra 6 4.0 600 x 400 (E640)",
+    "Spectra 6 7.3 800 x 480 (E673) AC",
+    "Spectra 6 13.3 1600 x 1200 (EL133UF1) AC"
 ]
 
 
