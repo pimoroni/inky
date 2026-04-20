@@ -233,10 +233,10 @@ class Inky:
             time.sleep(timeout)
             return
 
-        t_start = time.time()
+        t_start = time.monotonic()
         while not self._gpio.get_value(self.busy_pin) == Value.ACTIVE:
             time.sleep(0.1)
-            if time.time() - t_start > timeout:
+            if time.monotonic() - t_start > timeout:
                 warnings.warn(f"Busy Wait: Timed out after {timeout:0.2f}s")
                 return
 
