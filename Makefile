@@ -1,7 +1,7 @@
 LIBRARY_NAME := $(shell hatch project metadata name 2> /dev/null)
 LIBRARY_VERSION := $(shell hatch version 2> /dev/null)
 
-.PHONY: usage install uninstall check pytest qa build-deps check tag wheel sdist clean dist testdeploy deploy
+.PHONY: usage version install uninstall dev-deps check pre-commit qa pytest nopost tag build clean testdeploy deploy
 usage:
 ifdef LIBRARY_NAME
 	@echo "Library: ${LIBRARY_NAME}"
@@ -13,8 +13,9 @@ endif
 	@echo "install:      install the library locally from source"
 	@echo "uninstall:    uninstall the local library"
 	@echo "dev-deps:     install Python dev dependencies"
-	@echo "check:        perform basic integrity checks on the codebase"
-	@echo "qa:           run linting and package QA"
+	@echo "check:        verify CHANGELOG.md has an entry for the current version"
+	@echo "qa:           run package QA (check-manifest, build, twine)"
+	@echo "pre-commit:   run pre-commit hooks (lint, whitespace) on all files"
 	@echo "pytest:       run Python test fixtures"
 	@echo "clean:        clean Python build and dist directories"
 	@echo "build:        build Python distribution files"
@@ -32,14 +33,20 @@ uninstall:
 	./uninstall.sh
 
 dev-deps:
-	python3 -m pip install -r requirements-dev.txt
-	sudo apt install dos2unix shellcheck
+	python3 -m pip install --group dev
+	pre-commit install
 
 check:
-	@bash check.sh
+	@LIBRARY_VERSION=`hatch version | awk -F '.' '{print $$1"."$$2"."$$3}'`; \
+	if grep -q "^$$LIBRARY_VERSION" CHANGELOG.md; then \
+		echo "Changes found for version $$LIBRARY_VERSION."; \
+	else \
+		echo "Changes missing for version $$LIBRARY_VERSION! Please update CHANGELOG.md."; \
+		exit 1; \
+	fi
 
-shellcheck:
-	shellcheck *.sh
+pre-commit:
+	pre-commit run --all-files
 
 qa:
 	tox -e qa
@@ -48,13 +55,17 @@ pytest:
 	tox -e py
 
 nopost:
-	@bash check.sh --nopost
+	@POST_VERSION=`hatch version | awk -F '.' '{print $$4}'`; \
+	if [ -n "$$POST_VERSION" ]; then \
+		echo "Found .$$POST_VERSION on library version; only use these for testpypi releases."; \
+		exit 1; \
+	fi
 
 tag: version
 	git tag -a "v${LIBRARY_VERSION}" -m "Version ${LIBRARY_VERSION}"
 
 build: check
-	@hatch build
+	uv build
 
 clean:
 	-rm -r dist

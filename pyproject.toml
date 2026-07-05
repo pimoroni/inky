@@ -7,7 +7,7 @@ name = "inky"
 dynamic = ["version", "readme", "optional-dependencies"]
 description = "Inky pHAT Driver"
 license = {file = "LICENSE"}
-requires-python = ">= 3.7"
+requires-python = ">= 3.9"
 authors = [
     { name = "Philip Howard", email = "phil@pimoroni.com" },
 ]
@@ -24,11 +24,11 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3 :: Only",
     "Topic :: Software Development",
     "Topic :: Software Development :: Libraries",
@@ -49,15 +49,26 @@ example-depends = ["requirements-examples.txt"]
 GitHub = "https://www.github.com/pimoroni/inky"
 Homepage = "https://www.pimoroni.com"
 
+[dependency-groups]
+dev = [
+    "check-manifest",
+    "ruff",
+    "codespell",
+    "pre-commit",
+    "twine",
+    "hatch",
+    "hatch-fancy-pypi-readme",
+    "hatch-requirements-txt",
+    "tox",
+    "pdoc",
+]
+
 [tool.hatch.version]
 path = "inky/__init__.py"
 
 [tool.hatch.build]
 include = [
     "inky",
-    "README.md",
-    "CHANGELOG.md",
-    "LICENSE",
     "requirements-examples.txt"
 ]
 
@@ -89,6 +100,9 @@ exclude = [
 ]
 line-length = 200
 
+[tool.ruff.lint]
+extend-select = ["I"]
+
 [tool.codespell]
 skip = """
 ./.tox,\
@@ -99,17 +113,9 @@ skip = """
 ./dist.\
 """
 
-[tool.isort]
-line_length = 200
-
-[tool.black]
-line-length = 200
-
 [tool.check-manifest]
 ignore = [
-    '.stickler.yml',
     'boilerplate.md',
-    'check.sh',
     'install.sh',
     'uninstall.sh',
     'Makefile',
@@ -117,7 +123,8 @@ ignore = [
     'tests/*',
     'examples/*',
     '.coveragerc',
-    'requirements-dev.txt'
+    '.editorconfig',
+    '.pre-commit-config.yaml',
 ]
 
 [tool.pimoroni]
