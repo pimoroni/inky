@@ -279,6 +279,32 @@ class Inky:
                 warnings.warn(f"Busy Wait: Timed out after {timeout:0.2f}s")
                 return
 
+    def _refresh_wait(self, timeout=65.0):
+        """Wait for a display refresh to complete.
+
+        Unlike ``_busy_wait``, the EL133UF1 BUSY line is *active-LOW* during a
+        refresh: after DRF the line drops LOW (INACTIVE) while the panel is
+        updating, then returns HIGH (ACTIVE) once the refresh is done. Poll for
+        the line to first assert busy (LOW), then wait for it to clear (HIGH),
+        so we never send POF mid-refresh (which can latch the panel into a fault
+        that only full power removal recovers).
+        """
+        t_start = time.time()
+
+        # Wait for the panel to assert BUSY (line drops LOW) after DRF.
+        while self._gpio.get_value(self.busy_pin) == Value.ACTIVE:
+            if time.time() - t_start > timeout:
+                warnings.warn(f"Refresh Wait: Timed out waiting for busy after {timeout:0.2f}s")
+                return
+            time.sleep(0.01)
+
+        # Wait for the refresh to complete (line returns HIGH).
+        while self._gpio.get_value(self.busy_pin) == Value.INACTIVE:
+            if time.time() - t_start > timeout:
+                warnings.warn(f"Refresh Wait: Timed out after {timeout:0.2f}s")
+                return
+            time.sleep(0.1)
+
     def _update(self, buf_a, buf_b):
         """Update display.
         Dispatches display update to correct driver.
@@ -292,7 +318,7 @@ class Inky:
         self._busy_wait(0.2)
 
         self._send_command(EL133UF1_DRF, CS_BOTH_SEL, [0x00])
-        self._busy_wait(32.0)
+        self._refresh_wait(65.0)
 
         self._send_command(EL133UF1_POF, CS_BOTH_SEL, [0x00])
         self._busy_wait(0.2)
