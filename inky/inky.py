@@ -2,7 +2,6 @@
 import struct
 import time
 import warnings
-from datetime import timedelta
 
 import gpiod
 import gpiodevice
@@ -267,11 +266,8 @@ class Inky:
     def _busy_wait(self, timeout=30.0):
         """Wait for busy/wait pin."""
         if self._gpio.get_value(self.busy_pin) == Value.ACTIVE:
-            event = self._gpio.wait_edge_events(timedelta(seconds=timeout))
-            if not event:
+            if gpiodevice.wait_for_edge(self._gpio, self.busy_pin, timeout) is None:
                 raise RuntimeError("Timeout waiting for busy signal to clear.")
-            for event in self._gpio.read_edge_events():
-                pass
 
     def _update(self, buf_a, buf_b, busy_wait=True):
         """Update display.

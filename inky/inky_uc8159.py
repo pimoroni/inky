@@ -332,14 +332,11 @@ class Inky:
             time.sleep(timeout)
             return
 
-        event = self._gpio.wait_edge_events(timedelta(seconds=timeout))
-        if not event:
+        # The busy line is requested with edge_detection=Edge.RISING, so the first
+        # event is the rising edge we're waiting for.
+        if gpiodevice.wait_for_edge(self._gpio, self.busy_pin, timeout) is None:
             warnings.warn(f"Busy Wait: Timed out after {timeout:0.2f}s")
             return
-
-        for event in self._gpio.read_edge_events():
-            if event.Type == Edge.RISING:
-                return
 
     def _update(self, buf):
         """Update display.

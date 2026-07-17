@@ -39,7 +39,7 @@ dependencies = [
     "pillow",
     "smbus2",
     "spidev",
-    "gpiodevice>=0.0.3"
+    "gpiodevice>=0.1.0"
 ]
 
 [tool.hatch.metadata.hooks.requirements_txt.optional-dependencies]

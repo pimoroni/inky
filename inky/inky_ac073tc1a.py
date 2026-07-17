@@ -287,13 +287,9 @@ class Inky:
             time.sleep(timeout)
             return
 
-        event = self._gpio.wait_edge_events(timedelta(seconds=timeout))
-        if not event:
+        if gpiodevice.wait_for_edge(self._gpio, self.busy_pin, timeout) is None:
             warnings.warn(f"Busy Wait: Timed out after {timeout:0.2f}s")
             return
-
-        for event in self._gpio.read_edge_events():
-            print(timeout, event)
 
     def _update(self, buf):
         """Update display.
