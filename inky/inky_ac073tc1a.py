@@ -258,7 +258,8 @@ class Inky:
 
         self._send_command(AC073TC1_TSE, [0x00])
 
-        self._send_command(AC073TC1_CDI, [0x3F])
+        cdi = (self.border_colour << 5) | 0x17
+        self._send_command(AC073TC1_CDI, [cdi])
 
         self._send_command(AC073TC1_TCON, [0x02, 0x00])
 
