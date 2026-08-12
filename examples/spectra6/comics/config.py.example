@@ -1,0 +1,5 @@
+# Metron API credentials
+# Copy this file to config.py and add your credentials
+
+username = "your_username_here"
+password = "your_password_here"
