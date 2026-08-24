@@ -1,6 +1,7 @@
 """Inky e-Ink Display Driver."""
 import time
 import warnings
+from typing import ClassVar
 
 import gpiod
 import gpiodevice
@@ -107,7 +108,7 @@ class Inky:
     WIDTH = 0
     HEIGHT = 0
 
-    DESATURATED_PALETTE = [
+    DESATURATED_PALETTE: ClassVar = [
         [0, 0, 0],
         [255, 255, 255],
         [255, 255, 0],
@@ -116,7 +117,7 @@ class Inky:
         [0, 255, 0],
         [255, 255, 255]]
 
-    SATURATED_PALETTE = [
+    SATURATED_PALETTE: ClassVar = [
         [0, 0, 0],
         [161, 164, 165],
         [208, 190, 71],
@@ -125,7 +126,7 @@ class Inky:
         [58, 91, 70],
         [255, 255, 255]]
 
-    def __init__(self, resolution=None, colour="multi", cs_pin_0=CS0_PIN, cs_pin_1=CS1_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):  # noqa: E501
+    def __init__(self, resolution=None, colour="multi", cs_pin_0=CS0_PIN, cs_pin_1=CS1_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):
         """Initialise an Inky Display.
         :param resolution: (width, height) in pixels, default: (1600, 1200)
         :param colour: one of red, black or yellow, default: black
@@ -142,12 +143,9 @@ class Inky:
 
         # Check for supported display variant and select the correct resolution
         if resolution is None:
-            if self.eeprom is not None and self.eeprom.display_variant == 21:
-                resolution = [_RESOLUTION_13_3_INCH, None, _RESOLUTION_13_3_INCH][self.eeprom.display_variant]
-            else:
-                resolution = _RESOLUTION_13_3_INCH
+            resolution = [_RESOLUTION_13_3_INCH, None, _RESOLUTION_13_3_INCH][self.eeprom.display_variant] if self.eeprom is not None and self.eeprom.display_variant == 21 else _RESOLUTION_13_3_INCH
 
-        if resolution not in _RESOLUTION.keys():
+        if resolution not in _RESOLUTION:
             raise ValueError(f"Resolution {resolution[0]}x{resolution[1]} not supported!")
 
         self.resolution = resolution
@@ -276,7 +274,7 @@ class Inky:
         while self._gpio.get_value(self.busy_pin) == Value.ACTIVE:
             time.sleep(0.1)
             if time.monotonic() - t_start > timeout:
-                warnings.warn(f"Busy Wait: Timed out after {timeout:0.2f}s")
+                warnings.warn(f"Busy Wait: Timed out after {timeout:0.2f}s", stacklevel=2)
                 return
 
     def _refresh_wait(self, timeout=65.0):

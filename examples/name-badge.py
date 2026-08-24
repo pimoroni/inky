@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import contextlib
 
 from font_hanken_grotesk import HankenGroteskBold, HankenGroteskMedium
 from font_intuitive import Intuitive
@@ -21,17 +22,15 @@ def getsize(font, text):
 try:
     inky_display = auto(ask_user=True, verbose=True)
 except TypeError:
-    raise TypeError("You need to update the Inky library to >= v1.1.0")
+    raise TypeError("You need to update the Inky library to >= v1.1.0") from None
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--name", "-n", type=str, required=True, help="Your name")
 args, _ = parser.parse_known_args()
 
 # inky_display.set_rotation(180)
-try:
+with contextlib.suppress(NotImplementedError):
     inky_display.set_border(inky_display.RED)
-except NotImplementedError:
-    pass
 
 # Figure out scaling for display size
 
@@ -72,16 +71,16 @@ y_bottom = y_top + int(inky_display.height * (4.0 / 10.0))
 
 # Draw the red, white, and red strips
 
-for y in range(0, y_top):
-    for x in range(0, inky_display.width):
+for y in range(y_top):
+    for x in range(inky_display.width):
         img.putpixel((x, y), inky_display.BLACK if inky_display.colour == "black" else inky_display.RED)
 
 for y in range(y_top, y_bottom):
-    for x in range(0, inky_display.width):
+    for x in range(inky_display.width):
         img.putpixel((x, y), inky_display.WHITE)
 
 for y in range(y_bottom, inky_display.height):
-    for x in range(0, inky_display.width):
+    for x in range(inky_display.width):
         img.putpixel((x, y), inky_display.BLACK if inky_display.colour == "black" else inky_display.RED)
 
 # Calculate the positioning and draw the "Hello" text

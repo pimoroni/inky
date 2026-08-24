@@ -73,7 +73,7 @@ class Inky:
         self._spi_bus = spi_bus
         self._i2c_bus = i2c_bus
 
-        if resolution not in _RESOLUTION.keys():
+        if resolution not in _RESOLUTION:
             raise ValueError("Resolution {}x{} not supported!".format(*resolution))
 
         self.resolution = resolution
@@ -81,7 +81,7 @@ class Inky:
         self.cols, self.rows, self.rotation = _RESOLUTION[resolution]
 
         if colour not in ("red", "black", "yellow"):
-            raise ValueError("Colour {} is not supported!".format(colour))
+            raise ValueError(f"Colour {colour} is not supported!")
 
         self.colour = colour
         self.eeprom = eeprom.read_eeprom(i2c_bus=i2c_bus)
@@ -89,7 +89,7 @@ class Inky:
 
         if self.eeprom is not None:
             if self.eeprom.width != self.width or self.eeprom.height != self.height:
-                raise ValueError("Supplied width/height do not match Inky: {}x{}".format(self.eeprom.width, self.eeprom.height))
+                raise ValueError(f"Supplied width/height do not match Inky: {self.eeprom.width}x{self.eeprom.height}")
             if self.eeprom.display_variant in (1, 6) and self.eeprom.get_color() == "red":
                 self.lut = "red_ht"
 
@@ -250,7 +250,7 @@ class Inky:
             try:
                 self._spi_bus.no_cs = True
             except OSError:
-                warnings.warn("SPI: Cannot disable chip-select!")
+                warnings.warn("SPI: Cannot disable chip-select!", stacklevel=2)
             self._spi_bus.max_speed_hz = 488000
 
             self._gpio_setup = True
@@ -265,9 +265,8 @@ class Inky:
 
     def _busy_wait(self, timeout=30.0):
         """Wait for busy/wait pin."""
-        if self._gpio.get_value(self.busy_pin) == Value.ACTIVE:
-            if gpiodevice.wait_for_edge(self._gpio, self.busy_pin, timeout) is None:
-                raise RuntimeError("Timeout waiting for busy signal to clear.")
+        if self._gpio.get_value(self.busy_pin) == Value.ACTIVE and gpiodevice.wait_for_edge(self._gpio, self.busy_pin, timeout) is None:
+            raise RuntimeError("Timeout waiting for busy signal to clear.")
 
     def _update(self, buf_a, buf_b, busy_wait=True):
         """Update display.
@@ -286,7 +285,7 @@ class Inky:
         self._send_command(0x74, 0x54)  # Set Analog Block Control
         self._send_command(0x7E, 0x3B)  # Set Digital Block Control
 
-        self._send_command(0x01, packed_height + [0x00])  # Gate setting
+        self._send_command(0x01, [*packed_height, 0])  # Gate setting
 
         self._send_command(0x03, 0x17)  # Gate Driving Voltage
         self._send_command(0x04, [0x41, 0xAC, 0x32])  # Source Driving Voltage
@@ -315,7 +314,7 @@ class Inky:
         self._send_command(0x32, self._luts[self.lut])  # Set LUTs
 
         self._send_command(0x44, [0x00, (self.cols // 8) - 1])  # Set RAM X Start/End
-        self._send_command(0x45, [0x00, 0x00] + packed_height)  # Set RAM Y Start/End
+        self._send_command(0x45, [0, 0, *packed_height])  # Set RAM Y Start/End
 
         # 0x24 == RAM B/W, 0x26 == RAM Red/Yellow/etc
         for data in ((0x24, buf_a), (0x26, buf_b)):
@@ -376,7 +375,7 @@ class Inky:
         """
         image = image.resize((self.width, self.height))
 
-        if not image.mode == "P":
+        if image.mode != "P":
             palette_image = Image.new("P", (1, 1))
             r, g, b = 0, 0, 0
             if self.colour == "red":

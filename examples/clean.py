@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 import argparse
 import time
@@ -24,10 +23,7 @@ args, _ = parser.parse_known_args()
 
 # The number of red / black / white refreshes to run
 
-if args.number:
-    cycles = args.number
-else:
-    cycles = 3
+cycles = args.number or 3
 
 colours = (inky_display.RED, inky_display.BLACK, inky_display.WHITE)
 colour_names = (inky_display.colour, "black", "white")
@@ -40,9 +36,9 @@ img = Image.new("P", (inky_display.WIDTH, inky_display.HEIGHT))
 # fill the display with each colour in turn.
 
 for i in range(cycles):
-    print("Cleaning cycle %i\n" % (i + 1))
+    print(f"Cleaning cycle {i + 1}\n")
     for j, c in enumerate(colours):
-        print("- updating with %s" % colour_names[j])
+        print(f"- updating with {colour_names[j]}")
         inky_display.set_border(c)
         for x in range(inky_display.WIDTH):
             for y in range(inky_display.HEIGHT):

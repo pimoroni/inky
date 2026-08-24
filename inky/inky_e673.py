@@ -1,6 +1,7 @@
 """Inky e-Ink Display Driver."""
 import time
 import warnings
+from typing import ClassVar
 
 import gpiod
 import gpiodevice
@@ -85,7 +86,7 @@ class Inky:
     WIDTH = 0
     HEIGHT = 0
 
-    DESATURATED_PALETTE = [
+    DESATURATED_PALETTE: ClassVar = [
         [0, 0, 0],
         [255, 255, 255],
         [255, 255, 0],
@@ -94,7 +95,7 @@ class Inky:
         [0, 255, 0],
         [255, 255, 255]]
 
-    SATURATED_PALETTE = [
+    SATURATED_PALETTE: ClassVar = [
         [0, 0, 0],
         [161, 164, 165],
         [208, 190, 71],
@@ -103,7 +104,7 @@ class Inky:
         [58, 91, 70],
         [255, 255, 255]]
 
-    def __init__(self, resolution=None, colour="multi", cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):  # noqa: E501
+    def __init__(self, resolution=None, colour="multi", cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):
         """Initialise an Inky Display.
 
         :param resolution: (width, height) in pixels, default: (800, 480)
@@ -124,7 +125,7 @@ class Inky:
         if resolution is None:
             resolution = _RESOLUTION_7_3_INCH
 
-        if resolution not in _RESOLUTION.keys():
+        if resolution not in _RESOLUTION:
             raise ValueError(f"Resolution {resolution[0]}x{resolution[1]} not supported!")
 
         self.resolution = resolution
@@ -234,10 +235,10 @@ class Inky:
             return
 
         t_start = time.monotonic()
-        while not self._gpio.get_value(self.busy_pin) == Value.ACTIVE:
+        while self._gpio.get_value(self.busy_pin) != Value.ACTIVE:
             time.sleep(0.1)
             if time.monotonic() - t_start > timeout:
-                warnings.warn(f"Busy Wait: Timed out after {timeout:0.2f}s")
+                warnings.warn(f"Busy Wait: Timed out after {timeout:0.2f}s", stacklevel=2)
                 return
 
     def _update(self, buf):

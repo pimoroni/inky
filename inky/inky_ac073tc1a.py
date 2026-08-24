@@ -2,6 +2,7 @@
 import time
 import warnings
 from datetime import timedelta
+from typing import ClassVar
 
 import gpiod
 import gpiodevice
@@ -13,7 +14,7 @@ from . import eeprom
 try:
     import numpy
 except ImportError:
-    raise ImportError("This library requires the numpy module\nInstall with: sudo apt install python-numpy")
+    raise ImportError("This library requires the numpy module\nInstall with: sudo apt install python-numpy") from None
 
 BLACK = 0
 WHITE = 1
@@ -94,7 +95,7 @@ class Inky:
     WIDTH = 800
     HEIGHT = 480
 
-    DESATURATED_PALETTE = [
+    DESATURATED_PALETTE: ClassVar = [
         [0, 0, 0],        # Black
         [255, 255, 255],  # White
         [0, 255, 0],      # Green
@@ -105,7 +106,7 @@ class Inky:
         [255, 255, 255]   # Clear
     ]
 
-    SATURATED_PALETTE = [
+    SATURATED_PALETTE: ClassVar = [
         [0, 0, 0],        # Black
         [217, 242, 255],  # White
         [3, 124, 76],     # Green
@@ -116,7 +117,7 @@ class Inky:
         [255, 255, 255]   # Clear
     ]
 
-    def __init__(self, resolution=None, colour="multi", cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):  # noqa: E501
+    def __init__(self, resolution=None, colour="multi", cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):
         """Initialise an Inky Display.
 
         :param resolution: (width, height) in pixels, default: (600, 448)
@@ -141,7 +142,7 @@ class Inky:
             else:
                 resolution = _RESOLUTION_7_3_INCH
 
-        if resolution not in _RESOLUTION.keys():
+        if resolution not in _RESOLUTION:
             raise ValueError("Resolution {}x{} not supported!".format(*resolution))
 
         self.resolution = resolution
@@ -150,7 +151,7 @@ class Inky:
         self.cols, self.rows, self.rotation, self.offset_x, self.offset_y, self.resolution_setting = _RESOLUTION[resolution]
 
         if colour not in ("multi"):
-            raise ValueError("Colour {} is not supported!".format(colour))
+            raise ValueError(f"Colour {colour} is not supported!")
 
         self.colour = colour
         self.lut = colour
@@ -221,7 +222,7 @@ class Inky:
             try:
                 self._spi_bus.no_cs = True
             except OSError:
-                warnings.warn("SPI: Cannot disable chip-select!")
+                warnings.warn("SPI: Cannot disable chip-select!", stacklevel=2)
             self._spi_bus.max_speed_hz = 5000000
 
             self._gpio_setup = True
@@ -283,12 +284,12 @@ class Inky:
         # then assume we're not getting a signal from inky
         # and wait the timeout period to be safe.
         if self._gpio.get_value(self.busy_pin) == Value.ACTIVE:
-            warnings.warn("Busy Wait: Held high. Waiting for {:0.2f}s".format(timeout))
+            warnings.warn(f"Busy Wait: Held high. Waiting for {timeout:0.2f}s", stacklevel=2)
             time.sleep(timeout)
             return
 
         if gpiodevice.wait_for_edge(self._gpio, self.busy_pin, timeout) is None:
-            warnings.warn(f"Busy Wait: Timed out after {timeout:0.2f}s")
+            warnings.warn(f"Busy Wait: Timed out after {timeout:0.2f}s", stacklevel=2)
             return
 
     def _update(self, buf):
@@ -370,8 +371,8 @@ class Inky:
 
         """
         if not image.size == (self.width, self.height):
-            raise ValueError("Image must be ({}x{}) pixels!".format(self.width, self.height))
-        if not image.mode == "P":
+            raise ValueError(f"Image must be ({self.width}x{self.height}) pixels!")
+        if image.mode != "P":
             palette = self._palette_blend(saturation)
             # Image size doesn't matter since it's just the palette we're using
             palette_image = Image.new("P", (1, 1))

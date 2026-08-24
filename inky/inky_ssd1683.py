@@ -40,7 +40,7 @@ class Inky:
     RED = 2
     YELLOW = 2
 
-    def __init__(self, resolution=(400, 300), colour="black", cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):  # noqa: E501
+    def __init__(self, resolution=(400, 300), colour="black", cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):
         """Initialise an Inky Display.
 
         :param resolution: (width, height) in pixels, default: (400, 300)
@@ -56,7 +56,7 @@ class Inky:
         self._spi_bus = spi_bus
         self._i2c_bus = i2c_bus
 
-        if resolution not in _RESOLUTION.keys():
+        if resolution not in _RESOLUTION:
             raise ValueError("Resolution {}x{} not supported!".format(*resolution))
 
         self.resolution = resolution
@@ -64,7 +64,7 @@ class Inky:
         self.cols, self.rows, self.rotation, self.offset_x, self.offset_y = _RESOLUTION[resolution]
 
         if colour not in ("red", "black", "yellow"):
-            raise ValueError("Colour {} is not supported!".format(colour))
+            raise ValueError(f"Colour {colour} is not supported!")
 
         self.colour = colour
         self.eeprom = eeprom.read_eeprom(i2c_bus=i2c_bus)
@@ -75,7 +75,7 @@ class Inky:
             if self.eeprom.display_variant not in SUPPORTED_DISPLAYS:
                 raise RuntimeError("This driver is not compatible with your board.")
             if self.eeprom.width != self.width or self.eeprom.height != self.height:
-                raise ValueError("Supplied width/height do not match Inky: {}x{}".format(self.eeprom.width, self.eeprom.height))
+                raise ValueError(f"Supplied width/height do not match Inky: {self.eeprom.width}x{self.eeprom.height}")
 
         self.buf = numpy.zeros((self.cols, self.rows), dtype=numpy.uint8)
 
@@ -158,9 +158,8 @@ class Inky:
 
     def _busy_wait(self, timeout=30.0):
         """Wait for busy/wait pin."""
-        if self._gpio.get_value(self.busy_pin) == Value.ACTIVE:
-            if gpiodevice.wait_for_edge(self._gpio, self.busy_pin, timeout) is None:
-                raise RuntimeError("Timeout waiting for busy signal to clear.")
+        if self._gpio.get_value(self.busy_pin) == Value.ACTIVE and gpiodevice.wait_for_edge(self._gpio, self.busy_pin, timeout) is None:
+            raise RuntimeError("Timeout waiting for busy signal to clear.")
 
     def _update(self, buf_a, buf_b, busy_wait=True):
         """Update display.
@@ -255,7 +254,7 @@ class Inky:
 
     def set_image(self, image):
         """Copy an image to the display."""
-        if not image.mode == "P":
+        if image.mode != "P":
             palette_image = Image.new("P", (1, 1))
             r, g, b = 0, 0, 0
             if self.colour == "red":

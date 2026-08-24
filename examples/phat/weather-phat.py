@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 import glob
 import json
@@ -45,11 +44,11 @@ PATH = os.path.dirname(__file__)
 try:
     inky_display = auto(ask_user=True, verbose=True)
 except TypeError:
-    raise TypeError("You need to update the Inky library to >= v1.1.0")
+    raise TypeError("You need to update the Inky library to >= v1.1.0") from None
 
 if inky_display.resolution not in ((212, 104), (250, 122)):
     w, h = inky_display.resolution
-    raise RuntimeError("This example does not support {}x{}".format(w, h))
+    raise RuntimeError(f"This example does not support {w}x{h}")
 
 inky_display.set_border(inky_display.BLACK)
 
@@ -113,7 +112,7 @@ icons = {}
 masks = {}
 
 # Get the weather data for the given location
-location_string = "{city}, {countrycode}".format(city=CITY, countrycode=COUNTRYCODE)
+location_string = f"{CITY}, {COUNTRYCODE}"
 weather = get_weather(location_string)
 
 # This maps the weather code from Open Meteo
@@ -172,10 +171,10 @@ datetime = time.strftime("%d/%m %H:%M")
 draw.text((41, 12), datetime, WHITE, font=font)
 
 draw.text((72, 34), "T", WHITE, font=font)
-draw.text((92, 34), "{}°C".format(temperature), WHITE if temperature < WARNING_TEMP else inky_display.RED, font=font)
+draw.text((92, 34), f"{temperature}°C", WHITE if temperature < WARNING_TEMP else inky_display.RED, font=font)
 
 draw.text((72, 58), "W", WHITE, font=font)
-draw.text((92, 58), "{}kmh".format(windspeed), WHITE, font=font)
+draw.text((92, 58), f"{windspeed}kmh", WHITE, font=font)
 
 # Draw the current weather icon over the backdrop
 if weather_icon is not None:

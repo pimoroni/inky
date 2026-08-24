@@ -12,7 +12,7 @@ if len(sys.argv) > 1:
     INKY_COLOUR = sys.argv[1]
 
 if INKY_COLOUR not in ["red", "yellow", "black"]:
-    print("Usage: {} <red, yellow, black>".format(sys.argv[0]))
+    print(f"Usage: {sys.argv[0]} <red, yellow, black>")
     sys.exit(1)
 
 phat = InkyPHAT(INKY_COLOUR)

@@ -52,7 +52,7 @@ Homepage = "https://www.pimoroni.com"
 [dependency-groups]
 dev = [
     "check-manifest",
-    "ruff",
+    "ruff==0.15.20",
     "codespell",
     "pre-commit",
     "twine",
@@ -106,7 +106,7 @@ exclude = [
 line-length = 200
 
 [tool.ruff.lint]
-extend-select = ["I"]
+extend-select = ["I", "UP", "SIM", "PIE", "C4", "B", "RUF", "PERF", "FURB", "PLE"]
 
 [tool.codespell]
 skip = """
