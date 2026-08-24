@@ -289,19 +289,19 @@ class Inky:
         so we never send POF mid-refresh (which can latch the panel into a fault
         that only full power removal recovers).
         """
-        t_start = time.time()
+        t_start = time.monotonic()
 
         # Wait for the panel to assert BUSY (line drops LOW) after DRF.
         while self._gpio.get_value(self.busy_pin) == Value.ACTIVE:
-            if time.time() - t_start > timeout:
-                warnings.warn(f"Refresh Wait: Timed out waiting for busy after {timeout:0.2f}s")
+            if time.monotonic() - t_start > timeout:
+                warnings.warn(f"Refresh Wait: Timed out waiting for busy after {timeout:0.2f}s", stacklevel=2)
                 return
             time.sleep(0.01)
 
         # Wait for the refresh to complete (line returns HIGH).
         while self._gpio.get_value(self.busy_pin) == Value.INACTIVE:
-            if time.time() - t_start > timeout:
-                warnings.warn(f"Refresh Wait: Timed out after {timeout:0.2f}s")
+            if time.monotonic() - t_start > timeout:
+                warnings.warn(f"Refresh Wait: Timed out after {timeout:0.2f}s", stacklevel=2)
                 return
             time.sleep(0.1)
 
