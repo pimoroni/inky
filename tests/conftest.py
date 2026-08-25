@@ -21,10 +21,19 @@ def cleanup():
 
 @pytest.fixture(scope='function', autouse=False)
 def nopath():
+    # A None entry forces ImportError regardless of where tkinter is installed;
+    # stripping sys.path alone misses interpreters that bundle tkinter (e.g. uv).
     old_path = sys.path
+    had_tkinter = "tkinter" in sys.modules
+    old_tkinter = sys.modules.get("tkinter")
     sys.path = [path for path in sys.path if not path.startswith("/usr/lib") and not path.startswith("/opt/hostedtoolcache")]
+    sys.modules["tkinter"] = None
     yield
     sys.path = old_path
+    if had_tkinter:
+        sys.modules["tkinter"] = old_tkinter
+    else:
+        sys.modules.pop("tkinter", None)
 
 
 @pytest.fixture(scope='function', autouse=False)

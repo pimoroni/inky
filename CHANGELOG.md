@@ -1,3 +1,10 @@
+2.4.1
+-----
+
+* Packaging: modernise to uv/hatchling with trusted publishing
+* Lint: general modernisation pass under a wider ruff ruleset
+* Internal: busy/refresh waits use gpiodevice edge helpers and time.monotonic()
+
 2.4.0
 -----
 
