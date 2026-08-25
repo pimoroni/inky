@@ -2,16 +2,16 @@
 import argparse
 
 from . import eeprom
-from .inky_ac073tc1a import Inky as InkyAC073TC1A  # noqa: F401
-from .inky_e640 import Inky as InkyE640  # noqa: F401
-from .inky_e673 import Inky as InkyE673  # noqa: F401
-from .inky_el133uf1 import Inky as InkyEL133UF1  # noqa: F401
-from .inky_jd79661 import Inky as InkyJD79661  # noqa: F401
-from .inky_jd79668 import Inky as InkyJD79668  # noqa: F401
-from .inky_ssd1683 import Inky as InkyWHAT_SSD1683  # noqa: F401
-from .inky_uc8159 import Inky as InkyUC8159  # noqa: F401
-from .phat import InkyPHAT, InkyPHAT_SSD1608  # noqa: F401
-from .what import InkyWHAT  # noqa: F401
+from .inky_ac073tc1a import Inky as InkyAC073TC1A
+from .inky_e640 import Inky as InkyE640
+from .inky_e673 import Inky as InkyE673
+from .inky_el133uf1 import Inky as InkyEL133UF1
+from .inky_jd79661 import Inky as InkyJD79661
+from .inky_jd79668 import Inky as InkyJD79668
+from .inky_ssd1683 import Inky as InkyWHAT_SSD1683
+from .inky_uc8159 import Inky as InkyUC8159
+from .phat import InkyPHAT, InkyPHAT_SSD1608
+from .what import InkyWHAT
 
 DISPLAY_TYPES = ["what", "phat", "phatssd1608", "impressions", "7colour", "whatssd1683", "impressions73", "spectra13", "spectra73", "spectra40", "phatjd79661", "whatjd79668"]
 DISPLAY_COLORS = ["red", "black", "yellow", "red/yellow"]
@@ -23,7 +23,7 @@ def auto(i2c_bus=None, ask_user=False, verbose=False):
 
     if _eeprom is not None:
         if verbose:
-            print("Detected {}".format(_eeprom.get_variant()))
+            print(f"Detected {_eeprom.get_variant()}")
 
         if _eeprom.display_variant in (1, 4, 5):
             return InkyPHAT(_eeprom.get_color())
@@ -79,7 +79,7 @@ def auto(i2c_bus=None, ask_user=False, verbose=False):
                 import atexit
                 atexit.register(cls.wait_for_window_close)
                 return cls
-            raise RuntimeError("Unable to simulate {}".format(args.type))
+            raise RuntimeError(f"Unable to simulate {args.type}")
         else:
             if args.type == "phat":
                 return InkyPHAT(args.colour)

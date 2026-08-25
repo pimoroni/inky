@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 import calendar
 import datetime
@@ -25,7 +24,7 @@ PATH = os.path.dirname(__file__)
 try:
     inky_display = auto(ask_user=True, verbose=True)
 except TypeError:
-    raise TypeError("You need to update the Inky library to >= v1.1.0")
+    raise TypeError("You need to update the Inky library to >= v1.1.0") from None
 
 flip = inky_display.eeprom.display_variant == 23
 BLACK = inky_display.BLACK if not flip else inky_display.WHITE
@@ -33,7 +32,7 @@ WHITE = inky_display.WHITE if not flip else inky_display.BLACK
 
 if inky_display.resolution not in ((212, 104), (250, 122)):
     w, h = inky_display.resolution
-    raise RuntimeError("This example does not support {}x{}".format(w, h))
+    raise RuntimeError(f"This example does not support {w}x{h}")
 
 inky_display.set_border(BLACK)
 

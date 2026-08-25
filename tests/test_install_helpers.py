@@ -22,4 +22,3 @@ def test_mock_what_no_tkinter(PIL, nopath):
 
     with pytest.raises(ImportError):
         InkyMockWHAT('black')
-

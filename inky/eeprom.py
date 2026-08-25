@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """Inky display-type EEPROM tools."""
 
 import datetime
 import struct
+from typing import ClassVar
 
 EEP_ADDRESS = 0x50
 EEP_WP = 12
@@ -44,7 +44,7 @@ DISPLAY_VARIANT = [
 class EPDType:
     """Class to represent EPD EEPROM structure."""
 
-    valid_colors = [None, "black", "red", "yellow", None, "7colour", "spectra6", "red/yellow"]
+    valid_colors: ClassVar = [None, "black", "red", "yellow", None, "7colour", "spectra6", "red/yellow"]
 
     def __init__(self, width, height, color, pcb_variant, display_variant, write_time=None):
         """Initialise new EEPROM data structure."""
@@ -59,16 +59,11 @@ class EPDType:
 
     def __repr__(self):
         """Return string representation of EEPROM data structure."""
-        return """Display: {}x{}
-Color: {}
-PCB Variant: {}
-Display Variant: {}
-Time: {}""".format(self.width,
-                   self.height,
-                   self.get_color(),
-                   self.pcb_variant / 10.0,
-                   self.display_variant,
-                   self.eeprom_write_time)
+        return f"""Display: {self.width}x{self.height}
+Color: {self.get_color()}
+PCB Variant: {self.pcb_variant / 10.0}
+Display Variant: {self.display_variant}
+Time: {self.eeprom_write_time}"""
 
     @classmethod
     def from_bytes(class_object, data):
@@ -103,7 +98,7 @@ Time: {}""".format(self.width,
         try:
             self.color = self.valid_colors.index(color)
         except IndexError:
-            raise ValueError("Invalid colour: {}".format(color))
+            raise ValueError(f"Invalid colour: {color}") from None
 
     def get_color(self):
         """Get the stored colour value."""
@@ -140,11 +135,11 @@ def read_eeprom(i2c_bus=None):
             try:
                 from smbus2 import SMBus
             except ImportError:
-                raise ImportError("This library requires the smbus2 module\nInstall with: sudo pip install smbus2")
+                raise ImportError("This library requires the smbus2 module\nInstall with: sudo pip install smbus2") from None
             i2c_bus = SMBus(1)
         i2c_bus.write_i2c_block_data(EEP_ADDRESS, 0x00, [0x00])
         return EPDType.from_bytes(i2c_bus.read_i2c_block_data(EEP_ADDRESS, 0, 29))
-    except IOError:
+    except OSError:
         return None
 
 
