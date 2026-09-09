@@ -9,11 +9,12 @@ from .inky_el133uf1 import Inky as InkyEL133UF1
 from .inky_jd79661 import Inky as InkyJD79661
 from .inky_jd79668 import Inky as InkyJD79668
 from .inky_ssd1683 import Inky as InkyWHAT_SSD1683
+from .inky_ssd2683 import Inky as InkySSD2683
 from .inky_uc8159 import Inky as InkyUC8159
 from .phat import InkyPHAT, InkyPHAT_SSD1608
 from .what import InkyWHAT
 
-DISPLAY_TYPES = ["what", "phat", "phatssd1608", "impressions", "7colour", "whatssd1683", "impressions73", "spectra13", "spectra73", "spectra40", "phatjd79661", "whatjd79668"]
+DISPLAY_TYPES = ["what", "phat", "phatssd1608", "impressions", "7colour", "whatssd1683", "impressions73", "spectra13", "spectra73", "spectra40", "phatjd79661", "whatjd79668", "whatssd2683"]
 DISPLAY_COLORS = ["red", "black", "yellow", "red/yellow"]
 
 
@@ -49,6 +50,8 @@ def auto(i2c_bus=None, ask_user=False, verbose=False):
             return InkyJD79668(resolution=(400, 300))
         if _eeprom.display_variant == 25:
             return InkyE640(resolution=(600, 400))
+        if _eeprom.display_variant == 28:
+            return InkySSD2683(resolution=(400, 300))
 
     if ask_user:
         if verbose:
@@ -103,6 +106,8 @@ def auto(i2c_bus=None, ask_user=False, verbose=False):
                 return InkyJD79661()
             if args.type == "whatjd79668":
                 return InkyJD79668()
+            if args.type == "whatssd2683":
+                return InkySSD2683()
 
     if _eeprom is None:
         raise RuntimeError("No EEPROM detected! You must manually initialise your Inky board.")
