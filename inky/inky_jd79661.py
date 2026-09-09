@@ -240,7 +240,6 @@ class Inky:
         self._send_command(JD79661_POF, [0x00])
         self._busy_wait()
         self._send_command(JD79661_DSLP, [0xA5])
-        self._busy_wait()
 
     def set_pixel(self, x, y, v):
         """Set a single pixel.
