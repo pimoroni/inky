@@ -36,9 +36,9 @@ if args.type == "css":
         for i in range(7):
             name = names[i]
             colour = palette[i]
-            f.write(""".{name}_fg {{font-color:#{colour:06x}}}
+            f.write(f""".{name}_fg {{font-color:#{colour:06x}}}
 .{name}_bg {{background-color:#{colour:06x}}}
-""".format(name=name, colour=colour))
+""")
 
 if args.type == "gpl":
     palette = inky._palette_blend(args.saturation, dtype="uint24")
@@ -52,7 +52,7 @@ if args.type == "gpl":
             r = (colour & 0xFF0000) >> 16
             g = (colour & 0x00FF00) >> 8
             b = (colour & 0x0000FF)
-            f.write("{r} {g} {b} Index {i} # {name}\n".format(r=r, g=g, b=b, i=i, name=name))
+            f.write(f"{r} {g} {b} Index {i} # {name}\n")
 
 if args.type in ("pal", "raw"):
     palette = raw_palette()

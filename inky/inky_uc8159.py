@@ -3,6 +3,7 @@ import struct
 import time
 import warnings
 from datetime import timedelta
+from typing import ClassVar
 
 import gpiod
 import gpiodevice
@@ -108,7 +109,7 @@ class Inky:
     WIDTH = 600
     HEIGHT = 448
 
-    DESATURATED_PALETTE = [
+    DESATURATED_PALETTE: ClassVar = [
         [0, 0, 0],
         [255, 255, 255],
         [0, 255, 0],
@@ -118,7 +119,7 @@ class Inky:
         [255, 140, 0],
         [255, 255, 255]]
 
-    SATURATED_PALETTE = [
+    SATURATED_PALETTE: ClassVar = [
         [57, 48, 57],
         [255, 255, 255],
         [58, 91, 70],
@@ -128,7 +129,7 @@ class Inky:
         [177, 106, 73],
         [255, 255, 255]]
 
-    def __init__(self, resolution=None, colour="multi", cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):  # noqa: E501
+    def __init__(self, resolution=None, colour="multi", cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):
         """Initialise an Inky Display.
 
         :param resolution: (width, height) in pixels, default: (600, 448)
@@ -153,7 +154,7 @@ class Inky:
             else:
                 resolution = _RESOLUTION_5_7_INCH
 
-        if resolution not in _RESOLUTION.keys():
+        if resolution not in _RESOLUTION:
             raise ValueError(f"Resolution {resolution[0]}x{resolution[1]} not supported!")
 
         self.resolution = resolution
@@ -233,7 +234,7 @@ class Inky:
             try:
                 self._spi_bus.no_cs = True
             except OSError:
-                warnings.warn("SPI: Cannot disable chip-select!")
+                warnings.warn("SPI: Cannot disable chip-select!", stacklevel=2)
             self._spi_bus.max_speed_hz = 3000000
 
             self._gpio_setup = True
@@ -275,9 +276,9 @@ class Inky:
         self._send_command(
             UC8159_PWR,
             [
-                (0x06 << 3) |  # ??? - not documented in UC8159 datasheet  # noqa: W504
-                (0x01 << 2) |  # SOURCE_INTERNAL_DC_DC                     # noqa: W504
-                (0x01 << 1) |  # GATE_INTERNAL_DC_DC                       # noqa: W504
+                (0x06 << 3) |  # ??? - not documented in UC8159 datasheet
+                (0x01 << 2) |  # SOURCE_INTERNAL_DC_DC
+                (0x01 << 1) |  # GATE_INTERNAL_DC_DC
                 (0x01),        # LV_SOURCE_INTERNAL_DC_DC
                 0x00,          # VGx_20V
                 0x23,          # UC8159_7C
@@ -328,18 +329,15 @@ class Inky:
         # then assume we're not getting a signal from inky
         # and wait the timeout period to be safe.
         if self._gpio.get_value(self.busy_pin) == Value.ACTIVE:
-            warnings.warn(f"Busy Wait: Held high. Waiting for {timeout:0.2f}s")
+            warnings.warn(f"Busy Wait: Held high. Waiting for {timeout:0.2f}s", stacklevel=2)
             time.sleep(timeout)
             return
 
-        event = self._gpio.wait_edge_events(timedelta(seconds=timeout))
-        if not event:
-            warnings.warn(f"Busy Wait: Timed out after {timeout:0.2f}s")
+        # The busy line is requested with edge_detection=Edge.RISING, so the first
+        # event is the rising edge we're waiting for.
+        if gpiodevice.wait_for_edge(self._gpio, self.busy_pin, timeout) is None:
+            warnings.warn(f"Busy Wait: Timed out after {timeout:0.2f}s", stacklevel=2)
             return
-
-        for event in self._gpio.read_edge_events():
-            if event.Type == Edge.RISING:
-                return
 
     def _update(self, buf):
         """Update display.
@@ -406,7 +404,7 @@ class Inky:
         """
         if not image.size == (self.width, self.height):
             raise ValueError(f"Image must be ({self.width}x{self.height}) pixels!")
-        if not image.mode == "P":
+        if image.mode != "P":
             palette = self._palette_blend(saturation)
             # Image size doesn't matter since it's just the palette we're using
             palette_image = Image.new("P", (1, 1))

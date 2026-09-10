@@ -6,34 +6,36 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   test:
     name: Build (Python ${{ matrix.python }})
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: ['3.10', '3.11']
+        python: ['3.9', '3.10', '3.11', '3.12', '3.13']
 
     env:
-      RELEASE_FILE: ${{ github.event.repository.name }}-${{ github.event.release.tag_name || github.sha }}-py${{ matrix.python }}
       TERM: xterm-256color
+      RELEASE_FILE: ${{ github.event.repository.name }}-${{ github.event.release.tag_name || github.sha }}-py${{ matrix.python }}
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-
-      - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python }}
+          fetch-depth: 0
 
-      - name: Install Dependencies
-        run: |
-          make dev-deps
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          python-version: ${{ matrix.python }}
 
       - name: Build Packages
         run: |
-          make build
+          uv run make build
 
       - name: Upload Packages
         uses: actions/upload-artifact@v4

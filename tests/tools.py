@@ -18,7 +18,7 @@ class MockSMBus:
 
     def write_i2c_block_data(self, i2c_address, register, values):
         """Write a block of i2c data bytes."""
-        raise IOError("Pretending there's no EEPROM to talk to.")
+        raise OSError("Pretending there's no EEPROM to talk to.")
         # self.regs[register:register + len(values)] = values
 
     def read_i2c_block_data(self, i2c_address, register, length):

@@ -1,4 +1,6 @@
 """PIL/Tkinter based simulator for InkyWHAT and InkyWHAT."""
+from typing import ClassVar
+
 import numpy
 
 from . import inky, inky_uc8159
@@ -19,17 +21,17 @@ class InkyMock(inky.Inky):
         try:
             import tkinter
         except ImportError:
-            raise ImportError("Simulation requires tkinter")
+            raise ImportError("Simulation requires tkinter") from None
 
         try:
             from PIL import Image, ImageTk
         except ImportError:
-            raise ImportError("Simulation requires PIL ImageTk and Image")
+            raise ImportError("Simulation requires PIL ImageTk and Image") from None
 
         if resolution is None:
             resolution = (self.WIDTH, self.HEIGHT)
 
-        if resolution not in inky._RESOLUTION.keys():
+        if resolution not in inky._RESOLUTION:
             raise ValueError("Resolution {}x{} not supported!".format(*resolution))
 
         self.resolution = resolution
@@ -39,7 +41,7 @@ class InkyMock(inky.Inky):
         self.buf = numpy.zeros((self.height, self.width), dtype=numpy.uint8)
 
         if colour not in ("red", "black", "yellow", "multi"):
-            raise ValueError("Colour {} is not supported!".format(colour))
+            raise ValueError(f"Colour {colour} is not supported!")
 
         self.colour = colour
 
@@ -76,7 +78,7 @@ class InkyMock(inky.Inky):
         self._tk_done = False
         self.tk_root = tkinter.Tk()
         self.tk_root.title("Inky Preview")
-        self.tk_root.geometry("{}x{}".format(self.width, self.height))
+        self.tk_root.geometry(f"{self.width}x{self.height}")
         self.tk_root.aspect(self.width, self.height, self.width, self.height)
         self.tk_root.protocol("WM_DELETE_WINDOW", self._close_window)
         self.cv = None
@@ -132,7 +134,7 @@ class InkyMock(inky.Inky):
         :param busy_wait: Ignored. Updates are simulated and instant.
 
         """
-        print(">> Simulating {} {}x{}...".format(self.colour, self.width, self.height))
+        print(f">> Simulating {self.colour} {self.width}x{self.height}...")
 
         region = self.buf
 
@@ -216,7 +218,7 @@ class InkyMockImpression(InkyMock):
     WIDTH = 600
     HEIGHT = 448
 
-    DESATURATED_PALETTE = [
+    DESATURATED_PALETTE: ClassVar = [
         [0, 0, 0],
         [255, 255, 255],
         [0, 255, 0],
@@ -226,7 +228,7 @@ class InkyMockImpression(InkyMock):
         [255, 140, 0],
         [255, 255, 255]]
 
-    SATURATED_PALETTE = [
+    SATURATED_PALETTE: ClassVar = [
         [57, 48, 57],
         [255, 255, 255],
         [58, 91, 70],
@@ -259,8 +261,8 @@ class InkyMockImpression(InkyMock):
 
         """
         if not image.size == (self.width, self.height):
-            raise ValueError("Image must be ({}x{}) pixels!".format(self.width, self.height))
-        if not image.mode == "P":
+            raise ValueError(f"Image must be ({self.width}x{self.height}) pixels!")
+        if image.mode != "P":
             if Image is None:
                 raise RuntimeError("PIL is required for converting images: sudo apt install python-pil python3-pil")
             palette = inky_uc8159.Inky._palette_blend(self, saturation)

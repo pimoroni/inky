@@ -18,5 +18,5 @@ display = InkyPHAT("<black/red/yellow>")
 
 """)
 else:
-    print("Found: {}".format(display.get_variant()))
+    print(f"Found: {display.get_variant()}")
     print(display)
