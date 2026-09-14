@@ -1,6 +1,7 @@
-2.4.1
+2.5.0
 -----
 
+* New: Support for Red/Yellow wHAT boards using the SSD2683 driver.
 * Packaging: modernise to uv/hatchling with trusted publishing
 * Lint: general modernisation pass under a wider ruff ruleset
 * Internal: busy/refresh waits use gpiodevice edge helpers and time.monotonic()
