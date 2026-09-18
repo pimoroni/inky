@@ -35,9 +35,9 @@ saturation = 0.5           # Saturation of palette
 thresholds = [64, 64, 64]  # Threshold for snapping colours, I guess?
 
 if len(sys.argv) == 1:
-    print("""
-Usage: {file} image-file
-""".format(file=sys.argv[0]))
+    print(f"""
+Usage: {sys.argv[0]} image-file
+""")
     sys.exit(1)
 
 if len(sys.argv) > 2:

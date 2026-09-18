@@ -8,7 +8,7 @@ inky = auto(ask_user=True, verbose=True)
 colors = ["Black", "White", "Green", "Blue", "Red", "Yellow", "Orange"]
 
 for color in range(7):
-    print("Color: {}".format(colors[color]))
+    print(f"Color: {colors[color]}")
     for y in range(inky.height):
         for x in range(inky.width):
             inky.set_pixel(x, y, color)

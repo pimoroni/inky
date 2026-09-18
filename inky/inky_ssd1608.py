@@ -40,7 +40,7 @@ class Inky:
     RED = 2
     YELLOW = 2
 
-    def __init__(self, resolution=(250, 122), colour="black", cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):  # noqa: E501
+    def __init__(self, resolution=(250, 122), colour="black", cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):
         """Initialise an Inky Display.
 
         :param resolution: (width, height) in pixels, default: (400, 300)
@@ -56,7 +56,7 @@ class Inky:
         self._spi_bus = spi_bus
         self._i2c_bus = i2c_bus
 
-        if resolution not in _RESOLUTION.keys():
+        if resolution not in _RESOLUTION:
             raise ValueError("Resolution {}x{} not supported!".format(*resolution))
 
         self.resolution = resolution
@@ -64,7 +64,7 @@ class Inky:
         self.cols, self.rows, self.rotation, self.offset_x, self.offset_y = _RESOLUTION[resolution]
 
         if colour not in ("red", "black", "yellow"):
-            raise ValueError("Colour {} is not supported!".format(colour))
+            raise ValueError(f"Colour {colour} is not supported!")
 
         self.colour = colour
         self.eeprom = eeprom.read_eeprom(i2c_bus=i2c_bus)
@@ -160,7 +160,7 @@ class Inky:
             try:
                 self._spi_bus.no_cs = True
             except OSError:
-                warnings.warn("SPI: Cannot disable chip-select!")
+                warnings.warn("SPI: Cannot disable chip-select!", stacklevel=2)
             self._spi_bus.max_speed_hz = 488000
 
             self._gpio_setup = True
@@ -180,7 +180,7 @@ class Inky:
             event = self._gpio.wait_edge_events(timedelta(seconds=timeout))
             if not event:
                 raise RuntimeError("Timeout waiting for busy signal to clear.")
-            for event in self._gpio.read_edge_events():
+            for _event in self._gpio.read_edge_events():
                 pass
 
     def _update(self, buf_a, buf_b, busy_wait=True):
@@ -278,7 +278,7 @@ class Inky:
         """Copy an image to the display."""
         image = image.resize((self.width, self.height))
 
-        if not image.mode == "P":
+        if image.mode != "P":
             palette_image = Image.new("P", (1, 1))
             r, g, b = 0, 0, 0
             if self.colour == "red":

@@ -22,7 +22,7 @@ Or from pypi (slower, requires building):
 inky = auto(ask_user=True, verbose=True)
 # Convert the built-in palette to a list of colours usable by seaborn,
 # This nets us 6 colours: Green, Blue, Red, Yellow, Orange, Black
-palette_colors = [(c[0] / 255.0, c[1] / 255.0, c[2] / 255.0) for c in inky.DESATURATED_PALETTE[2:6] + [(0, 0, 0)]]
+palette_colors = [(c[0] / 255.0, c[1] / 255.0, c[2] / 255.0) for c in [*inky.DESATURATED_PALETTE[2:6], (0, 0, 0)]]
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--dataset", "-d", choices=["penguins", "dots", "mpg"], default="mpg")
@@ -56,7 +56,7 @@ if args.dataset == "dots":
         x="time", y="firing_rate",
         hue="coherence", size="choice", col="align",
         kind="line", size_order=["T1", "T2"], palette=palette,
-        facet_kws=dict(sharex=False),
+        facet_kws={"sharex": False},
     )
 
 # Force the output plot to be approximately the right size for Inky
