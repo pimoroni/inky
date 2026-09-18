@@ -1,5 +1,7 @@
 """Inky e-Ink Display Drivers."""
 
+from importlib.metadata import PackageNotFoundError, version
+
 from . import inky  # noqa: F401
 from .auto import auto  # noqa: F401
 from .inky import BLACK, RED, WHITE, YELLOW  # noqa: F401
@@ -12,7 +14,10 @@ from .mock import InkyMockPHAT, InkyMockWHAT  # noqa: F401
 from .phat import InkyPHAT, InkyPHAT_SSD1608  # noqa: F401
 from .what import InkyWHAT  # noqa: F401
 
-__version__ = "2.4.0"
+try:
+    __version__ = version("inky")
+except PackageNotFoundError:
+    __version__ = "0.0.0"
 
 try:
     from pkg_resources import declare_namespace
