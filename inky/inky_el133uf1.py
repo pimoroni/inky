@@ -105,6 +105,11 @@ class Inky:
     BLUE = 4
     GREEN = 5
 
+    # Refresh speeds, set via the PLL (0x30) frame rate
+    NORMAL = 0x08  # dynamic frame rate
+    MEDIUM = 0x04  # fixed 75Hz
+    FAST = 0x07    # fixed 120Hz
+
     WIDTH = 0
     HEIGHT = 0
 
@@ -126,7 +131,7 @@ class Inky:
         [58, 91, 70],
         [255, 255, 255]]
 
-    def __init__(self, resolution=None, colour="multi", cs_pin_0=CS0_PIN, cs_pin_1=CS1_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):
+    def __init__(self, resolution=None, colour="multi", cs_pin_0=CS0_PIN, cs_pin_1=CS1_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None, speed=NORMAL):
         """Initialise an Inky Display.
         :param resolution: (width, height) in pixels, default: (1600, 1200)
         :param colour: one of red, black or yellow, default: black
@@ -136,6 +141,8 @@ class Inky:
         :param busy_pin: device busy/wait pin
         :param h_flip: enable horizontal display flip, default: False
         :param v_flip: enable vertical display flip, default: False
+        :param speed: refresh speed, one of NORMAL, MEDIUM or FAST, default: NORMAL
+                      faster speeds reduce colour saturation, especially blue and green
         """
         self._spi_bus = spi_bus
         self._i2c_bus = i2c_bus
@@ -157,6 +164,9 @@ class Inky:
         if colour not in ("multi"):
             raise ValueError(f"Colour {colour} is not supported!")
 
+        if speed not in (self.NORMAL, self.MEDIUM, self.FAST):
+            raise ValueError(f"Speed {speed} is not supported!")
+
         self.colour = colour
         self.lut = colour
 
@@ -175,6 +185,7 @@ class Inky:
 
         self.h_flip = h_flip
         self.v_flip = v_flip
+        self.speed = speed
 
         self._gpio = gpio
         self._gpio_setup = False
@@ -240,7 +251,7 @@ class Inky:
         self._send_command(EL133UF1_CMD66, CS_BOTH_SEL, [0x49, 0x55, 0x13, 0x5D, 0x05, 0x10])
         self._send_command(EL133UF1_PSR, CS_BOTH_SEL, [0xDF, 0x6B])
         self._send_command(EL133UF1_DCDC, CS0_SEL, [0x44, 0x54, 0x00])
-        self._send_command(EL133UF1_PLL, CS_BOTH_SEL, [0x08])
+        self._send_command(EL133UF1_PLL, CS_BOTH_SEL, [self.speed])
         self._send_command(EL133UF1_CDI, CS_BOTH_SEL, [0x37])
         self._send_command(EL133UF1_TCON, CS_BOTH_SEL, [0x03, 0x03])
 
