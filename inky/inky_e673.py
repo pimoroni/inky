@@ -209,7 +209,7 @@ class Inky:
                 self._spi_bus = spidev.SpiDev()
 
             self._spi_bus.open(0, self.cs_channel)
-            self._spi_bus.max_speed_hz = 1000000
+            self._spi_bus.max_speed_hz = 10000000
 
             self._gpio_setup = True
 
@@ -384,7 +384,6 @@ class Inky:
 
         self._gpio.set_value(self.cs_pin, Value.INACTIVE)
         self._gpio.set_value(self.dc_pin, Value.INACTIVE)
-        time.sleep(0.3)
         self._spi_bus.xfer3([command])
 
         if data is not None:
