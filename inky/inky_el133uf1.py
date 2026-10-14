@@ -150,7 +150,7 @@ class Inky:
 
         # Check for supported display variant and select the correct resolution
         if resolution is None:
-            resolution = [_RESOLUTION_13_3_INCH, None, _RESOLUTION_13_3_INCH][self.eeprom.display_variant] if self.eeprom is not None and self.eeprom.display_variant == 21 else _RESOLUTION_13_3_INCH
+            resolution = _RESOLUTION_13_3_INCH
 
         if resolution not in _RESOLUTION:
             raise ValueError(f"Resolution {resolution[0]}x{resolution[1]} not supported!")
