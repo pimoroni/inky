@@ -105,6 +105,11 @@ class Inky:
     BLUE = 4
     GREEN = 5
 
+    # Refresh speeds, set via the PLL (0x30) frame rate
+    NORMAL = 0x08  # dynamic frame rate
+    MEDIUM = 0x04  # fixed 75Hz
+    FAST = 0x07    # fixed 120Hz
+
     WIDTH = 0
     HEIGHT = 0
 
@@ -126,7 +131,7 @@ class Inky:
         [58, 91, 70],
         [255, 255, 255]]
 
-    def __init__(self, resolution=None, colour="multi", cs_pin_0=CS0_PIN, cs_pin_1=CS1_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):
+    def __init__(self, resolution=None, colour="multi", cs_pin_0=CS0_PIN, cs_pin_1=CS1_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None, speed=NORMAL):
         """Initialise an Inky Display.
         :param resolution: (width, height) in pixels, default: (1600, 1200)
         :param colour: one of red, black or yellow, default: black
@@ -136,6 +141,8 @@ class Inky:
         :param busy_pin: device busy/wait pin
         :param h_flip: enable horizontal display flip, default: False
         :param v_flip: enable vertical display flip, default: False
+        :param speed: refresh speed, one of NORMAL, MEDIUM or FAST, default: NORMAL
+                      faster speeds reduce colour saturation, especially blue and green
         """
         self._spi_bus = spi_bus
         self._i2c_bus = i2c_bus
@@ -143,7 +150,7 @@ class Inky:
 
         # Check for supported display variant and select the correct resolution
         if resolution is None:
-            resolution = [_RESOLUTION_13_3_INCH, None, _RESOLUTION_13_3_INCH][self.eeprom.display_variant] if self.eeprom is not None and self.eeprom.display_variant == 21 else _RESOLUTION_13_3_INCH
+            resolution = _RESOLUTION_13_3_INCH
 
         if resolution not in _RESOLUTION:
             raise ValueError(f"Resolution {resolution[0]}x{resolution[1]} not supported!")
@@ -156,6 +163,9 @@ class Inky:
 
         if colour not in ("multi"):
             raise ValueError(f"Colour {colour} is not supported!")
+
+        if speed not in (self.NORMAL, self.MEDIUM, self.FAST):
+            raise ValueError(f"Speed {speed} is not supported!")
 
         self.colour = colour
         self.lut = colour
@@ -175,6 +185,7 @@ class Inky:
 
         self.h_flip = h_flip
         self.v_flip = v_flip
+        self.speed = speed
 
         self._gpio = gpio
         self._gpio_setup = False
@@ -231,16 +242,17 @@ class Inky:
         self._gpio.set_value(self.reset_pin, Value.INACTIVE)
         time.sleep(0.03)
         self._gpio.set_value(self.reset_pin, Value.ACTIVE)
-        time.sleep(0.03)
+        # Let the controller settle after reset
+        time.sleep(0.3)
 
-        self._busy_wait(0.3)
+        self._busy_wait(1.0)
 
         self._send_command(EL133UF1_ANTM, CS0_SEL, [0x00, 0x0C, 0x0C, 0xD9, 0xDD, 0xDD, 0x15, 0x15, 0x55])
 
         self._send_command(EL133UF1_CMD66, CS_BOTH_SEL, [0x49, 0x55, 0x13, 0x5D, 0x05, 0x10])
         self._send_command(EL133UF1_PSR, CS_BOTH_SEL, [0xDF, 0x6B])
         self._send_command(EL133UF1_DCDC, CS0_SEL, [0x44, 0x54, 0x00])
-        self._send_command(EL133UF1_PLL, CS_BOTH_SEL, [0x08])
+        self._send_command(EL133UF1_PLL, CS_BOTH_SEL, [self.speed])
         self._send_command(EL133UF1_CDI, CS_BOTH_SEL, [0x37])
         self._send_command(EL133UF1_TCON, CS_BOTH_SEL, [0x03, 0x03])
 
@@ -262,30 +274,27 @@ class Inky:
         self._send_command(EL133UF1_TFT_VCOM_POWER, CS0_SEL, [0x02])
 
     def _busy_wait(self, timeout=40.0):
-        """Wait for busy/wait pin."""
-        # If the busy_pin is *high* (pulled up by host)
-        # then assume we're not getting a signal from inky
-        # and wait the timeout period to be safe.
-        if self._gpio.get_value(self.busy_pin) == Value.ACTIVE:
-            time.sleep(timeout)
-            return
+        """Wait for busy/wait pin.
 
+        The EL133UF1 BUSY line is *active-LOW*: it drops LOW (INACTIVE) while the
+        panel is busy and returns HIGH (ACTIVE) once it is ready for the next command.
+        """
         t_start = time.monotonic()
-        while self._gpio.get_value(self.busy_pin) == Value.ACTIVE:
-            time.sleep(0.1)
+        while self._gpio.get_value(self.busy_pin) == Value.INACTIVE:
             if time.monotonic() - t_start > timeout:
                 warnings.warn(f"Busy Wait: Timed out after {timeout:0.2f}s", stacklevel=2)
                 return
+            time.sleep(0.01)
 
     def _refresh_wait(self, timeout=65.0):
         """Wait for a display refresh to complete.
 
-        Unlike ``_busy_wait``, the EL133UF1 BUSY line is *active-LOW* during a
-        refresh: after DRF the line drops LOW (INACTIVE) while the panel is
-        updating, then returns HIGH (ACTIVE) once the refresh is done. Poll for
-        the line to first assert busy (LOW), then wait for it to clear (HIGH),
-        so we never send POF mid-refresh (which can latch the panel into a fault
-        that only full power removal recovers).
+        Unlike ``_busy_wait``, first wait for the panel to assert busy: after DRF
+        the line drops LOW (INACTIVE) while the panel is updating, then returns
+        HIGH (ACTIVE) once the refresh is done. Poll for the line to first assert
+        busy (LOW), then wait for it to clear (HIGH), so we never send POF
+        mid-refresh (which can latch the panel into a fault that only full power
+        removal recovers).
         """
         t_start = time.monotonic()
 
@@ -313,13 +322,13 @@ class Inky:
         self._send_command(EL133UF1_DTM, CS1_SEL, buf_b)
 
         self._send_command(EL133UF1_PON, CS_BOTH_SEL)
-        self._busy_wait(0.2)
+        self._busy_wait(1.0)
 
         self._send_command(EL133UF1_DRF, CS_BOTH_SEL, [0x00])
         self._refresh_wait(65.0)
 
         self._send_command(EL133UF1_POF, CS_BOTH_SEL, [0x00])
-        self._busy_wait(0.2)
+        self._busy_wait(1.0)
 
     def set_pixel(self, x, y, v):
         """Set a single pixel.
@@ -415,7 +424,6 @@ class Inky:
                 self._gpio.set_value(self.cs1_pin, Value.INACTIVE)
 
             self._gpio.set_value(self.dc_pin, Value.INACTIVE)
-            time.sleep(0.3)
             self._spi_bus.xfer3([command])
 
             if data is not None:

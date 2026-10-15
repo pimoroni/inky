@@ -1,3 +1,12 @@
+2.6.0
+-----
+
+* New: Refresh speed option (NORMAL/MEDIUM/FAST) for Spectra 6 displays
+* Enhancement: Faster show() on Spectra 6, no per-command delay and 10MHz SPI
+* BugFix: Spectra 6 13.3" busy wait polarity, show() now waits for the refresh to finish
+* BugFix: Spectra 6 13.3" crash when creating the driver directly on a non-AC board
+* BugFix: Spectra 6 4.0" busy wait uses time.monotonic()
+
 2.5.0
 -----
 

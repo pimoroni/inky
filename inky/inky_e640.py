@@ -83,6 +83,11 @@ class Inky:
     BLUE = 4
     GREEN = 5
 
+    # Refresh speeds, set via the PLL (0x30) frame rate
+    NORMAL = 0x08  # dynamic frame rate
+    MEDIUM = 0x04  # fixed 75Hz
+    FAST = 0x07    # fixed 120Hz
+
     WIDTH = 0
     HEIGHT = 0
 
@@ -104,7 +109,7 @@ class Inky:
         [58, 91, 70],
         [255, 255, 255]]
 
-    def __init__(self, resolution=None, colour="multi", cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None):
+    def __init__(self, resolution=None, colour="multi", cs_pin=CS0_PIN, dc_pin=DC_PIN, reset_pin=RESET_PIN, busy_pin=BUSY_PIN, h_flip=False, v_flip=False, spi_bus=None, i2c_bus=None, gpio=None, speed=NORMAL):
         """Initialise an Inky Display.
 
         :param resolution: (width, height) in pixels, default: (400, 600)
@@ -115,6 +120,8 @@ class Inky:
         :param busy_pin: device busy/wait pin
         :param h_flip: enable horizontal display flip, default: False
         :param v_flip: enable vertical display flip, default: False
+        :param speed: refresh speed, one of NORMAL, MEDIUM or FAST, default: NORMAL
+                      faster speeds reduce colour saturation, especially blue and green
 
         """
         self._spi_bus = spi_bus
@@ -137,6 +144,9 @@ class Inky:
         if colour not in ("multi"):
             raise ValueError(f"Colour {colour} is not supported!")
 
+        if speed not in (self.NORMAL, self.MEDIUM, self.FAST):
+            raise ValueError(f"Speed {speed} is not supported!")
+
         self.colour = colour
         self.lut = colour
 
@@ -152,6 +162,7 @@ class Inky:
             self.cs_channel = 0
         self.h_flip = h_flip
         self.v_flip = v_flip
+        self.speed = speed
 
         self._gpio = gpio
         self._gpio_setup = False
@@ -198,7 +209,7 @@ class Inky:
                 self._spi_bus = spidev.SpiDev()
 
             self._spi_bus.open(0, self.cs_channel)
-            self._spi_bus.max_speed_hz = 1000000
+            self._spi_bus.max_speed_hz = 10000000
 
             self._gpio_setup = True
 
@@ -219,7 +230,7 @@ class Inky:
 
         self._send_command(EL640_POFS, [0x00, 0x54, 0x00, 0x44])
         self._send_command(EL640_TCON, [0x02, 0x00])
-        self._send_command(EL640_PLL, [0x08])
+        self._send_command(EL640_PLL, [self.speed])
         self._send_command(EL640_CDI, [0x3F])
         self._send_command(EL640_TRES, [0x01, 0x90, 0x02, 0x58])
         self._send_command(EL640_PWS, [0x2F])
@@ -234,10 +245,10 @@ class Inky:
             time.sleep(timeout)
             return
 
-        t_start = time.time()
+        t_start = time.monotonic()
         while self._gpio.get_value(self.busy_pin) != Value.ACTIVE:
             time.sleep(0.1)
-            if time.time() - t_start > timeout:
+            if time.monotonic() - t_start > timeout:
                 warnings.warn(f"Busy Wait: Timed out after {timeout:0.2f}s", stacklevel=2)
                 return
 
@@ -371,7 +382,6 @@ class Inky:
 
         self._gpio.set_value(self.cs_pin, Value.INACTIVE)
         self._gpio.set_value(self.dc_pin, Value.INACTIVE)
-        time.sleep(0.3)
         self._spi_bus.xfer3([command])
 
         if data is not None:
