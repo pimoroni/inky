@@ -1,4 +1,5 @@
 """Inky e-Ink Display Driver."""
+import operator
 import time
 import warnings
 from typing import ClassVar
@@ -88,11 +89,26 @@ EL133UF1_EN_BUF = 0xB6
 EL133UF1_TFT_VCOM_POWER = 0xB1
 EL133UF1_BUCK_BOOST_VDDN = 0xB0
 
+EL133UF1_PTLW_ENABLE = 0x01
+EL133UF1_PTLW_DISABLE = 0x00
+EL133UF1_DRF_PARTIAL = 0x01
+
 _RESOLUTION_13_3_INCH = (1600, 1200)    # Inky Impression 13 (Spectra 6)"
 
 _RESOLUTION = {
     _RESOLUTION_13_3_INCH: (_RESOLUTION_13_3_INCH[0], _RESOLUTION_13_3_INCH[1], 0, 0, 0, 0b01)
 }
+
+
+def _be16(value):
+    return [(value >> 8) & 0xFF, value & 0xFF]
+
+
+def _check_region(x, y, w, h, width, height):
+    x, y, w, h = (operator.index(v) for v in (x, y, w, h))
+    if w < 1 or h < 1 or x < 0 or y < 0 or x + w > width or y + h > height:
+        raise ValueError(f"Region {x},{y} {w}x{h} must be inside the {width}x{height} display!")
+    return x, y, w, h
 
 
 class Inky:
@@ -186,6 +202,7 @@ class Inky:
         self.h_flip = h_flip
         self.v_flip = v_flip
         self.speed = speed
+        self.region = None
 
         self._gpio = gpio
         self._gpio_setup = False
@@ -312,11 +329,17 @@ class Inky:
                 return
             time.sleep(0.1)
 
-    def _update(self, buf_a, buf_b):
+    def _update(self, buf_a, buf_b, window_a=None, window_b=None):
         """Update display.
         Dispatches display update to correct driver.
         """
+        partial = window_a is not None
+
         self.setup()
+
+        if partial:
+            self._send_command(EL133UF1_PTLW, CS0_SEL, window_a)
+            self._send_command(EL133UF1_PTLW, CS1_SEL, window_b)
 
         self._send_command(EL133UF1_DTM, CS0_SEL, buf_a)
         self._send_command(EL133UF1_DTM, CS1_SEL, buf_b)
@@ -324,11 +347,75 @@ class Inky:
         self._send_command(EL133UF1_PON, CS_BOTH_SEL)
         self._busy_wait(1.0)
 
-        self._send_command(EL133UF1_DRF, CS_BOTH_SEL, [0x00])
+        if partial:
+            time.sleep(0.03)
+
+        self._send_command(EL133UF1_DRF, CS_BOTH_SEL, [EL133UF1_DRF_PARTIAL if partial else 0x00])
         self._refresh_wait(65.0)
 
         self._send_command(EL133UF1_POF, CS_BOTH_SEL, [0x00])
         self._busy_wait(1.0)
+
+        if partial:
+            time.sleep(0.3)
+            self._send_command(EL133UF1_PTLW, CS_BOTH_SEL, [0x00] * 8 + [EL133UF1_PTLW_DISABLE])
+
+    def _update_region(self, panel):
+        r0, r1, c0, c1 = self._region_bounds()
+        r0, r1 = r0 & ~1, r1 | 1
+
+        buffers, windows = [], []
+        for half, base in ((panel[:, :600], 0), (panel[:, 600:], 600)):
+            jst, jen = max(c0, base) - base, min(c1, base + 599) - base
+            if jst <= jen:
+                vrst, vred = r0 // 2, r1 // 2
+                jst, jen = jst & ~3, jen | 3
+                if jen - jst + 1 < 16:
+                    jen = min(jst + 15, 599)
+                    jst = jen - 15
+            else:
+                # region isn't in this half, give it a tiny window so the whole half isn't refreshed
+                vrst, vred, jst, jen = 0, 0, 0, 15
+
+            px = half[2 * vrst:2 * vred + 2, jst:jen + 1].flatten()
+            windows.append(_be16(2 * jst) + _be16(2 * jen + 1) + _be16(vrst) + _be16(vred) + [EL133UF1_PTLW_ENABLE])
+            buffers.append((((px[::2] << 4) & 0xF0) | (px[1::2] & 0x0F)).astype("uint8").tolist())
+
+        self._update(*buffers, *windows)
+
+    def _transform(self, buf):
+        if self.v_flip:
+            buf = numpy.fliplr(buf)
+
+        if self.h_flip:
+            buf = numpy.flipud(buf)
+
+        if self.rotation:
+            buf = numpy.rot90(buf, self.rotation // 90)
+
+        return numpy.rot90(buf, -1)
+
+    def _region_bounds(self):
+        x, y, w, h = self.region
+        mask = numpy.zeros(self.buf.shape, dtype=bool)
+        mask[y:y + h, x:x + w] = True
+        mask = self._transform(mask)
+        rows = numpy.flatnonzero(mask.any(axis=1))
+        cols = numpy.flatnonzero(mask.any(axis=0))
+        return int(rows[0]), int(rows[-1]), int(cols[0]), int(cols[-1])
+
+    def set_region(self, x, y, w, h):
+        """Set a region for partial refresh.
+        :param x: x position on display
+        :param y: y position on display
+        :param w: width of region
+        :param h: height of region
+        """
+        self.region = _check_region(x, y, w, h, self.width, self.height)
+
+    def reset_region(self):
+        """Clear the partial refresh region."""
+        self.region = None
 
     def set_pixel(self, x, y, v):
         """Set a single pixel.
@@ -342,20 +429,14 @@ class Inky:
         """Show buffer on display.
         :param busy_wait: If True, wait for display update to finish before returning.
         """
-        region = self.buf
+        panel = self._transform(self.buf)
 
-        if self.v_flip:
-            region = numpy.fliplr(region)
+        if self.region is not None:
+            self._update_region(panel)
+            return
 
-        if self.h_flip:
-            region = numpy.flipud(region)
-
-        if self.rotation:
-            region = numpy.rot90(region, self.rotation // 90)
-
-        region = numpy.rot90(region, -1)
-        buf_a = region[:, :600].flatten()
-        buf_b = region[:, 600:].flatten()
+        buf_a = panel[:, :600].flatten()
+        buf_b = panel[:, 600:].flatten()
 
         buf_a = (((buf_a[::2] << 4) & 0xF0) | (buf_a[1::2] & 0x0F)).astype("uint8").tolist()
         buf_b = (((buf_b[::2] << 4) & 0xF0) | (buf_b[1::2] & 0x0F)).astype("uint8").tolist()

@@ -1,4 +1,5 @@
 """Inky e-Ink Display Driver."""
+import operator
 import time
 import warnings
 from typing import ClassVar
@@ -62,7 +63,12 @@ EL640_TCON = 0x60
 EL640_TRES = 0x61
 EL640_REV = 0x70
 EL640_VDCS = 0x82
+EL640_PTLW = 0x83
 EL640_PWS = 0xE3
+
+EL640_PTLW_ENABLE = 0x01
+EL640_PTLW_DISABLE = 0x00
+EL640_DRF_PARTIAL = 0x00  # normal refresh for partial windows, this panel doesn't drift outside the window
 
 _SPI_CHUNK_SIZE = 4096
 
@@ -71,6 +77,17 @@ _RESOLUTION_4_0_INCH = (600, 400)  # Inky Impression 4.0 (Spectra 6)"
 _RESOLUTION = {
     _RESOLUTION_4_0_INCH: (_RESOLUTION_4_0_INCH[0], _RESOLUTION_4_0_INCH[1], 0, 0, 0, 0b01),
 }
+
+
+def _be16(value):
+    return [(value >> 8) & 0xFF, value & 0xFF]
+
+
+def _check_region(x, y, w, h, width, height):
+    x, y, w, h = (operator.index(v) for v in (x, y, w, h))
+    if w < 1 or h < 1 or x < 0 or y < 0 or x + w > width or y + h > height:
+        raise ValueError(f"Region {x},{y} {w}x{h} must be inside the {width}x{height} display!")
+    return x, y, w, h
 
 
 class Inky:
@@ -163,6 +180,7 @@ class Inky:
         self.h_flip = h_flip
         self.v_flip = v_flip
         self.speed = speed
+        self.region = None
 
         self._gpio = gpio
         self._gpio_setup = False
@@ -252,13 +270,16 @@ class Inky:
                 warnings.warn(f"Busy Wait: Timed out after {timeout:0.2f}s", stacklevel=2)
                 return
 
-    def _update(self, buf):
+    def _update(self, buf, window=None):
         """Update display.
 
         Dispatches display update to correct driver.
 
         """
         self.setup()
+
+        if window is not None:
+            self._send_command(EL640_PTLW, window)
 
         self._send_command(EL640_DTM1, buf)
         self._send_command(EL640_PON)
@@ -267,11 +288,61 @@ class Inky:
         # second setting of the BTST2 register
         self._send_command(EL640_BTST2, [0x6F, 0x1F, 0x17, 0x47])
 
-        self._send_command(EL640_DRF, [0x00])
+        self._send_command(EL640_DRF, [0x00 if window is None else EL640_DRF_PARTIAL])
         self._busy_wait(40.0)
 
         self._send_command(EL640_POF, [0x00])
         self._busy_wait(0.3)
+
+        if window is not None:
+            self._send_command(EL640_PTLW, [0x00] * 8 + [EL640_PTLW_DISABLE])
+
+    def _update_region(self, panel):
+        r0, r1, c0, c1 = self._region_bounds()
+
+        # window columns snap to 4
+        c0, c1 = c0 & ~3, c1 | 3
+
+        px = panel[r0:r1 + 1, c0:c1 + 1].flatten()
+        data = (((px[::2] << 4) & 0xF0) | (px[1::2] & 0x0F)).astype("uint8").tolist()
+
+        self._update(data, _be16(c0) + _be16(c1) + _be16(r0) + _be16(r1) + [EL640_PTLW_ENABLE])
+
+    def _transform(self, buf):
+        if self.v_flip:
+            buf = numpy.fliplr(buf)
+
+        if self.h_flip:
+            buf = numpy.flipud(buf)
+
+        if self.rotation:
+            buf = numpy.rot90(buf, self.rotation // 90)
+
+        return numpy.rot90(buf, -1)
+
+    def _region_bounds(self):
+        x, y, w, h = self.region
+        mask = numpy.zeros(self.buf.shape, dtype=bool)
+        mask[y:y + h, x:x + w] = True
+        mask = self._transform(mask)
+        rows = numpy.flatnonzero(mask.any(axis=1))
+        cols = numpy.flatnonzero(mask.any(axis=0))
+        return int(rows[0]), int(rows[-1]), int(cols[0]), int(cols[-1])
+
+    def set_region(self, x, y, w, h):
+        """Set a region for partial refresh.
+
+        :param x: x position on display
+        :param y: y position on display
+        :param w: width of region
+        :param h: height of region
+
+        """
+        self.region = _check_region(x, y, w, h, self.width, self.height)
+
+    def reset_region(self):
+        """Clear the partial refresh region."""
+        self.region = None
 
     def set_pixel(self, x, y, v):
         """Set a single pixel.
@@ -289,19 +360,13 @@ class Inky:
         :param busy_wait: If True, wait for display update to finish before returning.
 
         """
-        region = self.buf
+        panel = self._transform(self.buf)
 
-        if self.v_flip:
-            region = numpy.fliplr(region)
+        if self.region is not None:
+            self._update_region(panel)
+            return
 
-        if self.h_flip:
-            region = numpy.flipud(region)
-
-        if self.rotation:
-            region = numpy.rot90(region, self.rotation // 90)
-
-        region = numpy.rot90(region, -1)
-        buf = region.flatten()
+        buf = panel.flatten()
 
         buf = ((buf[::2] << 4) & 0xF0) | (buf[1::2] & 0x0F)
 
