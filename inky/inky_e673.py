@@ -69,6 +69,7 @@ EL673_PWS = 0xE3
 EL673_PTLW_ENABLE = 0x01
 EL673_PTLW_DISABLE = 0x00
 EL673_DRF_PARTIAL = 0x01
+EL673_CDI_BORDER_FLOAT = 0xFF
 
 _SPI_CHUNK_SIZE = 4096
 
@@ -249,7 +250,7 @@ class Inky:
         self._send_command(EL673_POFS, [0x00, 0x54, 0x00, 0x44])
         self._send_command(EL673_TCON, [0x02, 0x00])
         self._send_command(EL673_PLL, [self.speed])
-        self._send_command(EL673_CDI, [0x3F])
+        self._send_command(EL673_CDI, [(self.border_colour << 5) | 0x1F])
         self._send_command(EL673_TRES, [0x03, 0x20, 0x01, 0xE0])
         self._send_command(EL673_PWS, [0x2F])
         self._send_command(EL673_VDCS, [0x01])
@@ -279,6 +280,8 @@ class Inky:
         self.setup()
 
         if window is not None:
+            # leave the border floating so it doesn't refresh with the window
+            self._send_command(EL673_CDI, [EL673_CDI_BORDER_FLOAT])
             self._send_command(EL673_PTLW, window)
 
         self._send_command(EL673_DTM1, buf)

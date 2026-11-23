@@ -69,6 +69,7 @@ EL640_PWS = 0xE3
 EL640_PTLW_ENABLE = 0x01
 EL640_PTLW_DISABLE = 0x00
 EL640_DRF_PARTIAL = 0x00  # normal refresh for partial windows, this panel doesn't drift outside the window
+EL640_CDI_BORDER_FLOAT = 0xFF
 
 _SPI_CHUNK_SIZE = 4096
 
@@ -249,7 +250,7 @@ class Inky:
         self._send_command(EL640_POFS, [0x00, 0x54, 0x00, 0x44])
         self._send_command(EL640_TCON, [0x02, 0x00])
         self._send_command(EL640_PLL, [self.speed])
-        self._send_command(EL640_CDI, [0x3F])
+        self._send_command(EL640_CDI, [(self.border_colour << 5) | 0x1F])
         self._send_command(EL640_TRES, [0x01, 0x90, 0x02, 0x58])
         self._send_command(EL640_PWS, [0x2F])
         self._send_command(EL640_VDCS, [0x01])
@@ -279,6 +280,8 @@ class Inky:
         self.setup()
 
         if window is not None:
+            # leave the border floating so it doesn't refresh with the window
+            self._send_command(EL640_CDI, [EL640_CDI_BORDER_FLOAT])
             self._send_command(EL640_PTLW, window)
 
         self._send_command(EL640_DTM1, buf)

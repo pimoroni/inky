@@ -270,7 +270,7 @@ class Inky:
         self._send_command(EL133UF1_PSR, CS_BOTH_SEL, [0xDF, 0x6B])
         self._send_command(EL133UF1_DCDC, CS0_SEL, [0x44, 0x54, 0x00])
         self._send_command(EL133UF1_PLL, CS_BOTH_SEL, [self.speed])
-        self._send_command(EL133UF1_CDI, CS_BOTH_SEL, [0x37])
+        self._send_command(EL133UF1_CDI, CS_BOTH_SEL, [(self.border_colour << 5) | 0x17])
         self._send_command(EL133UF1_TCON, CS_BOTH_SEL, [0x03, 0x03])
 
         self._send_command(EL133UF1_POFS, CS0_SEL, [0x00, 0xC0, 0x03, 0xA8])
