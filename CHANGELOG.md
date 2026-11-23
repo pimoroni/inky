@@ -1,3 +1,10 @@
+2.7.0
+-----
+
+* New: Partial refresh for Spectra 6 displays, set_region()/reset_region() limit show() to one area
+* New: Spectra 6 examples partial_refresh.py and clock.py
+* BugFix: Spectra 6 set_border() now sets the border colour
+
 2.6.0
 -----
 
