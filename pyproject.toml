@@ -7,7 +7,7 @@ name = "inky"
 dynamic = ["version", "readme", "optional-dependencies"]
 description = "Inky pHAT Driver"
 license = {file = "LICENSE"}
-requires-python = ">= 3.9"
+requires-python = ">= 3.10"
 authors = [
     { name = "Philip Howard", email = "phil@pimoroni.com" },
 ]
@@ -24,7 +24,6 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
