@@ -131,6 +131,6 @@ while True:
     inky.show()
     print(f"{now:%H:%M} {kind} refresh took {time.monotonic() - start:.1f}s")
 
-    # Wait for the start of the next minute.
-    # time.time() % 60 is how many seconds we are into the current minute
-    time.sleep(60 - time.time() % 60)
+    # Wait for the next minute, unless the refresh has already run into it
+    if f"{datetime.datetime.now():%H:%M}" == f"{now:%H:%M}":
+        time.sleep(60 - time.time() % 60)
