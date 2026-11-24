@@ -52,6 +52,10 @@ SHADOW = GAP // 2
 TILE_WIDTH = (inky.width - GAP * (COLUMNS + 1)) // COLUMNS
 TILE_HEIGHT = (inky.height - GAP * (ROWS + 1)) // ROWS
 
+# The minute, past every 5, that each tile is checked, so only one refreshes in a minute.
+# The disk is checked at half past the hour
+CHECK_MINUTES = {"cpu": 1, "memory": 2, "temperature": 3, "swap": 4}
+
 SEGMENTS = 18
 
 # The gap between dial segments, in degrees
@@ -72,20 +76,6 @@ def font(size):
 def tile_position(name):
     column, row = TILES[name]
     return GAP + column * (TILE_WIDTH + GAP), GAP + row * (TILE_HEIGHT + GAP)
-
-
-def level_colour(fraction):
-    if fraction < 0.6:
-        return inky.GREEN
-    if fraction < 0.85:
-        return inky.YELLOW
-    return inky.RED
-
-
-def cpu_temperature():
-    for sensor in psutil.sensors_temperatures().get("cpu_thermal", []):
-        return sensor.current
-    return None
 
 
 def ip_address():
@@ -123,17 +113,17 @@ def tile_content(name):
         return ("gauge", "DISK", percent / 100, f"{percent}%", f"{disk.free / GIGABYTE:.1f} GB free")
 
     if name == "temperature":
-        temperature = cpu_temperature()
-        if temperature is None:
+        sensors = psutil.sensors_temperatures().get("cpu_thermal")
+        if not sensors:
             return ("gauge", "TEMP", 0, "n/a", None)
+        temperature = round(sensors[0].current)
         low, high = TEMPERATURE_RANGE
-        fraction = min(max((round(temperature) - low) / (high - low), 0), 1)
-        return ("gauge", "TEMP", fraction, f"{round(temperature)}°C", None)
+        fraction = min(max((temperature - low) / (high - low), 0), 1)
+        return ("gauge", "TEMP", fraction, f"{temperature}°C", None)
 
     # The system tile only changes on the hourly full refresh, so it shows whole hours
-    uptime = int(time.time() - psutil.boot_time())
-    days, hours = uptime // 86400, uptime % 86400 // 3600
-    return ("system", socket.gethostname(), ip_address(), f"{days}d {hours}h")
+    uptime = datetime.timedelta(seconds=time.time() - psutil.boot_time())
+    return ("system", socket.gethostname(), ip_address(), f"{uptime.days}d {uptime.seconds // 3600}h")
 
 
 def pill(draw, centre, text, text_font, colour):
@@ -172,7 +162,15 @@ def draw_tile(name, content):
         for segment in range(SEGMENTS):
             begin = 135 + segment * step + SEGMENT_GAP / 2
             end = begin + step - SEGMENT_GAP
-            colour = level_colour((segment + 0.5) / SEGMENTS) if segment < lit else inky.WHITE
+            position = (segment + 0.5) / SEGMENTS
+            if segment >= lit:
+                colour = inky.WHITE
+            elif position < 0.6:
+                colour = inky.GREEN
+            elif position < 0.85:
+                colour = inky.YELLOW
+            else:
+                colour = inky.RED
             draw.arc(outer, begin, end, fill=inky.BLACK, width=thickness)
             draw.arc(inner, begin + outline, end - outline, fill=colour, width=thickness - line * 2)
 
@@ -204,22 +202,6 @@ def draw_tile(name, content):
     screen.paste(tile, tile_position(name))
 
 
-def tiles_due(minute):
-    # Spread out, so no more than one tile refreshes in a minute
-    names = []
-    if minute % 5 == 1:
-        names.append("cpu")
-    if minute % 5 == 2:
-        names.append("memory")
-    if minute % 5 == 3:
-        names.append("temperature")
-    if minute % 5 == 4:
-        names.append("swap")
-    if minute == 30:
-        names.append("disk")
-    return names
-
-
 # What each tile is showing, so a tile only refreshes when it would look different
 shown = {}
 
@@ -235,10 +217,13 @@ while True:
         inky.set_image(screen)
         inky.reset_region()
         inky.speed = inky.NORMAL
-        start = time.monotonic()
         inky.show()
     else:
-        for name in tiles_due(now.minute):
+        due = [name for name, minute in CHECK_MINUTES.items() if now.minute % 5 == minute]
+        if now.minute == 30:
+            due.append("disk")
+
+        for name in due:
             content = tile_content(name)
             if content == shown[name]:
                 continue
