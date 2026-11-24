@@ -12,7 +12,7 @@ from PIL import Image, ImageDraw, ImageFont
 from inky.auto import auto
 
 print(
-    """partial_refresh.py - Refresh one part of the display at a time
+    """partial_refresh_buttons.py - Refresh one part of the display at a time
 
 This example demonstrates how to:
  1. draw a strip on the display for each button,
