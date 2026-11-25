@@ -17,7 +17,7 @@ jobs:
       TERM: xterm-256color
     strategy:
       matrix:
-        python: ['3.9', '3.10', '3.11', '3.12', '3.13']
+        python: ['3.10', '3.11', '3.12', '3.13']
 
     steps:
       - name: Checkout Code
@@ -34,7 +34,7 @@ jobs:
           uv run make pytest
 
       - name: Coverage
-        if: ${{ matrix.python == '3.9' }}
+        if: ${{ matrix.python == '3.10' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
